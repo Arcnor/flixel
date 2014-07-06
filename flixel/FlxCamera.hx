@@ -16,7 +16,6 @@ import flixel.system.layer.DrawStackItem;
 import flixel.system.layer.TileSheetExt;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
-import flixel.util.loaders.CachedGraphics;
 import openfl.display.Tilesheet;
 
 /**
@@ -999,7 +998,7 @@ class FlxCamera extends FlxBasic
 		{
 			if (width != buffer.width || height != buffer.height)
 			{
-				FlxG.bitmap.remove(screen.cachedGraphics.key);
+				FlxG.bitmap.remove(screen.graphic.key);
 				buffer = new BitmapData(width, height, true, 0);
 				screen.pixels = buffer;
 				screen.origin.set();

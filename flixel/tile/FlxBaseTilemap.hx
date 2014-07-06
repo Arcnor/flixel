@@ -27,6 +27,7 @@ class FlxBaseTilemap<Tile:FlxObject> extends FlxObject
 	 * Read-only variable, do NOT recommend changing after the map is loaded!
 	 */
 	public var totalTiles:Int = 0;
+	
 	/**
 	 * Set this to create your own image index remapper, so you can create your own tile layouts.
 	 * Mostly useful in combination with the auto-tilers.
@@ -168,6 +169,7 @@ class FlxBaseTilemap<Tile:FlxObject> extends FlxObject
 	 *                          Can override and customize per-tile-type collision behavior using setTileProperties().
 	 * @return  A reference to this instance of FlxTilemap, for chaining as usual :)
 	 */
+	// TODO: make it accept BitmapData, FlxGraphic, String or SpritesheetFrames
 	public function loadMap(MapData:FlxTilemapAsset, TileGraphic:FlxGraphicAsset, TileWidth:Int = 0, TileHeight:Int = 0, 
 		?AutoTile:FlxTilemapAutoTiling, StartingIndex:Int = 0, DrawIndex:Int = 1, CollideIndex:Int = 1):FlxBaseTilemap<Tile>
 	{
@@ -192,6 +194,8 @@ class FlxBaseTilemap<Tile:FlxObject> extends FlxObject
 
 		return this;
 	}
+	
+	// TODO: add "loadFrames" method
 	
 	private function loadMapData(MapData:FlxTilemapAsset)
 	{

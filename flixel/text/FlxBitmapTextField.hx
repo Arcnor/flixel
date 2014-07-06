@@ -223,7 +223,7 @@ class FlxBitmapTextField extends FlxSprite
 			var j = 0;
 			while (j < textLength)
 			{
-				var drawItem = camera.getDrawStackItem(cachedGraphics, true, _blendInt, antialiasing);
+				var drawItem = camera.getDrawStackItem(graphic, true, _blendInt, antialiasing);
 				
 				drawItem.position = j * 6;
 				
@@ -554,13 +554,13 @@ class FlxBitmapTextField extends FlxSprite
 		} 
 		else 
 		{
-			pixels.fillRect(cachedGraphics.bitmap.rect, _backgroundColor);
+			pixels.fillRect(graphic.bitmap.rect, _backgroundColor);
 		}
 		#else
 		_drawData.splice(0, _drawData.length);
 		_bgDrawData.splice(0, _bgDrawData.length);
 		
-		if (cachedGraphics == null)
+		if (graphic == null)
 		{
 			return;
 		}

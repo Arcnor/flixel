@@ -15,7 +15,7 @@ import flixel.system.FlxSplash;
 import flixel.system.frontEnds.VCRFrontEnd;
 import flixel.system.layer.TileSheetExt;
 import flixel.system.replay.FlxReplay;
-import flixel.text.pxText.PxBitmapFont;
+//import flixel.text.pxText.PxBitmapFont;
 import flixel.math.FlxAngle;
 import flixel.util.FlxColor;
 import flixel.math.FlxRandom;
@@ -594,7 +594,8 @@ class FlxGame extends Sprite
 	private function switchState():Void
 	{ 
 		// Basic reset stuff
-		PxBitmapFont.clearStorage();
+		// TODO: clear fonts
+	//	PxBitmapFont.clearStorage();
 		FlxG.bitmap.clearCache();
 		FlxG.cameras.reset();
 		FlxG.inputs.reset();

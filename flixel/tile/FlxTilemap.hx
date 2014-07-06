@@ -8,17 +8,20 @@ import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxObject;
+import flixel.graphics.FlxGraphic;
+import flixel.graphics.frames.FlxFrame;
+import flixel.graphics.frames.FlxFramesCollection;
+import flixel.graphics.frames.ImageFrame;
+import flixel.graphics.frames.SpritesheetFrames;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
+import flixel.system.FlxAssets.FlxTilemapAsset;
 import flixel.system.layer.DrawStackItem;
-import flixel.system.layer.frames.FlxSpriteFrames;
-import flixel.system.layer.Region;
+import flixel.tile.FlxBaseTilemap.FlxTilemapAutoTiling;
 import flixel.util.FlxArrayUtil;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxSpriteUtil;
-import flixel.util.loaders.CachedGraphics;
-import flixel.util.loaders.TextureRegion;
 
 @:bitmap("assets/images/tile/autotiles.png")
 class GraphicAuto extends BitmapData {}
@@ -53,9 +56,8 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	/**
 	 * Rendering variables.
 	 */
-	public var region(default, null):Region;
-	public var framesData(default, null):FlxSpriteFrames;
-	public var cachedGraphics(default, set):CachedGraphics;
+	public var frames(default, set):FlxFramesCollection;
+	public var graphic(default, set):FlxGraphic;
 	
 	/**
 	 * Rendering helper, minimize new object instantiation on repetitive methods.
@@ -73,7 +75,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	 * Internal representation of rectangles, one for each tile in the entire tilemap, used to speed up drawing.
 	 */
 	#if FLX_RENDER_BLIT
-	private var _rects:Array<Rectangle>;
+	private var _tileFrames:Array<FlxFrame>;
 	#end
 	/**
 	 * Internal, the width of a single tile.
@@ -174,7 +176,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		}
 		
 		#if FLX_RENDER_BLIT
-		_rects = null;
+		_tileFrames = null;
 		#if !FLX_NO_DEBUG
 		_debugRect = null;
 		_debugTileNotSolid = null;
@@ -186,9 +188,8 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		_rectIDs = null;
 		#end
 		
-		framesData = null;
-		cachedGraphics = null;
-		region = null;
+		frames = null;
+		graphic = null;
 		
 		// need to destroy FlxCallbackPoints
 		scale = FlxDestroyUtil.destroy(scale);
@@ -198,15 +199,69 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		super.destroy();
 	}
 	
+	// TODO: add frames setter
+	private function set_frames(value:FlxFramesCollection):FlxFramesCollection
+	{
+		_tileWidth = Std.int(value.frames[0].sourceSize.x);
+		_tileHeight = Std.int(value.frames[0].sourceSize.y);
+		graphic = value.parent;
+		return frames = value;
+	}
+	
+	/**
+	 * Load the tilemap with string data and a tile graphic.
+	 * 
+	 * @param   MapData         A string of comma and line-return delineated indices indicating what order the tiles should go in,
+	 *                          or an Array<Int>. In the latter case YOU MUST SET widthInTiles and heightInTyles manually BEFORE CALLING loadMap()!
+	 * @param   TileGraphic     All the tiles you want to use, arranged in a strip corresponding to the numbers in MapData.
+	 * @param   TileWidth       The width of your tiles (e.g. 8) - defaults to height of the tile graphic if unspecified.
+	 * @param   TileHeight      The height of your tiles (e.g. 8) - defaults to width if unspecified.
+	 * @param   AutoTile        Whether to load the map using an automatic tile placement algorithm (requires 16 tiles!).
+	 *                          Setting this to either AUTO or ALT will override any values you put for StartingIndex, DrawIndex, or CollideIndex.
+	 * @param   StartingIndex   Used to sort of insert empty tiles in front of the provided graphic.
+	 *                          Default is 0, usually safest ot leave it at that.  Ignored if AutoTile is set.
+	 * @param   DrawIndex       Initializes all tile objects equal to and after this index as visible.
+	 *                          Default value is 1. Ignored if AutoTile is set.
+	 * @param   CollideIndex    Initializes all tile objects equal to and after this index as allowCollisions = ANY.
+	 *                          Default value is 1.  Ignored if AutoTile is set.  
+	 *                          Can override and customize per-tile-type collision behavior using setTileProperties().
+	 * @return  A reference to this instance of FlxTilemap, for chaining as usual :)
+	 */
+	// TODO: make it accept BitmapData, FlxGraphic, String or SpritesheetFrames
+	public function loadMapFrames(	MapData:FlxTilemapAsset, TileFrames:SpritesheetFrames, ?AutoTile:FlxTilemapAutoTiling, 
+									StartingIndex:Int = 0, DrawIndex:Int = 1, CollideIndex:Int = 1):FlxTilemap
+	{
+		auto = (AutoTile == null) ? OFF : AutoTile;
+		_startingIndex = (StartingIndex <= 0) ? 0 : StartingIndex;
+
+		if (auto != OFF)
+		{
+			_startingIndex = 1;
+			DrawIndex = 1;
+			CollideIndex = 1;
+		}
+		
+		loadMapData(MapData);
+		applyAutoTile(DrawIndex, CollideIndex);
+		applyCustomRemap();
+		randomizeIndices();
+		frames = TileFrames;
+		initTileObjects(DrawIndex, CollideIndex);
+		computeDimensions();
+		updateMap();
+		return this;
+	}
+	
+	// TODO: rework this, rename this and document this
 	override private function cacheGraphics(TileWidth:Int, TileHeight:Int, TileGraphic:Dynamic):Void 
 	{
+		var graphic:FlxGraphic = FlxG.bitmap.add(TileGraphic);
 		// Figure out the size of the tiles
-		cachedGraphics = FlxG.bitmap.add(TileGraphic);
 		_tileWidth = TileWidth;
 		
 		if (_tileWidth <= 0)
 		{
-			_tileWidth = cachedGraphics.bitmap.height;
+			_tileWidth = graphic.height;
 		}
 		
 		_tileHeight = TileHeight;
@@ -216,34 +271,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 			_tileHeight = _tileWidth;
 		}
 		
-		if (!Std.is(TileGraphic, TextureRegion))
-		{
-			region = new Region(0, 0, _tileWidth, _tileHeight);
-			region.width = Std.int(cachedGraphics.bitmap.width / _tileWidth) * _tileWidth;
-			region.height = Std.int(cachedGraphics.bitmap.height / _tileHeight) * _tileHeight;
-		}
-		else
-		{
-			var spriteRegion:TextureRegion = cast TileGraphic;
-			region = spriteRegion.region.clone();
-			if (region.tileWidth > 0)
-			{
-				_tileWidth = region.tileWidth;
-			}
-			else
-			{
-				region.tileWidth = _tileWidth;
-			}
-			
-			if (region.tileHeight > 0)
-			{
-				_tileHeight = region.tileWidth;
-			}
-			else
-			{
-				region.tileHeight = _tileHeight;
-			}
-		}
+		frames = SpritesheetFrames.fromGraphic(graphic, new Point(_tileWidth, _tileHeight));
 	}
 	
 	override private function initTileObjects(DrawIndex:Int, CollideIndex:Int):Void 
@@ -251,7 +279,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		// Create some tile objects that we'll use for overlap checks (one for each tile)
 		_tileObjects = new Array<FlxTile>();
 		
-		var length:Int = region.numTiles;
+		var length:Int = frames.numFrames;
 		length += _startingIndex;
 		
 		for (i in 0...length)
@@ -275,7 +303,6 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		// Then go through and create the actual map
 		width = widthInTiles * _scaledTileWidth;
 		height = heightInTiles * _scaledTileHeight;
-		
 	}
 	
 	override private function updateMap():Void 
@@ -285,8 +312,8 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		_debugRect = new Rectangle(0, 0, _tileWidth, _tileHeight);
 		#end
 		
-		_rects = new Array<Rectangle>();
-		FlxArrayUtil.setLength(_rects, totalTiles);
+		_tileFrames = new Array<FlxFrame>();
+		FlxArrayUtil.setLength(_tileFrames, totalTiles);
 		var i:Int = 0;
 		while (i < totalTiles)
 		{
@@ -420,7 +447,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	override public function draw():Void
 	{
 		// don't try to render a tilemap that isn't loaded yet
-		if (cachedGraphics == null)
+		if (graphic == null)
 		{
 			return;
 		}
@@ -790,11 +817,10 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	 * Use this method for creating tileSheet for FlxTilemap. Must be called after loadMap() method.
 	 * If you forget to call it then you will not see this FlxTilemap on c++ target
 	 */
-	public function updateFrameData():Void
+	public function updateTiles():Void
 	{
-		if (cachedGraphics != null && _tileWidth >= 1 && _tileHeight >= 1)
+		if (graphic != null && _tileWidth >= 1 && _tileHeight >= 1)
 		{
-			framesData = cachedGraphics.tilesheet.getSpriteSheetFrames(region, new Point(0, 0));
 			#if FLX_RENDER_TILE
 			_rectIDs = new Array<Int>();
 			FlxArrayUtil.setLength(_rectIDs, totalTiles);
@@ -821,48 +847,23 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	{
 		var rowIndex:Int = X + (Y * widthInTiles);
 		
-		var rect:Rectangle = null;
-		
-		#if FLX_RENDER_BLIT
-		rect = _rects[rowIndex];
-		#else
-		
 		var tile:FlxTile = _tileObjects[_data[rowIndex]];
+		var tileSprite:FlxSprite = new FlxSprite();
+		tileSprite.x = X * _tileWidth + x;
+		tileSprite.y = Y * _tileHeight + y;
 		
-		if ((tile == null) || !tile.visible)
+		if ((tile != null) && !tile.visible)
 		{
-			// Nothing to do here: rect object should stay null.
+			var image:ImageFrame = ImageFrame.fromFrame(tile.frame);
+			tileSprite.frames = image;
 		}
 		else
 		{
-			var rx:Int = (_data[rowIndex] - _startingIndex) * (_tileWidth + region.spacingX);
-			var ry:Int = 0;
-			
-			if (rx >= region.width)
-			{
-				ry = Std.int(rx / region.width) * (_tileHeight + region.spacingY);
-				rx %= region.width;
-			}
-			
-			rect = new Rectangle(rx + region.startX, ry + region.startY, _tileWidth, _tileHeight);
+			tileSprite.makeGraphic(_tileWidth, _tileHeight, FlxColor.TRANSPARENT, true);
 		}
-		#end
 		
-		// TODO: make it better for native targets
-		var pt = new Point(0, 0);
-		var tileSprite:FlxSprite = new FlxSprite();
-		tileSprite.makeGraphic(_tileWidth, _tileHeight, FlxColor.TRANSPARENT, true);
-		tileSprite.x = X * _tileWidth + x;
-		tileSprite.y = Y * _tileHeight + y;
 		tileSprite.scale.copyFrom(scale);
-		
-		if (rect != null) 
-		{
-			tileSprite.pixels.copyPixels(cachedGraphics.bitmap, rect, pt);
-		}
-		
 		tileSprite.dirty = true;
-		tileSprite.updateFrameData();
 
 		if (NewTile >= 0) 
 		{
@@ -950,6 +951,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		var column:Int;
 		var columnIndex:Int;
 		var tile:FlxTile;
+		var frame:FlxFrame;
 		
 		#if !FLX_NO_DEBUG
 		var debugTile:BitmapData;
@@ -964,17 +966,16 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 			while (column < screenColumns)
 			{
 				#if FLX_RENDER_BLIT
-				_flashRect = _rects[columnIndex];
+				tile = _tileObjects[_data[columnIndex]];
 				
-				if (_flashRect != null)
+				if (tile != null)
 				{
-					Buffer.pixels.copyPixels(cachedGraphics.bitmap, _flashRect, _flashPoint, null, null, true);
+					frame = tile.frame;
+					Buffer.pixels.copyPixels(frame.getBitmap(), frame.rect, _flashPoint, null, null, true);
 					
 					#if !FLX_NO_DEBUG
 					if (FlxG.debugger.drawDebug && !ignoreDrawDebug) 
 					{
-						tile = _tileObjects[_data[columnIndex]];
-						
 						if (tile != null)
 						{
 							if (tile.allowCollisions <= FlxObject.NONE)
@@ -1009,7 +1010,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 					_point.x = isPixelPerfectRender(Camera) ? Math.floor(drawX) : drawX;
 					_point.y = isPixelPerfectRender(Camera) ? Math.floor(drawY) : drawY;
 					
-					var drawItem:DrawStackItem = Camera.getDrawStackItem(cachedGraphics, false, 0);
+					var drawItem:DrawStackItem = Camera.getDrawStackItem(graphic, false, 0);
 					drawItem.setDrawData(_point, tileID, hackScaleX, 0, 0, hackScaleY);
 				}
 				#end
@@ -1071,7 +1072,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		if ((tile == null) || !tile.visible)
 		{
 			#if FLX_RENDER_BLIT
-			_rects[Index] = null;
+			_tileFrames[Index] = null;
 			#else
 			_rectIDs[Index] = -1;
 			#end
@@ -1080,15 +1081,9 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		}
 		
 		#if FLX_RENDER_BLIT
-		var rx:Int = (_data[Index] - _startingIndex) * (_tileWidth + region.spacingX);
-		var ry:Int = 0;
-		
-		if (rx >= region.width)
-		{
-			ry = Std.int(rx / region.width) * (_tileHeight + region.spacingY);
-			rx %= region.width;
-		}
-		_rects[Index] = (new Rectangle(rx + region.startX, ry + region.startY, _tileWidth, _tileHeight));
+		_tileFrames[Index] = frames.frames[_data[Index] - _startingIndex];
+		// TODO: remove this line later
+		// (new Rectangle(rx + region.startX, ry + region.startY, _tileWidth, _tileHeight));
 		#else
 		_rectIDs[Index] = framesData.frames[_data[Index] - _startingIndex].tileID;
 		#end
@@ -1127,13 +1122,13 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	}
 	
 	/**
-	 * Internal function for setting cachedGraphics property for this object. 
-	 * It changes cachedGraphics' useCount also for better memory tracking.
+	 * Internal function for setting graphic property for this object. 
+	 * It changes graphic' useCount also for better memory tracking.
 	 */
-	private function set_cachedGraphics(Value:CachedGraphics):CachedGraphics
+	private function set_graphic(Value:FlxGraphic):FlxGraphic
 	{
 		//If graphics are changing
-		if (cachedGraphics != Value)
+		if (graphic != Value)
 		{
 			//If new graphic is not null, increase its use count
 			if (Value != null)
@@ -1141,13 +1136,13 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 				Value.useCount++;
 			}
 			//If old graphic is not null, decrease its use count
-			if (cachedGraphics != null)
+			if (graphic != null)
 			{
-				cachedGraphics.useCount--;
+				graphic.useCount--;
 			}
 		}
 		
-		return cachedGraphics = Value;
+		return graphic = Value;
 	}
 	
 	override private function set_pixelPerfectRender(Value:Bool):Bool 

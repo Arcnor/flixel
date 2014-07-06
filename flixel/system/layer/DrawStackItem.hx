@@ -1,12 +1,12 @@
 package flixel.system.layer;
 
+import flixel.graphics.FlxGraphic;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
-import flixel.util.loaders.CachedGraphics;
 
 class DrawStackItem
 {
-	public var graphics:CachedGraphics;
+	public var graphics:FlxGraphic;
 	public var drawData:Array<Float> = [];
 	public var position:Int = 0;
 	public var next:DrawStackItem;

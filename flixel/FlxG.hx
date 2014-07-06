@@ -22,7 +22,7 @@ import flixel.system.frontEnds.VCRFrontEnd;
 import flixel.system.frontEnds.WatchFrontEnd;
 import flixel.system.scaleModes.BaseScaleMode;
 import flixel.system.scaleModes.RatioScaleMode;
-import flixel.text.pxText.PxBitmapFont;
+//import flixel.text.pxText.PxBitmapFont;
 import flixel.util.FlxCollision;
 import flixel.math.FlxMath;
 import flixel.math.FlxRandom;
@@ -476,7 +476,8 @@ class FlxG
 	 */
 	private static function reset():Void
 	{
-		PxBitmapFont.clearStorage();
+		// TODO: clear bitmap fonts
+		//PxBitmapFont.clearStorage();
 		FlxRandom.resetGlobalSeed();
 		
 		bitmap.clearCache();

@@ -7,8 +7,8 @@ import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.graphics.FlxGraphic;
 import flixel.system.layer.DrawStackItem;
-import flixel.system.layer.Region;
 import flixel.ui.FlxBar.FlxBarFillDirection;
 import flixel.math.FlxAngle;
 import flixel.util.FlxColor;
@@ -16,7 +16,6 @@ import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxGradient;
 import flixel.math.FlxPoint;
 import flixel.util.FlxStringUtil;
-import flixel.util.loaders.CachedGraphics;
 
 /**
  * FlxBar is a quick and easy way to create a graphical bar which can
@@ -540,8 +539,8 @@ class FlxBar extends FlxSprite
 	 */
 	public function createImageBar(?empty:Dynamic, ?fill:Dynamic, emptyBackground:Int = 0xff000000, fillBackground:Int = 0xff00ff00):Void
 	{
-		var emptyGraphics:CachedGraphics = FlxG.bitmap.add(empty);
-		var filledGraphics:CachedGraphics = FlxG.bitmap.add(fill);
+		var emptyGraphics:FlxGraphic = FlxG.bitmap.add(empty);
+		var filledGraphics:FlxGraphic = FlxG.bitmap.add(fill);
 		
 		var emptyBitmapData:BitmapData = (emptyGraphics != null) ? emptyGraphics.bitmap : null; 
 		var fillBitmapData:BitmapData = (filledGraphics != null) ? filledGraphics.bitmap : null;

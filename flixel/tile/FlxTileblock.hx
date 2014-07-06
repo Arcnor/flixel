@@ -3,6 +3,7 @@ package flixel.tile;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.graphics.frames.SpritesheetFrames;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.layer.DrawStackItem;
 import flixel.math.FlxAngle;
@@ -32,6 +33,12 @@ class FlxTileblock extends FlxSprite
 		moves = false;
 	}
 	
+	// TODO: implement this
+	public function loadFrames(TileFrames:SpritesheetFrames, Empties:Int = 0):FlxTileblock
+	{
+		return this;
+	}
+	
 	/**
 	 * Fills the block with a randomly arranged selection of graphics from the image provided.
 	 * 
@@ -51,7 +58,7 @@ class FlxTileblock extends FlxSprite
 		var sprite:FlxSprite = new FlxSprite().loadGraphic(TileGraphic, true, TileWidth, TileHeight);
 		var spriteWidth:Int = Std.int(sprite.width);
 		var spriteHeight:Int = Std.int(sprite.height);
-		var total:Int = sprite.frames + Empties;
+		var total:Int = sprite.numFrames + Empties;
 		
 		// Then prep the "canvas" as it were (just doublechecking that the size is on tile boundaries)
 		var regen:Bool = false;
