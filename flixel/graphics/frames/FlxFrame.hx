@@ -58,8 +58,6 @@ class FlxFrame implements IFlxDestroyable
 	 */
 	public var type(default, null):FrameType;
 	
-	public var rect:Rectangle;
-	
 	/**
 	 * Frame bitmapDatas.
 	 * Required for blit render mode and pixel perfect collision detection.
@@ -78,8 +76,6 @@ class FlxFrame implements IFlxDestroyable
 		offset = FlxPoint.get();
 		center = FlxPoint.get();
 		halfSize = FlxPoint.get();
-		
-		rect = new Rectangle(0, 0, 0, 0);
 		
 		type = FrameType.REGULAR;
 	}
@@ -128,7 +124,7 @@ class FlxFrame implements IFlxDestroyable
 		
 		if (result == null)
 		{
-			result = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y));
+			result = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
 		}
 		
 		FlxFrame.POINT.x = offset.x;
@@ -223,7 +219,6 @@ class FlxFrame implements IFlxDestroyable
 		name = null;
 		frame = null;
 		parent = null;
-		rect = null;
 		sourceSize = FlxDestroyUtil.put(sourceSize);
 		offset = FlxDestroyUtil.put(offset);
 		center = FlxDestroyUtil.put(center);

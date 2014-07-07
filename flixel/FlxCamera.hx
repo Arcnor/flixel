@@ -8,6 +8,7 @@ import flash.geom.ColorTransform;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flixel.FlxCamera.FlxCameraShakeDirection;
+import flixel.graphics.FlxGraphic;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRandom;
@@ -293,7 +294,7 @@ class FlxCamera extends FlxBasic
 	private static var _storageHead:DrawStackItem;
 	
 	@:noCompletion
-	public function getDrawStackItem(ObjGraphics:CachedGraphics, ObjColored:Bool, ObjBlending:Int, ObjAntialiasing:Bool = false):DrawStackItem
+	public function getDrawStackItem(ObjGraphics:FlxGraphic, ObjColored:Bool, ObjBlending:Int, ObjAntialiasing:Bool = false):DrawStackItem
 	{
 		var itemToReturn:DrawStackItem = null;
 		if (_currentStackItem.initialized == false)

@@ -130,8 +130,6 @@ class FlxFramesCollection implements IFlxDestroyable
 		frame.frame = size;
 		frame.sourceSize.set(size.width, size.height);
 		frame.halfSize.set(0.5 * size.width, 0.5 * size.height);
-		frame.rect.width = frame.sourceSize.x;
-		frame.rect.height = frame.sourceSize.y;
 		frames.push(frame);
 		return frame;
 	}
@@ -153,8 +151,6 @@ class FlxFramesCollection implements IFlxDestroyable
 		frame.halfSize.set(0.5 * region.width, 0.5 * region.height);
 		frame.offset.set(0, 0);
 		frame.center.set(0.5 * region.width, 0.5 * region.height);
-		frame.rect.width = frame.sourceSize.x;
-		frame.rect.height = frame.sourceSize.y;
 		frames.push(frame);
 		return frame;
 	}
@@ -186,9 +182,6 @@ class FlxFramesCollection implements IFlxDestroyable
 		texFrame.offset.set(offset.x, offset.y);
 		texFrame.frame = frame;
 		texFrame.angle = angle;
-		
-		texFrame.rect.width = texFrame.sourceSize.x;
-		texFrame.rect.height = texFrame.sourceSize.y;
 		
 		sourceSize.put();
 		offset.put();

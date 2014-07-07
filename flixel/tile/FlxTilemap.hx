@@ -72,12 +72,6 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	 */
 	private var _buffers:Array<FlxTilemapBuffer>;
 	/**
-	 * Internal representation of rectangles, one for each tile in the entire tilemap, used to speed up drawing.
-	 */
-	#if FLX_RENDER_BLIT
-	private var _tileFrames:Array<FlxFrame>;
-	#end
-	/**
 	 * Internal, the width of a single tile.
 	 */
 	private var _tileWidth:Int = 0;
@@ -129,6 +123,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		
 		_buffers = new Array<FlxTilemapBuffer>();
 		_flashPoint = new Point();
+		_flashRect = new Rectangle();
 		
 		#if FLX_RENDER_TILE
 		_helperPoint = new Point();
@@ -176,7 +171,6 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		}
 		
 		#if FLX_RENDER_BLIT
-		_tileFrames = null;
 		#if !FLX_NO_DEBUG
 		_debugRect = null;
 		_debugTileNotSolid = null;
@@ -204,6 +198,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	{
 		_tileWidth = Std.int(value.frames[0].sourceSize.x);
 		_tileHeight = Std.int(value.frames[0].sourceSize.y);
+		_flashRect.setTo(0, 0, _tileWidth, _tileHeight);
 		graphic = value.parent;
 		return frames = value;
 	}
@@ -312,12 +307,9 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		_debugRect = new Rectangle(0, 0, _tileWidth, _tileHeight);
 		#end
 		
-		_tileFrames = new Array<FlxFrame>();
-		FlxArrayUtil.setLength(_tileFrames, totalTiles);
-		var i:Int = 0;
-		while (i < totalTiles)
+		for (i in 0...totalTiles)
 		{
-			updateTile(i++);
+			updateTile(i);
 		}
 		#else
 		updateFrameData();
@@ -968,10 +960,10 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 				#if FLX_RENDER_BLIT
 				tile = _tileObjects[_data[columnIndex]];
 				
-				if (tile != null)
+				if (tile != null && tile.visible)
 				{
 					frame = tile.frame;
-					Buffer.pixels.copyPixels(frame.getBitmap(), frame.rect, _flashPoint, null, null, true);
+					Buffer.pixels.copyPixels(frame.getBitmap(), _flashRect, _flashPoint, null, null, true);
 					
 					#if !FLX_NO_DEBUG
 					if (FlxG.debugger.drawDebug && !ignoreDrawDebug) 
@@ -1069,24 +1061,13 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	{
 		var tile:FlxTile = _tileObjects[_data[Index]];
 		
+		// TODO: use this check instead of _tileID != -1 or something like that in other places aswell
 		if ((tile == null) || !tile.visible)
 		{
-			#if FLX_RENDER_BLIT
-			_tileFrames[Index] = null;
-			#else
-			_rectIDs[Index] = -1;
-			#end
-			
 			return;
 		}
 		
-		#if FLX_RENDER_BLIT
-		_tileFrames[Index] = frames.frames[_data[Index] - _startingIndex];
-		// TODO: remove this line later
-		// (new Rectangle(rx + region.startX, ry + region.startY, _tileWidth, _tileHeight));
-		#else
-		_rectIDs[Index] = framesData.frames[_data[Index] - _startingIndex].tileID;
-		#end
+		tile.frame = frames.frames[_data[Index] - _startingIndex];
 	}
 	
 	private inline function createBuffer(camera:FlxCamera):FlxTilemapBuffer

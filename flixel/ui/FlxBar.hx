@@ -8,6 +8,8 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.FlxGraphic;
+import flixel.graphics.frames.FlxFrame;
+import flixel.graphics.frames.FlxFramesCollection;
 import flixel.system.layer.DrawStackItem;
 import flixel.ui.FlxBar.FlxBarFillDirection;
 import flixel.math.FlxAngle;
@@ -69,8 +71,8 @@ class FlxBar extends FlxSprite
 	private var _emptyBarFrameID:Int;
 	private var _filledBarFrames:Array<Float>;
 	
-	private var _cachedFrontGraphics:CachedGraphics;
-	private var _frontRegion:Region;
+	private var _frontGraphic:FlxGraphic;
+	private var _frontFrames:FlxFramesCollection;
 	#else
 	private var _canvas:BitmapData;
 	#end
@@ -1024,18 +1026,18 @@ class FlxBar extends FlxSprite
 	#end
 	
 	#if FLX_RENDER_TILE
-	private function setCachedFrontGraphics(value:CachedGraphics):Void
+	private function setFrontGraphic(value:FlxGraphic):Void
 	{
-		if (_cachedFrontGraphics != null && _cachedFrontGraphics != value)
+		if (_frontGraphic != null && _frontGraphic != value)
 		{
-			_cachedFrontGraphics.useCount--;
+			_frontGraphic.useCount--;
 		}
 		
-		if (_cachedFrontGraphics != value && value != null)
+		if (_frontGraphic != value && value != null)
 		{
 			value.useCount++;
 		}
-		_cachedFrontGraphics = value;
+		_frontGraphic = value;
 	}
 	#end
 	
