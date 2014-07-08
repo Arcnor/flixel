@@ -138,8 +138,6 @@ class FlxBar extends FlxSprite
 		this.width = frameWidth = width;
 		this.height = frameHeight = height;
 		origin.set(frameWidth * 0.5, frameHeight * 0.5);
-		_halfWidth = 0.5 * frameWidth;
-		_halfHeight = 0.5 * frameHeight;
 		#end
 		
 		_filledBarPoint = new Point(0, 0);
@@ -408,15 +406,9 @@ class FlxBar extends FlxSprite
 		_filledBarRect = new Rectangle(0, 0, _filledBar.width, _filledBar.height);
 		_emptyBarRect = new Rectangle(0, 0, _emptyBar.width, _emptyBar.height);
 		#else
-		cachedGraphics = FlxG.bitmap.get(emptyKey);
-		setCachedFrontGraphics(FlxG.bitmap.get(filledKey));
+		graphic = FlxG.bitmap.get(emptyKey);
+		setFrontGraphic(FlxG.bitmap.get(filledKey));
 		
-		region = new Region();
-		region.width = cachedGraphics.bitmap.width;
-		region.height = cachedGraphics.bitmap.height;
-		_frontRegion = new Region();
-		_frontRegion.width = _cachedFrontGraphics.bitmap.width;
-		_frontRegion.height = _cachedFrontGraphics.bitmap.height;
 		updateFrameData();
 		#end
 	}
@@ -516,15 +508,9 @@ class FlxBar extends FlxSprite
 		_emptyBarRect = new Rectangle(0, 0, _emptyBar.width, _emptyBar.height);
 		_filledBarRect = new Rectangle(0, 0, _filledBar.width, _filledBar.height);
 		#else
-		cachedGraphics = FlxG.bitmap.get(emptyKey);
-		setCachedFrontGraphics(FlxG.bitmap.get(filledKey));
+		graphic = FlxG.bitmap.get(emptyKey);
+		setFrontGraphic(FlxG.bitmap.get(filledKey));
 		
-		region = new Region();
-		region.width = cachedGraphics.bitmap.width;
-		region.height = cachedGraphics.bitmap.height;
-		_frontRegion = new Region();
-		_frontRegion.width = _cachedFrontGraphics.bitmap.width;
-		_frontRegion.height = _cachedFrontGraphics.bitmap.height;
 		updateFrameData();
 		#end
 	}
@@ -559,7 +545,7 @@ class FlxBar extends FlxSprite
 			}
 			else if (Std.is(empty, BitmapData))
 			{
-				emptyKey = FlxG.bitmap.getCacheKeyFor(empty);
+				emptyKey = FlxG.bitmap.findKeyForBitmap(empty);
 				if (emptyKey == null)
 				{
 					emptyKey = FlxG.bitmap.getUniqueKey("bar_empty");
@@ -579,7 +565,7 @@ class FlxBar extends FlxSprite
 			}
 			else if (Std.is(fill, BitmapData))
 			{
-				filledKey = FlxG.bitmap.getCacheKeyFor(fill);
+				filledKey = FlxG.bitmap.findKeyForBitmap(fill);
 				if (filledKey == null)
 				{
 					filledKey = FlxG.bitmap.getUniqueKey("bar_filled");
@@ -693,15 +679,9 @@ class FlxBar extends FlxSprite
 		#if FLX_RENDER_BLIT
 		_canvas = new BitmapData(_barWidth, _barHeight, true, 0x0);
 		#else
-		cachedGraphics = FlxG.bitmap.get(emptyKey);
-		setCachedFrontGraphics(FlxG.bitmap.get(filledKey));
+		graphic = FlxG.bitmap.get(emptyKey);
+		setFrontGraphic(FlxG.bitmap.get(filledKey));
 		
-		region = new Region();
-		region.width = cachedGraphics.bitmap.width;
-		region.height = cachedGraphics.bitmap.height;
-		_frontRegion = new Region();
-		_frontRegion.width = _cachedFrontGraphics.bitmap.width;
-		_frontRegion.height = _cachedFrontGraphics.bitmap.height;
 		updateFrameData();
 		#end
 		
@@ -852,7 +832,7 @@ class FlxBar extends FlxSprite
 	#if FLX_RENDER_TILE
 	override public function draw():Void 
 	{
-		if (_cachedFrontGraphics == null || cachedGraphics == null)
+		if (_frontGraphic == null || graphic == null)
 		{
 			return;
 		}
@@ -866,7 +846,7 @@ class FlxBar extends FlxSprite
 			{
 				continue;
 			}
-			drawItem = camera.getDrawStackItem(cachedGraphics, isColored, _blendInt, antialiasing);
+			drawItem = camera.getDrawStackItem(graphic, isColored, _blendInt, antialiasing);
 			
 			_point.x = x - (camera.scroll.x * scrollFactor.x) - (offset.x) + origin.x;
 			_point.y = y - (camera.scroll.y * scrollFactor.y) - (offset.y) + origin.y;
@@ -906,7 +886,7 @@ class FlxBar extends FlxSprite
 			drawItem.setDrawData(_point, _emptyBarFrameID, csx, -ssx, ssy, csy, isColored, color, alpha * camera.alpha);
 			
 			// Draw filled bar
-			drawItem = camera.getDrawStackItem(_cachedFrontGraphics, isColored, _blendInt, antialiasing);
+			drawItem = camera.getDrawStackItem(_frontGraphic, isColored, _blendInt, antialiasing);
 			
 			if (percentFrame >= 0)
 			{
@@ -949,15 +929,12 @@ class FlxBar extends FlxSprite
 	#if FLX_RENDER_TILE
 	override public function updateFrameData():Void 
 	{	
-		if (cachedGraphics == null || _cachedFrontGraphics == null)
+		if (graphic == null || _frontGraphic == null)
 		{
 			return;
 		}
 		
-		_halfWidth = 0.5 * _barWidth;
-		_halfHeight = 0.5 * _barHeight;
-		
-		_emptyBarFrameID = cachedGraphics.tilesheet.addTileRect(new Rectangle(0, 0, _barWidth, _barHeight), new Point(0.5 * _barWidth, 0.5 * _barHeight));
+		_emptyBarFrameID = graphic.tilesheet.addTileRect(new Rectangle(0, 0, _barWidth, _barHeight), new Point(0.5 * _barWidth, 0.5 * _barHeight));
 		_filledBarFrames = [];
 		
 		var frameRelativePosition:Float;
@@ -976,24 +953,24 @@ class FlxBar extends FlxSprite
 				case LEFT_TO_RIGHT:
 					frameWidth = _barWidth * i / 100;
 					frameHeight = _barHeight;
-					_filledBarFrames.push( -_halfWidth + frameWidth * 0.5);
+					_filledBarFrames.push(0.5 * (frameWidth -_barWidth));
 					
 				case TOP_TO_BOTTOM:
 					frameWidth = _barWidth;
 					frameHeight = _barHeight * i / 100;
-					_filledBarFrames.push(-_halfHeight + frameHeight * 0.5);
+					_filledBarFrames.push(0.5 * (frameHeight - _barHeight));
 				
 				case BOTTOM_TO_TOP:
 					frameWidth = _barWidth;
 					frameHeight = _barHeight * i / 100;
 					frameY += (_barHeight - frameHeight);
-					_filledBarFrames.push(_halfHeight - 0.5 * frameHeight);
+					_filledBarFrames.push(0.5 * (_barHeight - frameHeight));
 					
 				case RIGHT_TO_LEFT:
 					frameWidth = _barWidth * i / 100;
 					frameHeight = _barHeight;
 					frameX += (_barWidth - frameWidth);
-					_filledBarFrames.push(_halfWidth - 0.5 * frameWidth);
+					_filledBarFrames.push(0.5 * (_barWidth - frameWidth));
 					
 				case HORIZONTAL_INSIDE_OUT:
 					frameWidth = _barWidth * i / 100;
@@ -1020,7 +997,7 @@ class FlxBar extends FlxSprite
 					_filledBarFrames.push(0);
 			}
 			
-			_filledBarFrames.push(_cachedFrontGraphics.tilesheet.addTileRect(new Rectangle(frameX, frameY, frameWidth, frameHeight), new Point(0.5 * frameWidth, 0.5 * frameHeight)));
+			_filledBarFrames.push(_frontGraphic.tilesheet.addTileRect(new Rectangle(frameX, frameY, frameWidth, frameHeight), new Point(0.5 * frameWidth, 0.5 * frameHeight)));
 		}
 	}
 	#end

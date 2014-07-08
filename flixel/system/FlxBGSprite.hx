@@ -31,7 +31,7 @@ class FlxBGSprite extends FlxSprite
 				continue;
 			}
 			
-			drawItem = camera.getDrawStackItem(cachedGraphics, isColored, _blendInt);
+			drawItem = camera.getDrawStackItem(graphic, isColored, _blendInt);
 			
 			_point.x = camera.width * 0.5;
 			_point.y = camera.height * 0.5;

@@ -56,7 +56,7 @@ class BitmapFrontEnd
 		if (_whitePixel == null)
 		{
 			var bd:BitmapData = new BitmapData(2, 2, true, FlxColor.WHITE);
-			var graphic:FlxGraphic = new FlxGraphic("whitePixel", bd, true);
+			var graphic:FlxGraphic = FlxG.bitmap.add(bd, true, "whitePixel");
 			graphic.persist = true;
 			_whitePixel = ImageFrame.fromRectangle(graphic, new Rectangle(0, 0, 2, 2)).frame;
 			// TODO: make changes to classes which use _whitePixel (FlxBitmapTextField)
@@ -170,6 +170,7 @@ class BitmapFrontEnd
 	 * @param	Key				Force the cache to use a specific Key to index the bitmap.
 	 * @return	The FlxGraphic we just created.
 	 */
+	// TODO: maybe add optional arguments for persist and destroyOnNoUse here and in other places (for frame generation, for example)
 	public function add(Graphic:Dynamic, Unique:Bool = false, ?Key:String):FlxGraphic
 	{
 		// TODO: make it accept only String, BitmapData and FlxGraphic

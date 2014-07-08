@@ -193,12 +193,16 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		super.destroy();
 	}
 	
-	// TODO: add frames setter
+	// TODO: document it
+	// TODO: make it update/recreate tile objects graphics
 	private function set_frames(value:FlxFramesCollection):FlxFramesCollection
 	{
-		_tileWidth = Std.int(value.frames[0].sourceSize.x);
-		_tileHeight = Std.int(value.frames[0].sourceSize.y);
-		_flashRect.setTo(0, 0, _tileWidth, _tileHeight);
+		if (value != null)
+		{
+			_tileWidth = Std.int(value.frames[0].sourceSize.x);
+			_tileHeight = Std.int(value.frames[0].sourceSize.y);
+			_flashRect.setTo(0, 0, _tileWidth, _tileHeight);
+		}
 		graphic = value.parent;
 		return frames = value;
 	}

@@ -389,7 +389,7 @@ class FlxGraphic
 			#if (FLX_RENDER_TILE && !flash && !nme)
 			if (_tilesheet != null)
 			{
-				_tilesheet = TileSheetExt.rebuildFromOld(_tilesheet, this);
+				_tilesheet = TileSheetExt.rebuildFromOld(_tilesheet, bitmap);
 			}
 			#end
 		}

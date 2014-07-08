@@ -386,7 +386,7 @@ class FlxCamera extends FlxBasic
 					tempFlags |= Tilesheet.TILE_RGB;
 				}
 				tempFlags |= currItem.blending;
-				currItem.graphics.tilesheet.tileSheet.drawTiles(canvas.graphics, data, (antialiasing || currItem.antialiasing), tempFlags, position);
+				currItem.graphics.tilesheet.drawTiles(canvas.graphics, data, (antialiasing || currItem.antialiasing), tempFlags, position);
 				TileSheetExt._DRAWCALLS++;
 			}
 			currItem = currItem.next;

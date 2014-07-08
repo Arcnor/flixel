@@ -36,7 +36,7 @@ class FlxEmptyFrame extends FlxFrame
 		
 		if (result == null)
 		{
-			return new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y));
+			return new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
 		}
 		
 		FlxFrame.RECT.x = FlxFrame.RECT.y = 0;

@@ -24,6 +24,7 @@ import flixel.system.layer.DrawStackItem;
 import flixel.util.FlxBitmapDataUtil;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
+import openfl.display.Tilesheet;
 
 @:bitmap("assets/images/logo/default.png")
 private class GraphicDefault extends BitmapData {}

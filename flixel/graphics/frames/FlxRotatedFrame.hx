@@ -61,7 +61,7 @@ class FlxRotatedFrame extends FlxFrame
 		
 		FlxFrame.MATRIX.identity();
 		FlxFrame.MATRIX.translate( -0.5 * frame.width, -0.5 * frame.height);
-		FlxFrame.MATRIX.rotate(-90.0 * FlxAngle.TO_RAD);
+		FlxFrame.MATRIX.rotate(angle * FlxAngle.TO_RAD);
 		FlxFrame.MATRIX.translate(offset.x + 0.5 * frame.height, offset.y + 0.5 * frame.width);
 		
 		result.draw(temp, FlxFrame.MATRIX);

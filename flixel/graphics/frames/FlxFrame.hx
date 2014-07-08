@@ -160,7 +160,7 @@ class FlxFrame implements IFlxDestroyable
 		MATRIX.identity();
 		MATRIX.scale( -1, 1);
 		MATRIX.translate(Std.int(sourceSize.x), 0);
-		_hReversedBitmapData = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y));
+		_hReversedBitmapData = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
 		_hReversedBitmapData.draw(normalFrame, MATRIX);
 		return _hReversedBitmapData;
 	}
@@ -179,7 +179,7 @@ class FlxFrame implements IFlxDestroyable
 		MATRIX.identity();
 		MATRIX.scale(1, -1);
 		MATRIX.translate(0, Std.int(sourceSize.y));
-		_vReversedBitmapData = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y));
+		_vReversedBitmapData = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
 		_vReversedBitmapData.draw(normalFrame, MATRIX);
 		return _vReversedBitmapData;
 	}
@@ -198,7 +198,7 @@ class FlxFrame implements IFlxDestroyable
 		MATRIX.identity();
 		MATRIX.scale( -1, -1);
 		MATRIX.translate(Std.int(sourceSize.x), Std.int(sourceSize.y));
-		_hvReversedBitmapData = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y));
+		_hvReversedBitmapData = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
 		_hvReversedBitmapData.draw(normalFrame, MATRIX);
 		return _hvReversedBitmapData;
 	}

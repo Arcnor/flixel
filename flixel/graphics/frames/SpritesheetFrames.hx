@@ -116,10 +116,8 @@ class SpritesheetFrames extends FlxFramesCollection
 		var spacedWidth:Int = frameWidth + xSpacing;
 		var spacedHeight:Int = frameHeight + ySpacing;
 		
-		var numRows:Int = (frameHeight == 0) ? 1 : Std.int((bitmapHeight + ySpacing) / spacedHeight);
-		var numCols:Int = (frameWidth == 0) ? 1 : Std.int((bitmapWidth + xSpacing) / spacedWidth);
-		
 		var clippedRect:Rectangle = new Rectangle(frame.offset.x, frame.offset.y, frame.frame.width, frame.frame.height);
+		
 		var helperRect:Rectangle = new Rectangle(0, 0, frameWidth, frameHeight);
 		var frameRect:Rectangle;
 		var frameOffset:FlxPoint;
@@ -129,6 +127,9 @@ class SpritesheetFrames extends FlxFramesCollection
 		
 		var rotated:Bool = (frame.type == FrameType.ROTATED);
 		var angle:Float = 0;
+		
+		var numRows:Int = (frameHeight == 0) ? 1 : Std.int((bitmapHeight + ySpacing) / spacedHeight);
+		var numCols:Int = (frameWidth == 0) ? 1 : Std.int((bitmapWidth + xSpacing) / spacedWidth);
 		
 		var startX:Int = 0;
 		var startY:Int = 0;
@@ -142,17 +143,18 @@ class SpritesheetFrames extends FlxFramesCollection
 			
 			if (angle == -90)
 			{
-				startX = Std.int(frame.sourceSize.x);
+				startX = bitmapHeight - spacedHeight;
 				startY = 0;
 				dX = -spacedHeight;
 				dY = spacedWidth;
+				
 				clippedRect.x = frame.sourceSize.y - frame.offset.y - frame.frame.width;
 				clippedRect.y = frame.offset.x;
 			}
 			else if (angle == 90)
 			{
 				startX = 0;
-				startY = Std.int(frame.sourceSize.y);
+				startY = bitmapWidth - spacedWidth;
 				dX = spacedHeight;
 				dY = -spacedWidth;
 				clippedRect.x = frame.offset.y;
@@ -163,13 +165,15 @@ class SpritesheetFrames extends FlxFramesCollection
 			helperRect.height = frameWidth;
 		}
 		
+		var startOffsetX:Float = clippedRect.x;
+		var startOffsetY:Float = clippedRect.y;	
+		
 		for (j in 0...(numRows))
 		{
-			for (i in 0...(numCols))
+			for (i in 0...(numCols))	
 			{
-				helperRect.x = frameX = startX + dX * i;
-				helperRect.y = frameY = startY + dY * j;
-				
+				helperRect.x = frameX = startX + dX * ((angle == 0) ? i : j);
+				helperRect.y = frameY = startY + dY * ((angle == 0) ? j : i);
 				frameRect = clippedRect.intersection(helperRect);
 				
 				if (frameRect.width == 0 || frameRect.height == 0)
@@ -177,16 +181,24 @@ class SpritesheetFrames extends FlxFramesCollection
 					frameRect.x = frameRect.y = 0;
 					frameRect.width = frameWidth;
 					frameRect.height = frameHeight;
-					
 					spritesheetFrames.addEmptyFrame(frameRect);
 				}
 				else
 				{
-					frameOffset = FlxPoint.get(frameRect.x - frameX, frameRect.y - frameY);
-					
-					frameRect.x += frame.frame.x;
-					frameRect.y += frame.frame.y;
-					
+					if (angle == 0)
+					{
+						frameOffset = FlxPoint.get(frameRect.x - frameX, frameRect.y - frameY);
+					}
+					else if (angle == -90)
+					{
+						frameOffset = FlxPoint.get(frameRect.y - frameY, frameRect.x - frameX);
+					}
+					else
+					{
+						frameOffset = FlxPoint.get(helperRect.bottom - frameRect.bottom, frameRect.x - helperRect.x);
+					}
+					frameRect.x += frame.frame.x - startOffsetX;
+					frameRect.y += frame.frame.y - startOffsetY;
 					spritesheetFrames.addAtlasFrame(frameRect, FlxPoint.get(frameWidth, frameHeight), frameOffset, null, angle);
 				}
 			}
