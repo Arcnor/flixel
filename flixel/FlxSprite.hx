@@ -766,37 +766,12 @@ class FlxSprite extends FlxObject
 	 */
 	public function replaceColor(Color:FlxColor, NewColor:FlxColor, FetchPositions:Bool = false):Array<FlxPoint>
 	{
-		var positions:Array<FlxPoint> = null;
-		if (FetchPositions)
+		var positions:Array<FlxPoint> = FlxBitmapDataUtil.replaceColor(graphic.bitmap, Color, NewColor, FetchPositions);
+		if (positions != null)
 		{
-			positions = new Array<FlxPoint>();
+			dirty = true;
+			resetFrameBitmaps();
 		}
-		
-		var row:Int = 0;
-		var column:Int = 0;
-		var rows:Int = graphic.height;
-		var columns:Int = graphic.width;
-		graphic.bitmap.lock();
-		while (row < rows)
-		{
-			column = 0;
-			while (column < columns)
-			{
-				if (graphic.bitmap.getPixel32(column, row) == cast Color)
-				{
-					graphic.bitmap.setPixel32(column, row, NewColor);
-					if (FetchPositions)
-					{
-						positions.push(FlxPoint.get(column, row));
-					}
-					dirty = true;
-				}
-				column++;
-			}
-			row++;
-		}
-		graphic.bitmap.unlock();
-		resetFrameBitmaps();
 		return positions;
 	}
 	

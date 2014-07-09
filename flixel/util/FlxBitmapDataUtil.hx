@@ -4,6 +4,7 @@ import flash.display.BitmapData;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flixel.math.FlxAngle;
+import flixel.math.FlxPoint;
 import openfl.geom.Matrix;
 
 class FlxBitmapDataUtil
@@ -235,6 +236,58 @@ class FlxBitmapDataUtil
 	public static inline function getMemorySize(bitmapData:BitmapData):Float
 	{
 		return bitmapData.width * bitmapData.height * 4;
+	}
+	
+	/**
+	 * Replaces all bitmapData's pixels with specified color with newColor pixels. 
+	 * WARNING: very expensive (especially on big graphics) as it iterates over every single pixel.
+	 * 
+	 * @param	bitmapData			BitmapData to change
+	 * @param	color				Color to replace
+	 * @param	newColor			New color
+	 * @param	fetchPositions		Whether we need to store positions of pixels which colors were replaced
+	 * @return	Array replaced pixels positions
+	 */
+	public static function replaceColor(bitmapData:BitmapData, color:FlxColor, newColor:FlxColor, fetchPositions:Bool = false):Array<FlxPoint>
+	{
+		var positions:Array<FlxPoint> = null;
+		if (fetchPositions)
+		{
+			positions = new Array<FlxPoint>();
+		}
+		
+		var row:Int = 0;
+		var column:Int = 0;
+		var rows:Int = bitmapData.height;
+		var columns:Int = bitmapData.width;
+		var changed:Bool = false;
+		bitmapData.lock();
+		while (row < rows)
+		{
+			column = 0;
+			while (column < columns)
+			{
+				if (bitmapData.getPixel32(column, row) == cast color)
+				{
+					bitmapData.setPixel32(column, row, newColor);
+					changed = true;
+					if (fetchPositions)
+					{
+						positions.push(FlxPoint.get(column, row));
+					}
+				}
+				column++;
+			}
+			row++;
+		}
+		bitmapData.unlock();
+		
+		if (changed && positions == null)
+		{
+			positions = new Array<FlxPoint>();
+		}
+		
+		return positions;
 	}
 	
 	/**
