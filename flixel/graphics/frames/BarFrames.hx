@@ -10,14 +10,12 @@ import flixel.system.layer.TileSheetExt;
 import flixel.math.FlxPoint;
 import flixel.graphics.FlxGraphic;
 import flixel.util.FlxBitmapDataUtil;
-
-// TODO: use FlxPoint and FlxRect as method arguments
-// in this and other frames related classes.
+import flixel.ui.FlxBar.FlxBarFillDirection;
 
 /**
- * Spritesheet frame collection. It is used for tilemaps and animated sprites. 
+ * Bar frames collection. It is used by FlxBar class only. 
  */
-class SpritesheetFrames extends FlxFramesCollection
+class BarFrames extends FlxFramesCollection
 {
 	public static var POINT1:Point = new Point();
 	public static var POINT2:Point = new Point();
@@ -33,48 +31,16 @@ class SpritesheetFrames extends FlxFramesCollection
 	 * image region of image from which this frame collection had been generated.
 	 */
 	private var region:Rectangle;
-	/**
-	 * The size of frame in this spritesheet.
-	 */
-	private var frameSize:Point;
-	/**
-	 * offsets between frames in this spritesheet.
-	 */
-	private var frameSpacing:Point;
 	
-	private function new(parent:FlxGraphic) 
+	private var barType:FlxBarFillDirection;
+	
+	private function new(parent:FlxGraphic, barType:FlxBarFillDirection)
 	{
-		super(parent, FrameCollectionType.SPRITESHEET);
+		super(parent, FrameCollectionType.BAR(barType));
+		this.barType = barType;
 	}
 	
-	/**
-	 * Gets source bitmapdata, generates new bitmapdata with spaces between frames (if there is no such bitmapdata in the cache already) 
-	 * and creates SpritesheetFrames collection.
-	 * 
-	 * @param	source			the source of graphic for frame collection (can be String, BitmapData or FlxGraphic).
-	 * @param	frameSize		the size of tiles in spritesheet
-	 * @param	frameSpacing	desired offsets between frames in spritesheet
-	 * 							(this method takes spritesheet bitmap without offsets between frames and adds them).
-	 * @param	region			Region of image to generate spritesheet from. Default value is null, which means that
-	 * 							whole image will be used for spritesheet generation
-	 * @return	Newly created spritesheet
-	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function fromBitmapWithSpacings(source:Dynamic, frameSize:Point, frameSpacing:Point, region:Rectangle = null):SpritesheetFrames
-	{
-		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
-		if (graphic == null) return null;
-		
-		var key:String = FlxG.bitmap.getKeyWithSpacings(graphic.key, frameSize, frameSpacing, region);
-		var result:FlxGraphic = FlxG.bitmap.get(key);
-		if (result == null)
-		{
-			var bitmap:BitmapData = FlxBitmapDataUtil.addSpacing(graphic.bitmap, frameSize, frameSpacing, region);
-			result = FlxG.bitmap.add(bitmap, false, key);
-		}
-		
-		return SpritesheetFrames.fromRectangle(result, frameSize, null, frameSpacing);
-	}
+	// TODO: continue from here...
 	
 	/**
 	 * Generates spritesheet frame collection from provided frame. Can be usefull for spritesheets packed into atlases.
@@ -355,7 +321,6 @@ class SpritesheetFrames extends FlxFramesCollection
 		super.destroy();
 		atlasFrame = null;
 		region = null;
-		frameSize = null;
-		frameSpacing = null;
+		barType = null;
 	}
 }
