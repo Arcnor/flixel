@@ -67,171 +67,109 @@ class BarFrames extends FlxFramesCollection
 		var width:Int = Std.int(frame.sourceSize.x);
 		var height:Int = Std.int(frame.sourceSize.y);
 		
-		// TODO: Continue from here...
-		
-		return null;
-		
-		/*
-		var startX:Int = Std.int(region.x);
-		var startY:Int = Std.int(region.y);
-		
-		var frameWidth:Float = 0;
-		var frameHeight:Float = 0;
-		
-		var frameX:Float = 0;
-		var frameY:Float = 0;
-		
-		var frameRect:Rectangle;
-		var sourceSize:FlxPoint;
-		var offset:FlxPoint;
-		
-		var ratio:Float = 0;
-		
-		for (i in 0...(numFrames))
-		{
-			ratio = i / numFrames;
-			frameWidth = width;
-			frameHeight = height;
-			frameX = 0;
-			frameY = 0;
-			
-			switch (barType)
-			{
-				case FlxBarFillDirection.LEFT_TO_RIGHT:
-					frameWidth = width * ratio;
-					
-				case FlxBarFillDirection.TOP_TO_BOTTOM:
-					frameHeight = height * ratio;
-					
-				case FlxBarFillDirection.BOTTOM_TO_TOP:
-					frameHeight = height * ratio;
-					frameY = height - frameHeight;
-					
-				case FlxBarFillDirection.RIGHT_TO_LEFT:
-					frameWidth = width * ratio;
-					frameX = width - frameWidth;
-					
-				case FlxBarFillDirection.HORIZONTAL_INSIDE_OUT:
-					frameWidth = width * ratio;
-					frameX = 0.5 * (width - frameWidth);
-					
-				case FlxBarFillDirection.HORIZONTAL_OUTSIDE_IN:
-					frameWidth = width * (1 - ratio);
-					frameX = 0.5 * (width - frameWidth);
-					
-				case FlxBarFillDirection.VERTICAL_INSIDE_OUT:
-					frameHeight = height * ratio;
-					frameY = 0.5 * (height - frameHeight);
-					
-				case FlxBarFillDirection.VERTICAL_OUTSIDE_IN:
-					frameHeight = height * (1 - ratio);
-					frameY = 0.5 * (height - frameHeight);
-			}
-			
-			frameRect = new Rectangle(startX + frameX, startY + frameY, frameWidth, frameHeight);
-			sourceSize = FlxPoint.get(width, height);
-			offset = FlxPoint.get(frameX, frameY);
-			
-			barFrames.addAtlasFrame(frameRect, sourceSize, offset);
-		}
-		
-		return barFrames;
-		*/
-		
-		/*
-		var xSpacing:Int = Std.int(frameSpacing.x);
-		var ySpacing:Int = Std.int(frameSpacing.y);
-		
-		var frameWidth:Int = Std.int(frameSize.x);
-		var frameHeight:Int = Std.int(frameSize.y);
-		
-		var spacedWidth:Int = frameWidth + xSpacing;
-		var spacedHeight:Int = frameHeight + ySpacing;
-		
 		var clippedRect:Rectangle = new Rectangle(frame.offset.x, frame.offset.y, frame.frame.width, frame.frame.height);
-		
-		var helperRect:Rectangle = new Rectangle(0, 0, frameWidth, frameHeight);
+		var helperRect:Rectangle = new Rectangle(0, 0, width, height);
 		var frameRect:Rectangle;
 		var frameOffset:FlxPoint;
+		var sourceSize:FlxPoint;
+		
+		var x:Float, y:Float, w:Float, h:Float;
+		var ratio:Float = 0;
 		
 		var rotated:Bool = (frame.type == FrameType.ROTATED);
 		var angle:Float = 0;
-		
-		var numRows:Int = (frameHeight == 0) ? 1 : Std.int((bitmapHeight + ySpacing) / spacedHeight);
-		var numCols:Int = (frameWidth == 0) ? 1 : Std.int((bitmapWidth + xSpacing) / spacedWidth);
-		
-		var startX:Int = 0;
-		var startY:Int = 0;
-		var dX:Int = spacedWidth;
-		var dY:Int = spacedHeight;
 		
 		if (rotated)
 		{
 			var rotatedFrame:FlxRotatedFrame = cast frame;
 			angle = rotatedFrame.angle;
 			
-			if (angle == -90)
+			clippedRect.width = frame.frame.height;
+			clippedRect.height = frame.frame.width;
+		}
+		
+		for (i in 0...(numFrames + 1))
+		{
+			ratio = i / numFrames;
+			helperRect.setTo(0, 0, width, height);
+			
+			switch (barType)
 			{
-				startX = bitmapHeight - spacedHeight;
-				startY = 0;
-				dX = -spacedHeight;
-				dY = spacedWidth;
-				
-				clippedRect.x = frame.sourceSize.y - frame.offset.y - frame.frame.width;
-				clippedRect.y = frame.offset.x;
-			}
-			else if (angle == 90)
-			{
-				startX = 0;
-				startY = bitmapWidth - spacedWidth;
-				dX = spacedHeight;
-				dY = -spacedWidth;
-				clippedRect.x = frame.offset.y;
-				clippedRect.y = frame.sourceSize.x - frame.offset.x - frame.frame.height;
+				case FlxBarFillDirection.LEFT_TO_RIGHT:
+					helperRect.width = width * ratio;
+					
+				case FlxBarFillDirection.TOP_TO_BOTTOM:
+					helperRect.height = height * ratio;
+					
+				case FlxBarFillDirection.BOTTOM_TO_TOP:
+					helperRect.height = height * ratio;
+					helperRect.y = height - helperRect.height;
+					
+				case FlxBarFillDirection.RIGHT_TO_LEFT:
+					helperRect.width = width * ratio;
+					helperRect.x = width - helperRect.width;
+					
+				case FlxBarFillDirection.HORIZONTAL_INSIDE_OUT:
+					helperRect.width = width * ratio;
+					helperRect.x = 0.5 * (width - helperRect.width);
+					
+				case FlxBarFillDirection.HORIZONTAL_OUTSIDE_IN:
+					helperRect.width = width * (1 - ratio);
+					helperRect.x = 0.5 * (width - helperRect.width);
+					
+				case FlxBarFillDirection.VERTICAL_INSIDE_OUT:
+					helperRect.height = height * ratio;
+					helperRect.y = 0.5 * (height - helperRect.height);
+					
+				case FlxBarFillDirection.VERTICAL_OUTSIDE_IN:
+					helperRect.height = height * (1 - ratio);
+					helperRect.y = 0.5 * (height - helperRect.height);
 			}
 			
-			helperRect.width = frameHeight;
-			helperRect.height = frameWidth;
-		}
-		
-		for (j in 0...(numRows))
-		{
-			for (i in 0...(numCols))	
+			frameRect = clippedRect.intersection(helperRect);
+			
+			if (frameRect.width == 0 || frameRect.height == 0)
 			{
-				helperRect.x = startX + dX * ((angle == 0) ? i : j);
-				helperRect.y = startY + dY * ((angle == 0) ? j : i);
-				frameRect = clippedRect.intersection(helperRect);
+				frameRect.setTo(0, 0, width, height);
+				barFrames.addEmptyFrame(frameRect);
+			}
+			else
+			{
+				frameOffset = FlxPoint.get(frameRect.x, frameRect.y);
+				sourceSize = FlxPoint.get(width, height);
 				
-				if (frameRect.width == 0 || frameRect.height == 0)
+				x = frameRect.x;
+				y = frameRect.y;
+				w = frameRect.width;
+				h = frameRect.height;
+				
+				if (angle == 0)
 				{
-					frameRect.x = frameRect.y = 0;
-					frameRect.width = frameWidth;
-					frameRect.height = frameHeight;
-					TileFrames.addEmptyFrame(frameRect);
+					frameRect.x -= clippedRect.x;
+					frameRect.y -= clippedRect.y;
 				}
-				else
+				if (angle == -90)
 				{
-					if (angle == 0)
-					{
-						frameOffset = FlxPoint.get(frameRect.x - helperRect.x, frameRect.y - helperRect.y);
-					}
-					else if (angle == -90)
-					{
-						frameOffset = FlxPoint.get(frameRect.y - helperRect.y, frameRect.x - helperRect.x);
-					}
-					else
-					{
-						frameOffset = FlxPoint.get(helperRect.bottom - frameRect.bottom, frameRect.x - helperRect.x);
-					}
-					frameRect.x += frame.frame.x - clippedRect.x;
-					frameRect.y += frame.frame.y - clippedRect.y;
-					TileFrames.addAtlasFrame(frameRect, FlxPoint.get(frameWidth, frameHeight), frameOffset, null, angle);
+					frameRect.x = clippedRect.bottom - y - h;
+					frameRect.y = x - clippedRect.x;
+					frameRect.width = h;
+					frameRect.height = w;
 				}
+				else if (angle == 90)
+				{
+					frameRect.x = y - clippedRect.y;
+					frameRect.y = clippedRect.right - x - w;
+					frameRect.width = h;
+					frameRect.height = w;
+				}
+				
+				frameRect.x += frame.frame.x;
+				frameRect.y += frame.frame.y;
+				barFrames.addAtlasFrame(frameRect, sourceSize, frameOffset, null, angle);
 			}
 		}
 		
-		return TileFrames;
-		*/
+		return barFrames;
 	}
 	
 	/**
@@ -281,62 +219,55 @@ class BarFrames extends FlxFramesCollection
 		var startX:Int = Std.int(region.x);
 		var startY:Int = Std.int(region.y);
 		
-		var frameWidth:Float = 0;
-		var frameHeight:Float = 0;
-		
-		var frameX:Float = 0;
-		var frameY:Float = 0;
-		
 		var frameRect:Rectangle;
 		var sourceSize:FlxPoint;
 		var offset:FlxPoint;
 		
 		var ratio:Float = 0;
 		
-		for (i in 0...(numFrames))
+		for (i in 1...(numFrames + 1))
 		{
 			ratio = i / numFrames;
-			frameWidth = width;
-			frameHeight = height;
-			frameX = 0;
-			frameY = 0;
+			frameRect = new Rectangle(0, 0, width, height);
 			
 			switch (barType)
 			{
 				case FlxBarFillDirection.LEFT_TO_RIGHT:
-					frameWidth = width * ratio;
+					frameRect.width = width * ratio;
 					
 				case FlxBarFillDirection.TOP_TO_BOTTOM:
-					frameHeight = height * ratio;
+					frameRect.height = height * ratio;
 					
 				case FlxBarFillDirection.BOTTOM_TO_TOP:
-					frameHeight = height * ratio;
-					frameY = height - frameHeight;
+					frameRect.height = height * ratio;
+					frameRect.y = height - frameRect.height;
 					
 				case FlxBarFillDirection.RIGHT_TO_LEFT:
-					frameWidth = width * ratio;
-					frameX = width - frameWidth;
+					frameRect.width = width * ratio;
+					frameRect.x = width - frameRect.width;
 					
 				case FlxBarFillDirection.HORIZONTAL_INSIDE_OUT:
-					frameWidth = width * ratio;
-					frameX = 0.5 * (width - frameWidth);
+					frameRect.width = width * ratio;
+					frameRect.x = 0.5 * (width - frameRect.width);
 					
 				case FlxBarFillDirection.HORIZONTAL_OUTSIDE_IN:
-					frameWidth = width * (1 - ratio);
-					frameX = 0.5 * (width - frameWidth);
+					frameRect.width = width * (1 - ratio);
+					frameRect.x = 0.5 * (width - frameRect.width);
 					
 				case FlxBarFillDirection.VERTICAL_INSIDE_OUT:
-					frameHeight = height * ratio;
-					frameY = 0.5 * (height - frameHeight);
+					frameRect.height = height * ratio;
+					frameRect.y = 0.5 * (height - frameRect.height);
 					
 				case FlxBarFillDirection.VERTICAL_OUTSIDE_IN:
-					frameHeight = height * (1 - ratio);
-					frameY = 0.5 * (height - frameHeight);
+					frameRect.height = height * (1 - ratio);
+					frameRect.y = 0.5 * (height - frameRect.height);
 			}
 			
-			frameRect = new Rectangle(startX + frameX, startY + frameY, frameWidth, frameHeight);
 			sourceSize = FlxPoint.get(width, height);
-			offset = FlxPoint.get(frameX, frameY);
+			offset = FlxPoint.get(frameRect.x, frameRect.y);
+			
+			frameRect.x += startX;
+			frameRect.y += startY;
 			
 			barFrames.addAtlasFrame(frameRect, sourceSize, offset);
 		}
