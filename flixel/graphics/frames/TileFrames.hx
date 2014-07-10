@@ -42,6 +42,10 @@ class TileFrames extends FlxFramesCollection
 	 */
 	private var frameSpacing:Point;
 	
+	public var numRows:Int = 0;
+	
+	public var numCols:Int = 0;
+	
 	private function new(parent:FlxGraphic) 
 	{
 		super(parent, FrameCollectionType.TILES);
@@ -90,20 +94,20 @@ class TileFrames extends FlxFramesCollection
 	{
 		var graphic:FlxGraphic = frame.parent;
 		// find TileFrames object, if there is one already
-		var TileFrames:TileFrames = TileFrames.findFrame(graphic, frameSize, null, frame, frameSpacing);
-		if (TileFrames != null)
+		var tileFrames:TileFrames = TileFrames.findFrame(graphic, frameSize, null, frame, frameSpacing);
+		if (tileFrames != null)
 		{
-			return TileFrames;
+			return tileFrames;
 		}
 		
 		// or create it, if there is no such object
 		frameSpacing = (frameSpacing != null) ? frameSpacing : new Point();
 		
-		TileFrames = new TileFrames(graphic);
-		TileFrames.atlasFrame = frame;
-		TileFrames.region = frame.frame;
-		TileFrames.frameSize = frameSize;
-		TileFrames.frameSpacing = frameSpacing;
+		tileFrames = new TileFrames(graphic);
+		tileFrames.atlasFrame = frame;
+		tileFrames.region = frame.frame;
+		tileFrames.frameSize = frameSize;
+		tileFrames.frameSpacing = frameSpacing;
 		
 		var bitmapWidth:Int = Std.int(frame.sourceSize.x);
 		var bitmapHeight:Int = Std.int(frame.sourceSize.y);
@@ -120,7 +124,7 @@ class TileFrames extends FlxFramesCollection
 		var clippedRect:Rectangle = new Rectangle(frame.offset.x, frame.offset.y, frame.frame.width, frame.frame.height);
 		
 		var helperRect:Rectangle = new Rectangle(0, 0, frameWidth, frameHeight);
-		var frameRect:Rectangle;
+		var tileRect:Rectangle;
 		var frameOffset:FlxPoint;
 		
 		var rotated:Bool = (frame.type == FrameType.ROTATED);
@@ -169,37 +173,37 @@ class TileFrames extends FlxFramesCollection
 			{
 				helperRect.x = startX + dX * ((angle == 0) ? i : j);
 				helperRect.y = startY + dY * ((angle == 0) ? j : i);
-				frameRect = clippedRect.intersection(helperRect);
+				tileRect = clippedRect.intersection(helperRect);
 				
-				if (frameRect.width == 0 || frameRect.height == 0)
+				if (tileRect.width == 0 || tileRect.height == 0)
 				{
-					frameRect.x = frameRect.y = 0;
-					frameRect.width = frameWidth;
-					frameRect.height = frameHeight;
-					TileFrames.addEmptyFrame(frameRect);
+					tileRect.setTo(0, 0, frameWidth, frameHeight);
+					tileFrames.addEmptyFrame(tileRect);
 				}
 				else
 				{
 					if (angle == 0)
 					{
-						frameOffset = FlxPoint.get(frameRect.x - helperRect.x, frameRect.y - helperRect.y);
+						frameOffset = FlxPoint.get(tileRect.x - helperRect.x, tileRect.y - helperRect.y);
 					}
 					else if (angle == -90)
 					{
-						frameOffset = FlxPoint.get(frameRect.y - helperRect.y, frameRect.x - helperRect.x);
+						frameOffset = FlxPoint.get(tileRect.y - helperRect.y, tileRect.x - helperRect.x);
 					}
-					else
+					else // angle == 90
 					{
-						frameOffset = FlxPoint.get(helperRect.bottom - frameRect.bottom, frameRect.x - helperRect.x);
+						frameOffset = FlxPoint.get(helperRect.bottom - tileRect.bottom, tileRect.x - helperRect.x);
 					}
-					frameRect.x += frame.frame.x - clippedRect.x;
-					frameRect.y += frame.frame.y - clippedRect.y;
-					TileFrames.addAtlasFrame(frameRect, FlxPoint.get(frameWidth, frameHeight), frameOffset, null, angle);
+					tileRect.x += frame.frame.x - clippedRect.x;
+					tileRect.y += frame.frame.y - clippedRect.y;
+					tileFrames.addAtlasFrame(tileRect, FlxPoint.get(frameWidth, frameHeight), frameOffset, null, angle);
 				}
 			}
 		}
 		
-		return TileFrames;
+		tileFrames.numCols = numCols;
+		tileFrames.numRows = numRows;
+		return tileFrames;
 	}
 	
 	/**
@@ -215,10 +219,10 @@ class TileFrames extends FlxFramesCollection
 	public static function fromGraphic(graphic:FlxGraphic, frameSize:Point, region:Rectangle = null, frameSpacing:Point = null):TileFrames
 	{
 		// find TileFrames object, if there is one already
-		var TileFrames:TileFrames = TileFrames.findFrame(graphic, frameSize, region, null, frameSpacing);
-		if (TileFrames != null)
+		var tileFrames:TileFrames = TileFrames.findFrame(graphic, frameSize, region, null, frameSpacing);
+		if (tileFrames != null)
 		{
-			return TileFrames;
+			return tileFrames;
 		}
 		
 		// or create it, if there is no such object
@@ -241,11 +245,11 @@ class TileFrames extends FlxFramesCollection
 		
 		frameSpacing = (frameSpacing != null) ? frameSpacing : new Point();
 		
-		TileFrames = new TileFrames(graphic);
-		TileFrames.region = region;
-		TileFrames.atlasFrame = null;
-		TileFrames.frameSize = frameSize;
-		TileFrames.frameSpacing = frameSpacing;
+		tileFrames = new TileFrames(graphic);
+		tileFrames.region = region;
+		tileFrames.atlasFrame = null;
+		tileFrames.frameSize = frameSize;
+		tileFrames.frameSpacing = frameSpacing;
 		
 		var bitmapWidth:Int = Std.int(region.width);
 		var bitmapHeight:Int = Std.int(region.height);
@@ -265,18 +269,20 @@ class TileFrames extends FlxFramesCollection
 		var numRows:Int = (height == 0) ? 1 : Std.int((bitmapHeight + ySpacing) / spacedHeight);
 		var numCols:Int = (width == 0) ? 1 : Std.int((bitmapWidth + xSpacing) / spacedWidth);
 		
-		var tempRect:Rectangle;
+		var tileRect:Rectangle;
 		
 		for (j in 0...(numRows))
 		{
 			for (i in 0...(numCols))
 			{
-				tempRect = new Rectangle(startX + i * spacedWidth, startY + j * spacedHeight, width, height);
-				TileFrames.addSpriteSheetFrame(tempRect);
+				tileRect = new Rectangle(startX + i * spacedWidth, startY + j * spacedHeight, width, height);
+				tileFrames.addSpriteSheetFrame(tileRect);
 			}
 		}
 		
-		return TileFrames;
+		tileFrames.numCols = numCols;
+		tileFrames.numRows = numRows;
+		return tileFrames;
 	}
 	
 	/**
@@ -310,10 +316,10 @@ class TileFrames extends FlxFramesCollection
 	 */
 	public static function findFrame(graphic:FlxGraphic, frameSize:Point, region:Rectangle = null, atlasFrame:FlxFrame = null, frameSpacing:Point = null):TileFrames
 	{
-		var TileFrames:Array<TileFrames> = cast graphic.getFramesCollections(FrameCollectionType.TILES);
+		var tileFrames:Array<TileFrames> = cast graphic.getFramesCollections(FrameCollectionType.TILES);
 		var sheet:TileFrames;
 		
-		for (sheet in TileFrames)
+		for (sheet in tileFrames)
 		{
 			if (sheet.equals(frameSize, region, null, frameSpacing))
 			{
