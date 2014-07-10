@@ -88,7 +88,7 @@ class BarFrames extends FlxFramesCollection
 			clippedRect.height = frame.frame.width;
 		}
 		
-		for (i in 0...(numFrames + 1))
+		for (i in 1...(numFrames + 1))
 		{
 			ratio = i / numFrames;
 			helperRect.setTo(0, 0, width, height);
