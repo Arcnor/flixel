@@ -120,12 +120,12 @@ class FlxNode implements IFlxDestroyable
 	
 	/**
 	 * Generates TileFrames object for this node
-	 * @param	frameSize		The size of tile in spritesheet
-	 * @param	frameSpacing	Offsets between tiles in spritesheet
+	 * @param	tileSize		The size of tile in spritesheet
+	 * @param	tileSpacing		Offsets between tiles in spritesheet
 	 * @param	region			Region of node to use as a source of graphic. Default value is null, which means that the whole node will be used for it.
 	 * @return	Created TileFrames object for this node
 	 */
-	public function getTileFrames(frameSize:Point, frameSpacing:Point = null, region:Rectangle = null):TileFrames
+	public function getTileFrames(tileSize:Point, tileSpacing:Point = null, region:Rectangle = null):TileFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(atlas.atlasBitmapData, false, atlas.name);
 		
@@ -134,7 +134,7 @@ class FlxNode implements IFlxDestroyable
 			region = contentRect;
 		}
 		
-		return TileFrames.fromRectangle(graphic, frameSize, region, frameSpacing);
+		return TileFrames.fromRectangle(graphic, tileSize, region, tileSpacing);
 	}
 	
 	/**

@@ -165,35 +165,35 @@ class FlxAtlas implements IFlxDestroyable
 	 * 
 	 * @param	Graphic			Source image for node, where spaces will be inserted (could be BitmapData, String or Class<Dynamic>).
 	 * @param	Key			Optional key for image
-	 * @param	frameSize		The size of tile in spritesheet
-	 * @param	frameSpacing	Offsets to add in spritesheet between tiles
+	 * @param	tileSize		The size of tile in spritesheet
+	 * @param	tileSpacing	Offsets to add in spritesheet between tiles
 	 * @param	region			Region of source image to use as a source graphic
 	 * @return	Generated TileFrames for added node
 	 */
 	// TODO: make it accept only String, BitmapData or Class
-	public function addNodeWithSpacings(Graphic:Dynamic, ?Key:String, frameSize:Point, frameSpacing:Point, region:Rectangle = null):TileFrames
+	public function addNodeWithSpacings(Graphic:Dynamic, ?Key:String, tileSize:Point, tileSpacing:Point, region:Rectangle = null):TileFrames
 	{
 		var key:String = FlxAssets.resolveKey(Graphic, Key);
 		
 		if (key == null) return null;
 		
-		key = FlxG.bitmap.getKeyWithSpacings(key, frameSize, frameSpacing, region);
+		key = FlxG.bitmap.getKeyWithSpacings(key, tileSize, tileSpacing, region);
 		
 		if (hasNodeWithName(key) == true)
 		{
-			return nodes.get(key).getTileFrames(frameSize, frameSpacing);
+			return nodes.get(key).getTileFrames(tileSize, tileSpacing);
 		}
 		
 		var data:BitmapData = FlxAssets.resolveBitmapData(Graphic);
 		
 		if (data == null) return null;
 		
-		var nodeData:BitmapData = FlxBitmapDataUtil.addSpacing(data, frameSize, frameSpacing, region);
+		var nodeData:BitmapData = FlxBitmapDataUtil.addSpacing(data, tileSize, tileSpacing, region);
 		var node:FlxNode = addNode(nodeData, key);
 		
 		if (node == null) return null;
 		
-		return node.getTileFrames(frameSize, frameSpacing);
+		return node.getTileFrames(tileSize, tileSpacing);
 	}
 	
 	/**
