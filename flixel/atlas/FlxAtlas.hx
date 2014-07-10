@@ -6,7 +6,7 @@ import flash.geom.Rectangle;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.AtlasFrames;
-import flixel.graphics.frames.SpritesheetFrames;
+import flixel.graphics.frames.TileFrames;
 import flixel.util.FlxBitmapDataUtil;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
@@ -161,17 +161,17 @@ class FlxAtlas implements IFlxDestroyable
 	
 	/**
 	 * Generates new bitmapdata with spaces between tiles, adds this bitmapdata to this atlas, 
-	 * generates SpritesheetFrames object for added node and returns it. Could be usefull for tilemaps.
+	 * generates TileFrames object for added node and returns it. Could be usefull for tilemaps.
 	 * 
 	 * @param	Graphic			Source image for node, where spaces will be inserted (could be BitmapData, String or Class<Dynamic>).
 	 * @param	Key			Optional key for image
 	 * @param	frameSize		The size of tile in spritesheet
 	 * @param	frameSpacing	Offsets to add in spritesheet between tiles
 	 * @param	region			Region of source image to use as a source graphic
-	 * @return	Generated SpritesheetFrames for added node
+	 * @return	Generated TileFrames for added node
 	 */
 	// TODO: make it accept only String, BitmapData or Class
-	public function addNodeWithSpacings(Graphic:Dynamic, ?Key:String, frameSize:Point, frameSpacing:Point, region:Rectangle = null):SpritesheetFrames
+	public function addNodeWithSpacings(Graphic:Dynamic, ?Key:String, frameSize:Point, frameSpacing:Point, region:Rectangle = null):TileFrames
 	{
 		var key:String = FlxAssets.resolveKey(Graphic, Key);
 		
@@ -181,7 +181,7 @@ class FlxAtlas implements IFlxDestroyable
 		
 		if (hasNodeWithName(key) == true)
 		{
-			return nodes.get(key).getSpritesheetFrames(frameSize, frameSpacing);
+			return nodes.get(key).getTileFrames(frameSize, frameSpacing);
 		}
 		
 		var data:BitmapData = FlxAssets.resolveBitmapData(Graphic);
@@ -193,7 +193,7 @@ class FlxAtlas implements IFlxDestroyable
 		
 		if (node == null) return null;
 		
-		return node.getSpritesheetFrames(frameSize, frameSpacing);
+		return node.getTileFrames(frameSize, frameSpacing);
 	}
 	
 	/**

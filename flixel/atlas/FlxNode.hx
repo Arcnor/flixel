@@ -4,7 +4,7 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.ImageFrame;
-import flixel.graphics.frames.SpritesheetFrames;
+import flixel.graphics.frames.TileFrames;
 import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 
 /**
@@ -119,13 +119,13 @@ class FlxNode implements IFlxDestroyable
 	}
 	
 	/**
-	 * Generates SpritesheetFrames object for this node
+	 * Generates TileFrames object for this node
 	 * @param	frameSize		The size of tile in spritesheet
 	 * @param	frameSpacing	Offsets between tiles in spritesheet
 	 * @param	region			Region of node to use as a source of graphic. Default value is null, which means that the whole node will be used for it.
-	 * @return	Created SpritesheetFrames object for this node
+	 * @return	Created TileFrames object for this node
 	 */
-	public function getSpritesheetFrames(frameSize:Point, frameSpacing:Point = null, region:Rectangle = null):SpritesheetFrames
+	public function getTileFrames(frameSize:Point, frameSpacing:Point = null, region:Rectangle = null):TileFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(atlas.atlasBitmapData, false, atlas.name);
 		
@@ -134,7 +134,7 @@ class FlxNode implements IFlxDestroyable
 			region = contentRect;
 		}
 		
-		return SpritesheetFrames.fromRectangle(graphic, frameSize, region, frameSpacing);
+		return TileFrames.fromRectangle(graphic, frameSize, region, frameSpacing);
 	}
 	
 	/**

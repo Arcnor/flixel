@@ -12,7 +12,7 @@ import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.ImageFrame;
-import flixel.graphics.frames.SpritesheetFrames;
+import flixel.graphics.frames.TileFrames;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets.FlxTilemapAsset;
@@ -226,8 +226,8 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	 *                          Can override and customize per-tile-type collision behavior using setTileProperties().
 	 * @return  A reference to this instance of FlxTilemap, for chaining as usual :)
 	 */
-	// TODO: make it accept BitmapData, FlxGraphic, String or SpritesheetFrames
-	public function loadMapFrames(	MapData:FlxTilemapAsset, TileFrames:SpritesheetFrames, ?AutoTile:FlxTilemapAutoTiling, 
+	// TODO: make it accept BitmapData, FlxGraphic, String or TileFrames
+	public function loadMapFrames(	MapData:FlxTilemapAsset, TileFrames:TileFrames, ?AutoTile:FlxTilemapAutoTiling, 
 									StartingIndex:Int = 0, DrawIndex:Int = 1, CollideIndex:Int = 1):FlxTilemap
 	{
 		auto = (AutoTile == null) ? OFF : AutoTile;
@@ -270,7 +270,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 			_tileHeight = _tileWidth;
 		}
 		
-		frames = SpritesheetFrames.fromGraphic(graphic, new Point(_tileWidth, _tileHeight));
+		frames = TileFrames.fromGraphic(graphic, new Point(_tileWidth, _tileHeight));
 	}
 	
 	override private function initTileObjects(DrawIndex:Int, CollideIndex:Int):Void 

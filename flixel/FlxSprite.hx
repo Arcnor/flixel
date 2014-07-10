@@ -13,7 +13,7 @@ import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.ImageFrame;
-import flixel.graphics.frames.SpritesheetFrames;
+import flixel.graphics.frames.TileFrames;
 import flixel.math.FlxAngle;
 import flixel.math.FlxMath;
 import flixel.math.FlxMatrix;
@@ -296,7 +296,7 @@ class FlxSprite extends FlxObject
 		
 		if (Animated)
 		{
-			frames = SpritesheetFrames.fromGraphic(graph, new Point(Width, Height));
+			frames = TileFrames.fromGraphic(graph, new Point(Width, Height));
 		}
 		else
 		{
@@ -353,7 +353,7 @@ class FlxSprite extends FlxObject
 		var max:Int = (brush.height > brush.width) ? brush.height : brush.width;
 		max = (AutoBuffer) ? Std.int(max * 1.5) : max;
 		
-		frames = SpritesheetFrames.fromGraphic(tempGraph, new Point(max, max));
+		frames = TileFrames.fromGraphic(tempGraph, new Point(max, max));
 		
 		if (AutoBuffer)
 		{

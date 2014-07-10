@@ -7,7 +7,7 @@ package flixel.graphics.frames;
 enum FrameCollectionType 
 {
 	IMAGE;
-	SPRITESHEET;
+	TILES;
 	ATLAS;
 	FONT; 											// TODO: implement it
 	BAR(type:flixel.ui.FlxBar.FlxBarFillDirection);	// TODO: implement it

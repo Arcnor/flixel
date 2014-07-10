@@ -40,39 +40,105 @@ class BarFrames extends FlxFramesCollection
 		this.barType = barType;
 	}
 	
-	// TODO: continue from here...
-	
 	/**
-	 * Generates spritesheet frame collection from provided frame. Can be usefull for spritesheets packed into atlases.
-	 * It can generate spritesheets from rotated and cropped frames also, which is important for devices with small amount of memory.
+	 * Generates BarFrames collection from provided frame. Can be usefull for images packed into atlases.
+	 * It can generate BarFrames from rotated and cropped frames also, which is important for devices with small amount of memory.
 	 * 
-	 * @param	frame			frame, containg spritesheet image
-	 * @param	frameSize		the size of tiles in spritesheet
-	 * @param	frameSpacing	offsets between frames in spritesheet. Default value is null, which means no offsets between tiles
-	 * @return	Newly created spritesheet frame collection.
+	 * @param	frame			frame, containg FlxBar image.
+	 * @param	barType			fill direction of frames in FlxBar.
+	 * @param	numFrames		number of frames (values) of FlxBar to create.
+	 * @return	Newly created BarFrames collection.
 	 */
-	public static function fromFrame(frame:FlxFrame, frameSize:Point, frameSpacing:Point = null):SpritesheetFrames
+	public static function fromFrame(frame:FlxFrame, barType:FlxBarFillDirection, numFrames:Int = 100):BarFrames
 	{
 		var graphic:FlxGraphic = frame.parent;
-		// find SpritesheetFrames object, if there is one already
-		var spritesheetFrames:SpritesheetFrames = SpritesheetFrames.findFrame(graphic, frameSize, null, frame, frameSpacing);
-		if (spritesheetFrames != null)
+		// find BarFrames object, if there is one already
+		var barFrames:BarFrames = BarFrames.findFrame(graphic, barType, numFrames, null, frame);
+		if (barFrames != null)
 		{
-			return spritesheetFrames;
+			return barFrames;
 		}
 		
 		// or create it, if there is no such object
-		frameSpacing = (frameSpacing != null) ? frameSpacing : new Point();
+		barFrames = new BarFrames(graphic, barType);
+		barFrames.atlasFrame = frame;
+		barFrames.region = frame.frame;
 		
-		spritesheetFrames = new SpritesheetFrames(graphic);
-		spritesheetFrames.atlasFrame = frame;
-		spritesheetFrames.region = frame.frame;
-		spritesheetFrames.frameSize = frameSize;
-		spritesheetFrames.frameSpacing = frameSpacing;
+		var width:Int = Std.int(frame.sourceSize.x);
+		var height:Int = Std.int(frame.sourceSize.y);
 		
-		var bitmapWidth:Int = Std.int(frame.sourceSize.x);
-		var bitmapHeight:Int = Std.int(frame.sourceSize.y);
+		// TODO: Continue from here...
 		
+		return null;
+		
+		/*
+		var startX:Int = Std.int(region.x);
+		var startY:Int = Std.int(region.y);
+		
+		var frameWidth:Float = 0;
+		var frameHeight:Float = 0;
+		
+		var frameX:Float = 0;
+		var frameY:Float = 0;
+		
+		var frameRect:Rectangle;
+		var sourceSize:FlxPoint;
+		var offset:FlxPoint;
+		
+		var ratio:Float = 0;
+		
+		for (i in 0...(numFrames))
+		{
+			ratio = i / numFrames;
+			frameWidth = width;
+			frameHeight = height;
+			frameX = 0;
+			frameY = 0;
+			
+			switch (barType)
+			{
+				case FlxBarFillDirection.LEFT_TO_RIGHT:
+					frameWidth = width * ratio;
+					
+				case FlxBarFillDirection.TOP_TO_BOTTOM:
+					frameHeight = height * ratio;
+					
+				case FlxBarFillDirection.BOTTOM_TO_TOP:
+					frameHeight = height * ratio;
+					frameY = height - frameHeight;
+					
+				case FlxBarFillDirection.RIGHT_TO_LEFT:
+					frameWidth = width * ratio;
+					frameX = width - frameWidth;
+					
+				case FlxBarFillDirection.HORIZONTAL_INSIDE_OUT:
+					frameWidth = width * ratio;
+					frameX = 0.5 * (width - frameWidth);
+					
+				case FlxBarFillDirection.HORIZONTAL_OUTSIDE_IN:
+					frameWidth = width * (1 - ratio);
+					frameX = 0.5 * (width - frameWidth);
+					
+				case FlxBarFillDirection.VERTICAL_INSIDE_OUT:
+					frameHeight = height * ratio;
+					frameY = 0.5 * (height - frameHeight);
+					
+				case FlxBarFillDirection.VERTICAL_OUTSIDE_IN:
+					frameHeight = height * (1 - ratio);
+					frameY = 0.5 * (height - frameHeight);
+			}
+			
+			frameRect = new Rectangle(startX + frameX, startY + frameY, frameWidth, frameHeight);
+			sourceSize = FlxPoint.get(width, height);
+			offset = FlxPoint.get(frameX, frameY);
+			
+			barFrames.addAtlasFrame(frameRect, sourceSize, offset);
+		}
+		
+		return barFrames;
+		*/
+		
+		/*
 		var xSpacing:Int = Std.int(frameSpacing.x);
 		var ySpacing:Int = Std.int(frameSpacing.y);
 		
@@ -141,7 +207,7 @@ class BarFrames extends FlxFramesCollection
 					frameRect.x = frameRect.y = 0;
 					frameRect.width = frameWidth;
 					frameRect.height = frameHeight;
-					spritesheetFrames.addEmptyFrame(frameRect);
+					TileFrames.addEmptyFrame(frameRect);
 				}
 				else
 				{
@@ -159,31 +225,32 @@ class BarFrames extends FlxFramesCollection
 					}
 					frameRect.x += frame.frame.x - clippedRect.x;
 					frameRect.y += frame.frame.y - clippedRect.y;
-					spritesheetFrames.addAtlasFrame(frameRect, FlxPoint.get(frameWidth, frameHeight), frameOffset, null, angle);
+					TileFrames.addAtlasFrame(frameRect, FlxPoint.get(frameWidth, frameHeight), frameOffset, null, angle);
 				}
 			}
 		}
 		
-		return spritesheetFrames;
+		return TileFrames;
+		*/
 	}
 	
 	/**
-	 * Generates spritesheet frame collection from provided region of image.
+	 * Generates BarFrames collection from provided region of image.
 	 * 
-	 * @param	graphic			source graphic for spritesheet.
-	 * @param	frameSize		the size of tiles in spritesheet.
-	 * @param	region			region of image to use for spritesheet generation. Default value is null,
+	 * @param	graphic			source graphic for BarFrames.
+	 * @param	barType			the fill direction of BarFrames.
+	 * @param	numFrames		number of frames (values) of FlxBar to create.
+	 * @param	region			region of image to use for BarFrames generation. Default value is null,
 	 * 							which means that the whole image will be used for it.
-	 * @param	frameSpacing	offsets between frames in spritesheet. Default value is null, which means no offsets between tiles
-	 * @return	Newly created spritesheet frame collection.
+	 * @return	Newly created BarFrames collection.
 	 */
-	public static function fromGraphic(graphic:FlxGraphic, frameSize:Point, region:Rectangle = null, frameSpacing:Point = null):SpritesheetFrames
+	public static function fromGraphic(graphic:FlxGraphic, barType:FlxBarFillDirection, numFrames:Int = 100, region:Rectangle = null):BarFrames
 	{
-		// find SpritesheetFrames object, if there is one already
-		var spritesheetFrames:SpritesheetFrames = SpritesheetFrames.findFrame(graphic, frameSize, region, null, frameSpacing);
-		if (spritesheetFrames != null)
+		// find BarFrames object, if there is one already
+		var barFrames:BarFrames = BarFrames.findFrame(graphic, barType, numFrames, region, null);
+		if (barFrames != null)
 		{
-			return spritesheetFrames;
+			return barFrames;
 		}
 		
 		// or create it, if there is no such object
@@ -204,85 +271,118 @@ class BarFrames extends FlxFramesCollection
 			}
 		}
 		
-		frameSpacing = (frameSpacing != null) ? frameSpacing : new Point();
+		barFrames = new BarFrames(graphic, barType);
+		barFrames.region = region;
+		barFrames.atlasFrame = null;
 		
-		spritesheetFrames = new SpritesheetFrames(graphic);
-		spritesheetFrames.region = region;
-		spritesheetFrames.atlasFrame = null;
-		spritesheetFrames.frameSize = frameSize;
-		spritesheetFrames.frameSpacing = frameSpacing;
-		
-		var bitmapWidth:Int = Std.int(region.width);
-		var bitmapHeight:Int = Std.int(region.height);
+		var width:Int = Std.int(region.width);
+		var height:Int = Std.int(region.height);
 		
 		var startX:Int = Std.int(region.x);
 		var startY:Int = Std.int(region.y);
 		
-		var xSpacing:Int = Std.int(frameSpacing.x);
-		var ySpacing:Int = Std.int(frameSpacing.y);
+		var frameWidth:Float = 0;
+		var frameHeight:Float = 0;
 		
-		var width:Int = Std.int(frameSize.x);
-		var height:Int = Std.int(frameSize.y);
+		var frameX:Float = 0;
+		var frameY:Float = 0;
 		
-		var spacedWidth:Int = width + xSpacing;
-		var spacedHeight:Int = height + ySpacing;
+		var frameRect:Rectangle;
+		var sourceSize:FlxPoint;
+		var offset:FlxPoint;
 		
-		var numRows:Int = (height == 0) ? 1 : Std.int((bitmapHeight + ySpacing) / spacedHeight);
-		var numCols:Int = (width == 0) ? 1 : Std.int((bitmapWidth + xSpacing) / spacedWidth);
+		var ratio:Float = 0;
 		
-		var tempRect:Rectangle;
-		
-		for (j in 0...(numRows))
+		for (i in 0...(numFrames))
 		{
-			for (i in 0...(numCols))
+			ratio = i / numFrames;
+			frameWidth = width;
+			frameHeight = height;
+			frameX = 0;
+			frameY = 0;
+			
+			switch (barType)
 			{
-				tempRect = new Rectangle(startX + i * spacedWidth, startY + j * spacedHeight, width, height);
-				spritesheetFrames.addSpriteSheetFrame(tempRect);
+				case FlxBarFillDirection.LEFT_TO_RIGHT:
+					frameWidth = width * ratio;
+					
+				case FlxBarFillDirection.TOP_TO_BOTTOM:
+					frameHeight = height * ratio;
+					
+				case FlxBarFillDirection.BOTTOM_TO_TOP:
+					frameHeight = height * ratio;
+					frameY = height - frameHeight;
+					
+				case FlxBarFillDirection.RIGHT_TO_LEFT:
+					frameWidth = width * ratio;
+					frameX = width - frameWidth;
+					
+				case FlxBarFillDirection.HORIZONTAL_INSIDE_OUT:
+					frameWidth = width * ratio;
+					frameX = 0.5 * (width - frameWidth);
+					
+				case FlxBarFillDirection.HORIZONTAL_OUTSIDE_IN:
+					frameWidth = width * (1 - ratio);
+					frameX = 0.5 * (width - frameWidth);
+					
+				case FlxBarFillDirection.VERTICAL_INSIDE_OUT:
+					frameHeight = height * ratio;
+					frameY = 0.5 * (height - frameHeight);
+					
+				case FlxBarFillDirection.VERTICAL_OUTSIDE_IN:
+					frameHeight = height * (1 - ratio);
+					frameY = 0.5 * (height - frameHeight);
 			}
+			
+			frameRect = new Rectangle(startX + frameX, startY + frameY, frameWidth, frameHeight);
+			sourceSize = FlxPoint.get(width, height);
+			offset = FlxPoint.get(frameX, frameY);
+			
+			barFrames.addAtlasFrame(frameRect, sourceSize, offset);
 		}
 		
-		return spritesheetFrames;
+		return barFrames;
 	}
 	
 	/**
-	 * Generates spritesheet frame collection from provided region of image.
+	 * Generates BarFrames collection from provided region of image.
 	 * 
 	 * @param	source			source graphic for spritesheet.
 	 * 							It can be BitmapData, String or FlxGraphic.
-	 * @param	frameSize		the size of tiles in spritesheet.
-	 * @param	region			region of image to use for spritesheet generation. Default value is null,
+	 * @param	barType			fill direction of bar frames.
+	 * @param	numFrames		number of frames (values) of FlxBar to create.
+	 * @param	region			region of image to use for BarFrames generation. Default value is null,
 	 * 							which means that whole image will be used for it.
-	 * @param	frameSpacing	offsets between frames in spritesheet. Default value is null, which means no offsets between tiles
-	 * @return	Newly created spritesheet frame collection
+	 * @return	Newly created BarFrames collection
 	 */
 	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function fromRectangle(source:Dynamic, frameSize:Point, region:Rectangle = null, frameSpacing:Point = null):SpritesheetFrames
+	public static function fromRectangle(source:Dynamic, barType:FlxBarFillDirection, numFrames:Int = 100, region:Rectangle = null):BarFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		if (graphic == null)	return null;
-		return fromGraphic(graphic, frameSize, region, frameSpacing);
+		return fromGraphic(graphic, barType, numFrames, region);
 	}
 	
 	/**
-	 * Searches SpritesheetFrames object for specified FlxGraphic object which have the same parameters (frame size, frame spacings, region of image, etc.).
+	 * Searches BarFrames object for specified FlxGraphic object which have the same parameters (barType, region of image, etc.).
 	 * 
-	 * @param	graphic			FlxGraphic object to search SpritesheetFrames for.
-	 * @param	frameSize		The size of tiles in SpritesheetFrames.
-	 * @param	region			The region of source image used for spritesheet generation.
-	 * @param	atlasFrame		Optional FlxFrame object used for spritesheet generation.
-	 * @param	frameSpacing	Spaces between tiles in spritesheet.
-	 * @return	ImageFrame object which corresponds to specified arguments. Could be null if there is no such SpritesheetFrames.
+	 * @param	graphic			FlxGraphic object to search BarFrames for.
+	 * @param	barType			The type of FlxBar frames (or fill direction).
+	 * @param	numFrames		number of frames (values) of FlxBar to create.
+	 * @param	region			The region of source image used for BarFrames generation.
+	 * @param	atlasFrame		Optional FlxFrame object used for BarFrames generation.
+	 * @return	BarFrames object which corresponds to specified arguments. Could be null if there is no such BarFrames object.
 	 */
-	public static function findFrame(graphic:FlxGraphic, frameSize:Point, region:Rectangle = null, atlasFrame:FlxFrame = null, frameSpacing:Point = null):SpritesheetFrames
+	public static function findFrame(graphic:FlxGraphic, barType:FlxBarFillDirection, numFrames:Int = 100, region:Rectangle = null, atlasFrame:FlxFrame = null):BarFrames
 	{
-		var spritesheetFrames:Array<SpritesheetFrames> = cast graphic.getFramesCollections(FrameCollectionType.SPRITESHEET);
-		var sheet:SpritesheetFrames;
+		var barFramesArr:Array<BarFrames> = cast graphic.getFramesCollections(FrameCollectionType.BAR(barType));
+		var barFrames:BarFrames;
 		
-		for (sheet in spritesheetFrames)
+		for (barFrames in barFramesArr)
 		{
-			if (sheet.equals(frameSize, region, null, frameSpacing))
+			if (barFrames.equals(barType, numFrames, region, null))
 			{
-				return sheet;
+				return barFrames;
 			}
 		}
 		
@@ -290,9 +390,9 @@ class BarFrames extends FlxFramesCollection
 	}
 	
 	/**
-	 * SpritesheetFrames comparison method. For internal use.
+	 * BarFrames comparison method. For internal use.
 	 */
-	public function equals(frameSize:Point, region:Rectangle = null, atlasFrame:FlxFrame = null, frameSpacing:Point = null):Bool
+	public function equals(barType:FlxBarFillDirection, numFrames:Int, region:Rectangle = null, atlasFrame:FlxFrame = null):Bool
 	{
 		if (atlasFrame != null)
 		{
@@ -307,13 +407,7 @@ class BarFrames extends FlxFramesCollection
 			RECT.height = parent.height;
 		}
 		
-		if (frameSpacing == null)
-		{
-			frameSpacing = POINT1;
-			POINT1.x = POINT1.y = 0;
-		}
-		
-		return (this.atlasFrame == atlasFrame && this.region.equals(region) && this.frameSize.equals(frameSize) && this.frameSpacing.equals(frameSpacing));
+		return (this.atlasFrame == atlasFrame && this.region.equals(region) && this.barType == barType && this.numFrames == numFrames);
 	}
 	
 	override public function destroy():Void 

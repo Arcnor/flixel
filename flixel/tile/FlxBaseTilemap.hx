@@ -169,7 +169,7 @@ class FlxBaseTilemap<Tile:FlxObject> extends FlxObject
 	 *                          Can override and customize per-tile-type collision behavior using setTileProperties().
 	 * @return  A reference to this instance of FlxTilemap, for chaining as usual :)
 	 */
-	// TODO: make it accept BitmapData, FlxGraphic, String or SpritesheetFrames
+	// TODO: make it accept BitmapData, FlxGraphic, String or TileFrames
 	public function loadMap(MapData:FlxTilemapAsset, TileGraphic:FlxGraphicAsset, TileWidth:Int = 0, TileHeight:Int = 0, 
 		?AutoTile:FlxTilemapAutoTiling, StartingIndex:Int = 0, DrawIndex:Int = 1, CollideIndex:Int = 1):FlxBaseTilemap<Tile>
 	{

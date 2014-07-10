@@ -3,7 +3,7 @@ package flixel.tile;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.graphics.frames.SpritesheetFrames;
+import flixel.graphics.frames.TileFrames;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.layer.DrawStackItem;
 import flixel.math.FlxAngle;
@@ -34,7 +34,7 @@ class FlxTileblock extends FlxSprite
 	}
 	
 	// TODO: implement this
-	public function loadFrames(TileFrames:SpritesheetFrames, Empties:Int = 0):FlxTileblock
+	public function loadFrames(TileFrames:TileFrames, Empties:Int = 0):FlxTileblock
 	{
 		return this;
 	}
