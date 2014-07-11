@@ -167,8 +167,7 @@ class ClippedFrames extends FlxFramesCollection
 	 */
 	public static function findFrame(frames:FlxFramesCollection, clipRect:Rectangle):ClippedFrames
 	{
-		var graphic:FlxGraphic = frames.parent;
-		var clippedFramesArr:Array<ClippedFrames> = cast graphic.getFramesCollections(FrameCollectionType.CLIPPED);
+		var clippedFramesArr:Array<ClippedFrames> = cast frames.parent.getFramesCollections(FrameCollectionType.CLIPPED);
 		var clippedFrames:ClippedFrames;
 		
 		for (clippedFrames in clippedFramesArr)

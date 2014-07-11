@@ -10,8 +10,10 @@ import flixel.animation.FlxAnimationController;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
+import flixel.graphics.frames.ClippedFrames;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
+import flixel.graphics.frames.FrameCollectionType;
 import flixel.graphics.frames.ImageFrame;
 import flixel.graphics.frames.TileFrames;
 import flixel.math.FlxAngle;
@@ -240,42 +242,36 @@ class FlxSprite extends FlxObject
 	
 	/**
 	 * Clips sprites frames without changing the size of the sprite.
-	 * @param	rect	Rectangle which will be used for clipping frames.
-	 * @return	this 	FlxSprite object
+	 * @param	rect			Rectangle which will be used for clipping frames.
+	 * @param	useOriginal		Whether to revert clipping of frames (if there was one) before applying new one.
+	 * @return	this FlxSprite object.
 	 */
-	// TODO: reimplement these 2 methods
-	/*
 	public function clipRect(rect:Rectangle, useOriginal:Bool = true):FlxSprite
 	{
-		if (cachedGraphics != null && framesData != null)
+		if (frames != null)
 		{
-			framesData = cachedGraphics.tilesheet.clipFrames(this.framesData, rect, useOriginal);
-			frames = framesData.frames.length;
-			animation.frameIndex = 0;
-			frame = framesData.frames[0];			
+			frames = ClippedFrames.clip(frames, rect, useOriginal);
+			frame = frames.frames[animation.frameIndex];			
 		}
 		
 		return this;
 	}
 	
+	/**
+	 * Reverts clipping of frames.
+	 * @return	This FlxSprite object.
+	 */
 	public function unclip():FlxSprite
 	{
-		if (cachedGraphics != null && framesData != null)
+		if (frames != null && frames.type == FrameCollectionType.CLIPPED)
 		{
-			var original:FlxSpriteFrames = framesData.original;
-			if (original == null)
-			{
-				return this;
-			}
-			framesData = original;
-			frames = framesData.frames.length;
-			animation.frameIndex = 0;
-			frame = framesData.frames[0];			
+			frames = cast(frames, ClippedFrames).original;
+			frame = frames.frames[animation.frameIndex];
 		}
 		
 		return this;
 	}
-	*/
+	
 	public function clone():FlxSprite
 	{
 		return (new FlxSprite()).loadGraphicFromSprite(this);

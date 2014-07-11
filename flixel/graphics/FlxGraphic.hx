@@ -483,7 +483,7 @@ class FlxGraphic
 		if (collection.type != null)
 		{
 			var collections:Array<Dynamic> = getFramesCollections(collection.type);
-			collections.push(this);
+			collections.push(collection);
 		}
 	}
 	
