@@ -127,7 +127,7 @@ class FlxFramesCollection implements IFlxDestroyable
 	public function addEmptyFrame(size:Rectangle):FlxEmptyFrame
 	{
 		var frame:FlxEmptyFrame = new FlxEmptyFrame(parent);	
-		frame.frame = size;
+		frame.frame = new Rectangle();
 		frame.sourceSize.set(size.width, size.height);
 		frame.halfSize.set(0.5 * size.width, 0.5 * size.height);
 		frames.push(frame);
