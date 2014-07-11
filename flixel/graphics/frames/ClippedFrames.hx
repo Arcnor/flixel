@@ -30,16 +30,13 @@ class ClippedFrames extends FlxFramesCollection
 	
 	private function clipFrames():Void 
 	{
-		var frame:FlxFrame;
 		var frameRect:Rectangle = new Rectangle();
-		var newFrameRect:Rectangle;
 		var clippedRect1:Rectangle = new Rectangle();
 		var clippedRect2:Rectangle;
 		var helperRect:Rectangle = new Rectangle();
 		var frameOffset:FlxPoint;
 		var frameWidth:Float;
 		var frameHeight:Float;
-		
 		var x:Float, y:Float, w:Float, h:Float;
 		
 		var rotated:Bool;
