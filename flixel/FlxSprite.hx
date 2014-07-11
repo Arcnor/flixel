@@ -238,6 +238,44 @@ class FlxSprite extends FlxObject
 		graphic = null;
 	}
 	
+	/**
+	 * Clips sprites frames without changing the size of the sprite.
+	 * @param	rect	Rectangle which will be used for clipping frames.
+	 * @return	this 	FlxSprite object
+	 */
+	// TODO: reimplement these 2 methods
+	/*
+	public function clipRect(rect:Rectangle, useOriginal:Bool = true):FlxSprite
+	{
+		if (cachedGraphics != null && framesData != null)
+		{
+			framesData = cachedGraphics.tilesheet.clipFrames(this.framesData, rect, useOriginal);
+			frames = framesData.frames.length;
+			animation.frameIndex = 0;
+			frame = framesData.frames[0];			
+		}
+		
+		return this;
+	}
+	
+	public function unclip():FlxSprite
+	{
+		if (cachedGraphics != null && framesData != null)
+		{
+			var original:FlxSpriteFrames = framesData.original;
+			if (original == null)
+			{
+				return this;
+			}
+			framesData = original;
+			frames = framesData.frames.length;
+			animation.frameIndex = 0;
+			frame = framesData.frames[0];			
+		}
+		
+		return this;
+	}
+	*/
 	public function clone():FlxSprite
 	{
 		return (new FlxSprite()).loadGraphicFromSprite(this);
