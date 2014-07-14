@@ -120,6 +120,8 @@ class FlxGradient
 			height = 1;
 		}
 		
+		// TODO: maybe remove this key generation and caching code...
+		
 		#if FLX_RENDER_TILE
 		var key:String = "Gradient: " + width + " x " + height + ", colors: [";
 		var a:Int;

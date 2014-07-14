@@ -246,6 +246,7 @@ class FlxSprite extends FlxObject
 	 * @param	useOriginal		Whether to revert clipping of frames (if there was one) before applying new one.
 	 * @return	this FlxSprite object.
 	 */
+	// TODO: use FlxRect instead of Rectangle
 	public function clipRect(rect:Rectangle, useOriginal:Bool = true):FlxSprite
 	{
 		if (frames != null)

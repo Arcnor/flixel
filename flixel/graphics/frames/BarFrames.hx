@@ -11,6 +11,7 @@ import flixel.math.FlxPoint;
 import flixel.graphics.FlxGraphic;
 import flixel.util.FlxBitmapDataUtil;
 import flixel.ui.FlxBar.FlxBarFillDirection;
+import flixel.util.FlxColor;
 
 /**
  * Bar frames collection. It is used by FlxBar class only. 
@@ -38,6 +39,51 @@ class BarFrames extends FlxFramesCollection
 	{
 		super(parent, FrameCollectionType.BAR(barType));
 		this.barType = barType;
+	}
+	
+	// TODO: document it...
+	/**
+	 * 
+	 * 
+	 * @param	barType
+	 * @return
+	 */
+	public function changeType(barType:FlxBarFillDirection):BarFrames
+	{
+		if (this.barType == barType)
+		{
+			return this;
+		}
+		
+		if (atlasFrame != null)
+		{
+			return BarFrames.fromFrame(atlasFrame, barType, this.numFrames);
+		}
+		
+		return BarFrames.fromGraphic(parent, barType, this.numFrames, this.region);
+	}
+	
+	// TODO: document it...
+	/**
+	 * 
+	 * 
+	 * @return
+	 */
+	public function getFilledBitmap():BitmapData
+	{
+		if (atlasFrame != null)
+		{
+			return atlasFrame.getBitmap().clone();
+		}
+		else
+		{
+			var filled:BitmapData = new BitmapData(Std.int(region.width), Std.int(region.height), true, FlxColor.TRANSPARENT);
+			POINT1.setTo(0, 0);
+			filled.copyPixels(parent.bitmap, region, POINT1);
+			return filled;
+		}
+		
+		return null;
 	}
 	
 	/**
