@@ -21,7 +21,7 @@ import flixel.util.FlxGradient;
 import flixel.math.FlxPoint;
 import flixel.util.FlxStringUtil;
 
-// TODO: create less garbage in constructor
+// TODO: create less garbage in constructor.
 
 /**
  * FlxBar is a quick and easy way to create a graphical bar which can
@@ -112,7 +112,7 @@ class FlxBar extends FlxSprite
 	/**
 	 * FlxSprite which is used for rendering front graphics of bar (showing value) in tile render mode.
 	 */
-	private var _frontSprite:FlxSprite;
+	private var _front:FlxSprite;
 	#else
 	private var _emptyBar:BitmapData;
 	private var _emptyBarRect:Rectangle;
@@ -157,7 +157,7 @@ class FlxBar extends FlxSprite
 		
 		makeGraphic(width, height, FlxColor.TRANSPARENT, true);
 		#else
-		_frontSprite = new FlxSprite();
+		_front = new FlxSprite();
 		#end
 		
 		if (parentRef != null)
@@ -177,7 +177,7 @@ class FlxBar extends FlxSprite
 		
 		#if FLX_RENDER_TILE
 		_filledBarFrames = null;
-		_frontSprite = FlxDestroyUtil.destroy(_frontSprite);
+		_front = FlxDestroyUtil.destroy(_front);
 		#else
 		_emptyBarRect = null;
 		_emptyBarPoint = null;
@@ -706,7 +706,7 @@ class FlxBar extends FlxSprite
 		}
 		
 		#if FLX_RENDER_TILE
-		if (_frontSprite != null)
+		if (_front != null)
 		{
 			frontFrames = frontFrames.changeType(fillDirection);
 		}
@@ -820,7 +820,13 @@ class FlxBar extends FlxSprite
 	override public function draw():Void 
 	{
 		super.draw();
-		_frontSprite.draw();
+		
+		_front.x = this.x;
+		_front.y = this.y;
+		_front.scale.copyFrom(this.scale);
+		_front.origin.copyFrom(this.origin);
+		_front.offset.copyFrom(this.offset);
+		_front.draw();
 	}
 	
 	override private function set_pixels(Pixels:BitmapData):BitmapData
@@ -897,9 +903,9 @@ class FlxBar extends FlxSprite
 	private function get_frontFrames():BarFrames
 	{
 		#if FLX_RENDER_TILE
-		if (_frontSprite != null && _frontSprite.frames != null)
+		if (_front != null && _front.frames != null)
 		{
-			return cast(_frontSprite.frames, BarFrames);
+			return cast(_front.frames, BarFrames);
 		}
 		#end
 		
@@ -909,9 +915,9 @@ class FlxBar extends FlxSprite
 	private function set_frontFrames(value:BarFrames):BarFrames
 	{
 		#if FLX_RENDER_TILE
-		if (_frontSprite != null)
+		if (_front != null)
 		{
-			_frontSprite.frames = value;
+			_front.frames = value;
 		}
 		#else
 		createImageFilledBar(value.getFilledBitmap());
