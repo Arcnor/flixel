@@ -21,6 +21,8 @@ import flixel.util.FlxGradient;
 import flixel.math.FlxPoint;
 import flixel.util.FlxStringUtil;
 
+// TODO: create less garbage in constructor
+
 /**
  * FlxBar is a quick and easy way to create a graphical bar which can
  * be used as part of your UI/HUD, or positioned next to a sprite. 
@@ -72,28 +74,43 @@ class FlxBar extends FlxSprite
 	 * What 1% of the bar is equal to in terms of value (range / 100)
 	 */
 	public var pct(default, null):Float;
-	
+	/**
+	 * This function will be called when value will hit it's minimum
+	 */
 	public var emptyCallback:Void->Void;
-	
+	/**
+	 * This function will be called when value will hit it's maximum
+	 */
 	public var filledCallback:Void->Void;
-	
+	/**
+	 * Object to track value from/
+	 */
 	public var parent:Dynamic;
+	/**
+	 * Property of parent object to track.
+	 */
 	public var parentVariable:String;
 	
 	public var barWidth(default, null):Int;
 	public var barHeight(default, null):Int;
 	
-	private var _zeroOffset:Point;
-	
+	/**
+	 * BarFrames which will be used for filled bar rendering.
+	 * It is recommended to use this property in tile render mode
+	 * (altrough it will work in blit render mode also).
+	 */
 	public var frontFrames(get, set):BarFrames;
 	
+	/**
+	 * The direction from which the health bar will fill-up. Default is from left to right. Change takes effect immediately.
+	 */
 	@:isVar
 	public var fillDirection(get, set):FlxBarFillDirection;	
 	private var _fillHorizontal:Bool;
 	
 	#if FLX_RENDER_TILE
 	/**
-	 * FlxSprite which is used for rendering front graphics of bar (showing value).
+	 * FlxSprite which is used for rendering front graphics of bar (showing value) in tile render mode.
 	 */
 	private var _frontSprite:FlxSprite;
 	#else
@@ -104,6 +121,8 @@ class FlxBar extends FlxSprite
 	private var _filledBar:BitmapData;
 	private var _filledBarRect:Rectangle;
 	private var _filledBarPoint:Point;
+	
+	private var _zeroOffset:Point;
 	#end
 	
 	/**
@@ -126,22 +145,20 @@ class FlxBar extends FlxSprite
 		
 		direction = (direction == null) ? LEFT_TO_RIGHT : direction;
 		
-		_zeroOffset = new Point();
-		
 		barWidth = width;
 		barHeight = height;
 		
 		#if FLX_RENDER_BLIT
+		_zeroOffset = new Point();
+		_emptyBarRect = new Rectangle();
+		_emptyBarPoint = new Point();
+		_filledBarPoint = new Point();
+		_filledBarRect = new Rectangle();
+		
 		makeGraphic(width, height, FlxColor.TRANSPARENT, true);
 		#else
-		this.width = frameWidth = width;
-		this.height = frameHeight = height;
-		origin.set(frameWidth * 0.5, frameHeight * 0.5);
-		
 		_frontSprite = new FlxSprite();
 		#end
-		
-		_filledBarPoint = new Point(0, 0);
 		
 		if (parentRef != null)
 		{
@@ -150,44 +167,38 @@ class FlxBar extends FlxSprite
 		}
 		
 		fillDirection = direction;
-		
 		createFilledBar(0xff005100, 0xff00F400, showBorder);
-		
 		setRange(min, max);
-		
-		// Make sure the bar is drawn
-		#if FLX_RENDER_BLIT
-		updateBar();
-		#end
 	}
 	
 	override public function destroy():Void 
 	{
 		positionOffset = FlxDestroyUtil.put(positionOffset);
 		
-		#if !FLX_RENDER_BLIT
+		#if FLX_RENDER_TILE
 		_filledBarFrames = null;
+		_frontSprite = FlxDestroyUtil.destroy(_frontSprite);
+		#else
+		_emptyBarRect = null;
+		_emptyBarPoint = null;
+		_zeroOffset = null;
+		_filledBarRect = null;
+		_filledBarPoint = null;
+		_emptyBar = FlxDestroyUtil.dispose(_emptyBar);
+		_filledBar = FlxDestroyUtil.dispose(_filledBar);
 		#end
 		
 		parent = null;
 		positionOffset = null;
 		emptyCallback = null;
-		_emptyBarRect = null;
-		_emptyBarPoint = null;
-		_zeroOffset = null;
 		filledCallback = null;
-		_filledBarRect = null;
-		_filledBarPoint = null;
-		
-		_emptyBar = FlxDestroyUtil.dispose(_emptyBar);
-		_filledBar = FlxDestroyUtil.dispose(_filledBar);
 		
 		super.destroy();
 	}
 	
 	/**
-	 * Track the parent FlxSprites x/y coordinates. For example if you wanted your sprite to have a floating health-bar above their head.<br />
-	 * If your health bar is 10px tall and you wanted it to appear above your sprite, then set offsetY to be -10<br />
+	 * Track the parent FlxSprites x/y coordinates. For example if you wanted your sprite to have a floating health-bar above their head.
+	 * If your health bar is 10px tall and you wanted it to appear above your sprite, then set offsetY to be -10
 	 * If you wanted it to appear below your sprite, and your sprite was 32px tall, then set offsetY to be 32. Same applies to offsetX.
 	 * 
 	 * @param	offsetX		The offset on X in relation to the origin x/y of the parent
@@ -289,7 +300,7 @@ class FlxBar extends FlxSprite
 	}
 	
 	/**
-	 * Creates a solid-colour filled health bar in the given colours, with optional 1px thick border.<br />
+	 * Creates a solid-colour filled health bar in the given colours, with optional 1px thick border.
 	 * All colour values are in 0xAARRGGBB format, so if you want a slightly transparent health bar give it lower AA values.
 	 * 
 	 * @param	empty		The color of the bar when empty in 0xAARRGGBB format (the background colour)
@@ -305,12 +316,13 @@ class FlxBar extends FlxSprite
 		return this;
 	}
 	
-	// TODO: document it...
 	/**
+	 * Creates a solid-colour filled background for health bar in the given colour, with optional 1px thick border.
 	 * 
-	 * 
-	 * @param	empty
-	 * @return
+	 * @param	empty			The color of the bar when empty in 0xAARRGGBB format (the background colour)
+	 * @param	showBorder		Should the bar be outlined with a 1px solid border?
+	 * @param	border			The border colour in 0xAARRGGBB format
+	 * @return	This FlxBar object with generated image for rendering health bar backround.
 	 */
 	public function createColoredEmptyBar(empty:Int, showBorder:Bool = false, border:Int = 0xffffffff):FlxBar
 	{
@@ -355,19 +367,19 @@ class FlxBar extends FlxSprite
 			_emptyBar = new BitmapData(barWidth, barHeight, true, empty);
 		}
 		
-		_emptyBarRect = new Rectangle(0, 0, barWidth, barHeight);
+		_emptyBarRect.setTo(0, 0, barWidth, barHeight);
+		updateEmptyBar();
 	#end
 		
 		return this;
 	}
 	
-	// TODO: document it...
 	/**
-	 * 
-	 * @param	fill
-	 * @param	showBorder
-	 * @param	border
-	 * @return
+	 * Creates a solid-colour filled foreground for health bar in the given colour, with optional 1px thick border.
+	 * @param	fill		The color of the bar when full in 0xAARRGGBB format (the foreground colour)
+	 * @param	showBorder	Should the bar be outlined with a 1px solid border?
+	 * @param	border		The border colour in 0xAARRGGBB format
+	 * @return	This FlxBar object with generated image for rendering actual values.
 	 */
 	public function createColoredFilledBar(fill:Int, showBorder:Bool = false, border:Int = 0xffffffff):FlxBar
 	{
@@ -412,14 +424,15 @@ class FlxBar extends FlxSprite
 			_filledBar = new BitmapData(barWidth, barHeight, true, fill);
 		}
 		
-		_filledBarRect = new Rectangle(0, 0, barWidth, barHeight);
+		_filledBarRect.setTo(0, 0, barWidth, barHeight);
+		updateFilledBar();
 	#end
 		
 		return this;
 	}
 	
 	/**
-	 * Creates a gradient filled health bar using the given colour ranges, with optional 1px thick border.<br />
+	 * Creates a gradient filled health bar using the given colour ranges, with optional 1px thick border.
 	 * All colour values are in 0xAARRGGBB format, so if you want a slightly transparent health bar give it lower AA values.
 	 * 
 	 * @param	empty		Array of colour values used to create the gradient of the health bar when empty, each colour must be in 0xAARRGGBB format (the background colour)
@@ -437,16 +450,15 @@ class FlxBar extends FlxSprite
 		return this;
 	}
 	
-	// TODO: document it...
 	/**
+	 * Creates a gradient filled background for health bar using the given colour range, with optional 1px thick border.
 	 * 
-	 * 
-	 * @param	empty
-	 * @param	chunkSize
-	 * @param	rotation
-	 * @param	showBorder
-	 * @param	border
-	 * @return
+	 * @param	empty			Array of colour values used to create the gradient of the health bar when empty, each colour must be in 0xAARRGGBB format (the background colour)
+	 * @param	chunkSize		If you want a more old-skool looking chunky gradient, increase this value!
+	 * @param	rotation		Angle of the gradient in degrees. 90 = top to bottom, 180 = left to right. Any angle is valid
+	 * @param	showBorder		Should the bar be outlined with a 1px solid border?
+	 * @param	border			The border colour in 0xAARRGGBB format
+	 * @return 	This FlxBar object with generated image for backround rendering.
 	 */
 	public function createGradientEmptyBar(empty:Array<Int>, chunkSize:Int = 1, rotation:Int = 180, showBorder:Bool = false, border:Int = 0xffffffff):FlxBar
 	{
@@ -501,22 +513,22 @@ class FlxBar extends FlxSprite
 			_emptyBar = FlxGradient.createGradientBitmapData(barWidth, barHeight, empty, chunkSize, rotation);
 		}
 		
-		_emptyBarRect = new Rectangle(0, 0, _emptyBar.width, _emptyBar.height);
+		_emptyBarRect.setTo(0, 0, barWidth, barHeight);
+		updateEmptyBar();
 	#end
 		
 		return this;
 	}
 	
-	// TODO: document it...
 	/**
+	 * Creates a gradient filled foreground for health bar using the given colour range, with optional 1px thick border.
 	 * 
-	 * 
-	 * @param	fill
-	 * @param	chunkSize
-	 * @param	rotation
-	 * @param	showBorder
-	 * @param	border
-	 * @return
+	 * @param	fill		Array of colour values used to create the gradient of the health bar when full, each colour must be in 0xAARRGGBB format (the foreground colour)
+	 * @param	chunkSize	If you want a more old-skool looking chunky gradient, increase this value!
+	 * @param	rotation	Angle of the gradient in degrees. 90 = top to bottom, 180 = left to right. Any angle is valid
+	 * @param	showBorder	Should the bar be outlined with a 1px solid border?
+	 * @param	border		The border colour in 0xAARRGGBB format
+	 * @return 	This FlxBar object with generated image for rendering actual values.
 	 */
 	public function createGradientFilledBar(fill:Array<Int>, chunkSize:Int = 1, rotation:Int = 180, showBorder:Bool = false, border:Int = 0xffffffff):FlxBar
 	{
@@ -571,14 +583,15 @@ class FlxBar extends FlxSprite
 			_filledBar = FlxGradient.createGradientBitmapData(barWidth, barHeight, fill, chunkSize, rotation);
 		}
 		
-		_filledBarRect = new Rectangle(0, 0, _filledBar.width, _filledBar.height);
+		_filledBarRect.setTo(0, 0, barWidth, barHeight);
+		updateFilledBar();
 		#end
 		
 		return this;
 	}
 	
 	/**
-	 * Creates a health bar filled using the given bitmap images.<br />
+	 * Creates a health bar filled using the given bitmap images.
 	 * You can provide "empty" (background) and "fill" (foreground) images. either one or both images (empty / fill), and use the optional empty/fill colour values 
 	 * All colour values are in 0xAARRGGBB format, so if you want a slightly transparent health bar give it lower AA values.
 	 * NOTE: This method doesn't check if the empty image doesn't have the same size as fill image.
@@ -587,7 +600,7 @@ class FlxBar extends FlxSprite
 	 * @param	fill				Bitmap image used as the foreground (filled part) of the health bar, if null the fillBackground colour is used
 	 * @param	emptyBackground		If no background (empty) image is given, use this colour value instead. 0xAARRGGBB format
 	 * @param	fillBackground		If no foreground (fill) image is given, use this colour value instead. 0xAARRGGBB format
-	 * @return	
+	 * @return	This FlxBar object with generated images for front and backround.
 	 */
 	public function createImageBar(?empty:Dynamic, ?fill:Dynamic, emptyBackground:Int = 0xff000000, fillBackground:Int = 0xff00ff00):FlxBar
 	{
@@ -596,17 +609,14 @@ class FlxBar extends FlxSprite
 		return this;
 	}
 	
-	// TODO: document it...
 	/**
+	 * Loads given bitmap image for health bar background.
 	 * 
-	 * 
-	 * @param	?empty
-	 * @param	?fill
-	 * @param	emptyBackground
-	 * @param	fillBackground
-	 * @return
+	 * @param	empty				Bitmap image used as the background (empty part) of the health bar, if null the emptyBackground colour is used
+	 * @param	emptyBackground		If no background (empty) image is given, use this colour value instead. 0xAARRGGBB format
+	 * @return	This FlxBar object with generated image for backround rendering.
 	 */
-	// TODO: bound input type
+	// TODO: bound input type (BitmapData, FlxGraphic and String)
 	public function createImageEmptyBar(?empty:Dynamic, emptyBackground:Int = 0xff000000):FlxBar
 	{
 		if (empty != null)
@@ -621,13 +631,14 @@ class FlxBar extends FlxSprite
 			barWidth = _emptyBar.width;
 			barHeight = _emptyBar.height;
 			
-			_emptyBarRect = new Rectangle(0, 0, barWidth, barHeight);
+			_emptyBarRect.setTo(0, 0, barWidth, barHeight);
 			
 			if (graphic == null || (frame.sourceSize.x != barWidth || frame.sourceSize.y != barHeight))
 			{
 				makeGraphic(barWidth, barHeight, FlxColor.TRANSPARENT, true);
 			}
 			
+			updateEmptyBar();
 			#end
 		}
 		else
@@ -638,13 +649,14 @@ class FlxBar extends FlxSprite
 		return this;
 	}
 	
-	// TODO: bound input type
 	/**
+	 * Loads given bitmap image for health bar foreground.
 	 * 
-	 * @param	?fill
-	 * @param	fillBackground
-	 * @return
+	 * @param	fill				Bitmap image used as the foreground (filled part) of the health bar, if null the fillBackground colour is used
+	 * @param	fillBackground		If no foreground (fill) image is given, use this colour value instead. 0xAARRGGBB format
+	 * @return	This FlxBar object with generated image for rendering actual values.
 	 */
+	// TODO: bound input type (BitmapData, FlxGraphic and String)
 	public function createImageFilledBar(?fill:Dynamic, fillBackground:Int = 0xff00ff00):FlxBar
 	{
 		if (fill != null)
@@ -656,7 +668,7 @@ class FlxBar extends FlxSprite
 			#else
 			_filledBar = filledGraphic.bitmap.clone();
 			
-			_filledBarRect = new Rectangle(0, 0, barWidth, barHeight);
+			_filledBarRect.setTo(0, 0, barWidth, barHeight);
 			
 			if (graphic == null || (frame.sourceSize.x != barWidth || frame.sourceSize.y != barHeight))
 			{
@@ -664,6 +676,7 @@ class FlxBar extends FlxSprite
 			}
 			
 			pxPerPercent = (_fillHorizontal) ? (barWidth / 100) : (barHeight / 100);
+			updateFilledBar();
 			#end
 		}
 		else
@@ -679,11 +692,6 @@ class FlxBar extends FlxSprite
 		return fillDirection;
 	}
 	
-	/**
-	 * Set the direction from which the health bar will fill-up. Default is from left to right. Change takes effect immediately.
-	 * 
-	 * @param	direction	The fill direction, LEFT_TO_RIGHT by default
-	 */
 	private function set_fillDirection(direction:FlxBarFillDirection):FlxBarFillDirection
 	{
 		fillDirection = direction;
@@ -713,9 +721,31 @@ class FlxBar extends FlxSprite
 	}
 	
 	/**
+	 * Updates health bar view according its current value.
 	 * Called when the health bar detects a change in the health of the parent.
 	 */
-	private function updateBar():Void
+	public function updateBar():Void
+	{
+		updateEmptyBar();
+		updateFilledBar();
+	}
+	
+	/**
+	 * Stamps health bar background on its pixels
+	 */
+	public function updateEmptyBar():Void
+	{
+		#if FLX_RENDER_BLIT
+		pixels.copyPixels(_emptyBar, _emptyBarRect, _zeroOffset);
+		frame.destroyBitmaps();
+		dirty = true;
+		#end
+	}
+	
+	/**
+	 * Stamps health bar foreground on its pixels
+	 */
+	public function updateFilledBar():Void
 	{
 		#if FLX_RENDER_BLIT
 		if (_fillHorizontal)
@@ -726,8 +756,6 @@ class FlxBar extends FlxSprite
 		{
 			_filledBarRect.height = Std.int(percent * pxPerPercent);
 		}
-		
-		pixels.copyPixels(_emptyBar, _emptyBarRect, _zeroOffset);
 		
 		if (percent > 0)
 		{
@@ -800,23 +828,7 @@ class FlxBar extends FlxSprite
 		return Pixels; // hack
 	}
 	#end
-	
-	#if FLX_RENDER_TILE
-	private function setFrontGraphic(value:FlxGraphic):Void
-	{
-		if (_frontGraphic != null && _frontGraphic != value)
-		{
-			_frontGraphic.useCount--;
-		}
 		
-		if (_frontGraphic != value && value != null)
-		{
-			value.useCount++;
-		}
-		_frontGraphic = value;
-	}
-	#end
-	
 	override public function toString():String
 	{
 		return FlxStringUtil.getDebugString([ 

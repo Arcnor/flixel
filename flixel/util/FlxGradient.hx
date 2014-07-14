@@ -120,27 +120,6 @@ class FlxGradient
 			height = 1;
 		}
 		
-		// TODO: maybe remove this key generation and caching code...
-		
-		#if FLX_RENDER_TILE
-		var key:String = "Gradient: " + width + " x " + height + ", colors: [";
-		var a:Int;
-		var rgb:Int;
-		for (col in colors)
-		{
-			a = (col >> 24) & 255;
-			rgb = col & 0x00ffffff;
-			
-			key = key + rgb + "_" + a + ", ";
-		}
-		key = key + "], chunkSize: " + chunkSize + ", rotation: " + rotation;
-		
-		if (FlxG.bitmap.checkCache(key))
-		{
-			return FlxG.bitmap.get(key).bitmap;
-		}
-		#end
-		
 		var gradient:GradientMatrix = createGradientMatrix(width, height, colors, chunkSize, rotation);
 		
 		var s:Shape = new Shape();

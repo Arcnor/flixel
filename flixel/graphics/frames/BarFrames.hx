@@ -41,12 +41,11 @@ class BarFrames extends FlxFramesCollection
 		this.barType = barType;
 	}
 	
-	// TODO: document it...
 	/**
+	 * Creates new BarFrames collection from this frame collection, but with another fill direction.
 	 * 
-	 * 
-	 * @param	barType
-	 * @return
+	 * @param	barType		Fill direction for new BarFrames collection.
+	 * @return	Generated BarFrames collection.
 	 */
 	public function changeType(barType:FlxBarFillDirection):BarFrames
 	{
@@ -63,11 +62,8 @@ class BarFrames extends FlxFramesCollection
 		return BarFrames.fromGraphic(parent, barType, this.numFrames, this.region);
 	}
 	
-	// TODO: document it...
 	/**
-	 * 
-	 * 
-	 * @return
+	 * Generates BitmapData object which represents fully loaded bar
 	 */
 	public function getFilledBitmap():BitmapData
 	{
