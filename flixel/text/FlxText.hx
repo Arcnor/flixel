@@ -175,20 +175,17 @@ class FlxText extends FlxSprite
 		_textField.multiline = true;
 		_textField.wordWrap = true;
 		_defaultFormat = new TextFormat(null, Size, 0xffffff);
+		_formats = new Array<FlxTextFormat>();
 		font = FlxAssets.FONT_DEFAULT;
 		_formatAdjusted = new TextFormat();
 		_textField.defaultTextFormat = _defaultFormat;
 		_textField.text = Text;
 		fieldWidth = FieldWidth;
 		_textField.embedFonts = EmbeddedFont;
-		
-		_formats = new Array<FlxTextFormat>();
-		
+		_textField.height = (Text.length <= 0) ? 1 : 10;
 		#if flash
 		_textField.sharpness = 100;
 		#end
-		
-		_textField.height = (Text.length <= 0) ? 1 : 10;
 		
 		allowCollisions = FlxObject.NONE;
 		moves = false;
@@ -218,11 +215,13 @@ class FlxText extends FlxSprite
 	 */
 	override public function destroy():Void
 	{
+		shadowOffset = FlxDestroyUtil.put(shadowOffset);
 		_textField = null;
 		_font = null;
 		_defaultFormat = null;
 		_formatAdjusted = null;
 		_filters = null;
+		
 		if (_formats != null)
 		{
 			for (format in _formats)
@@ -234,8 +233,8 @@ class FlxText extends FlxSprite
 				}
 			}
 		}
+		
 		_formats = null;
-		shadowOffset = FlxDestroyUtil.put(shadowOffset);
 		super.destroy();
 	}
 	
@@ -296,10 +295,7 @@ class FlxText extends FlxSprite
 	public function setFormat(?Font:String, Size:Float = 8, Color:FlxColor = FlxColor.WHITE, ?Alignment:FlxTextAlign, 
 		?BorderStyle:FlxTextBorderStyle, BorderColor:FlxColor = FlxColor.TRANSPARENT, Embedded:Bool = true):FlxText
 	{
-		if (BorderStyle == null)
-		{
-			BorderStyle = NONE;
-		}
+		BorderStyle = (BorderStyle == null) ? NONE : BorderStyle;
 		
 		if (Embedded)
 		{
@@ -347,18 +343,12 @@ class FlxText extends FlxSprite
 	public function removeFilter(filter:BitmapFilter):Void
 	{
 		var removed:Bool = _filters.remove(filter);
-		if (removed)
-		{
-			dirty = true;
-		}
+		dirty = (removed || dirty);
 	}
 	
 	public function clearFilters():Void
 	{
-		if (_filters.length > 0)
-		{
-			dirty = true;
-		}
+		dirty = (_filters.length > 0) || dirty;
 		_filters = [];
 	}
 	
@@ -412,11 +402,7 @@ class FlxText extends FlxSprite
 	{
 		var ot:String = _textField.text;
 		_textField.text = Text;
-		
-		if (_textField.text != ot)
-		{
-			dirty = true;
-		}
+		dirty = (_textField.text != ot) || dirty;
 		
 		return _textField.text;
 	}
@@ -582,10 +568,7 @@ class FlxText extends FlxSprite
 	
 	private function set_borderQuality(Value:Float):Float
 	{
-		if (Value < 0)
-			Value = 0;
-		else if (Value > 1)
-			Value = 1;
+		Value = Math.min(1, Math.max(0, Value));
 		
 		if (Value != borderQuality && borderStyle != NONE)
 		{
@@ -727,8 +710,6 @@ class FlxText extends FlxSprite
 			graphic.bitmap.draw(_textField, _matrix);
 		}
 		
-		dirty = false;
-		
 		#if FLX_RENDER_TILE
 		if (!RunOnCpp)
 		{
@@ -736,19 +717,8 @@ class FlxText extends FlxSprite
 		}
 		#end
 		
-		//Finally, update the visible pixels
-		if ((framePixels == null) || (framePixels.width != graphic.width) || (framePixels.height != graphic.height))
-		{
-			framePixels = FlxDestroyUtil.dispose(framePixels);
-			framePixels = new BitmapData(graphic.width, graphic.height, true, 0);
-		}
-		
-		framePixels.copyPixels(graphic.bitmap, _flashRect, _flashPointZero);
-		
-		if (useColorTransform) 
-		{
-			framePixels.colorTransform(_flashRect, colorTransform);
-		}
+		dirty = true;
+		getFlxFrameBitmapData();
 	}
 	
 	private function applyBorderStyle():Void
@@ -758,7 +728,7 @@ class FlxText extends FlxSprite
 		{ 
 			iterations = 1;
 		}
-		var delta:Float = (borderSize / iterations);
+		var delta:Float = borderSize / iterations;
 		
 		switch (borderStyle)
 		{
@@ -814,11 +784,11 @@ class FlxText extends FlxSprite
 				{
 					_matrix.translate(-itd, -itd);			//upper-left
 					graphic.bitmap.draw(_textField, _matrix);
-					_matrix.translate(itd*2, 0);			//upper-right
+					_matrix.translate(itd * 2, 0);			//upper-right
 					graphic.bitmap.draw(_textField, _matrix);
-					_matrix.translate(0, itd*2);			//lower-right
+					_matrix.translate(0, itd * 2);			//lower-right
 					graphic.bitmap.draw(_textField, _matrix);
-					_matrix.translate(-itd*2, 0);			//lower-left
+					_matrix.translate( -itd * 2, 0);			//lower-left
 					graphic.bitmap.draw(_textField, _matrix);
 					_matrix.translate(itd, -itd);			//return to center
 					itd += delta;
