@@ -11,21 +11,16 @@ import flixel.graphics.frames.FlxFramesCollection;
 import flixel.math.FlxPoint;
 import flixel.text.pxText.PxFontSymbol;
 import flixel.util.FlxColor;
+import flixel.util.FlxDestroyUtil;
+import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 import haxe.xml.Fast;
 
+// TODO: provide default font
+// TODO: add size, lineHeight, bold, italic props
 // TODO: document it...
-
 /**
  * 
  */
-
-// TODO: remove Pixelizer font format support
-// TODO: add Monospace font support (like in FlxFont addon)
-// TODO: look into Sergey's bitmap font ("one liner")
-// TODO: add XNA font format support
-// TODO: provide default font
-// TODO: add size, lineHeight, bold, italic props
-
 class BitmapFont extends FlxFramesCollection
 {
 	private static var DEFAULT_GLYPHS:String = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
@@ -183,6 +178,7 @@ class BitmapFont extends FlxFramesCollection
 		if (graphic == null) return null;
 		
 		font = new BitmapFont(graphic);
+		font.fontName = graphic.key;
 		
 		var bmd:BitmapData = graphic.bitmap;
 		var globalBGColor:Int = bmd.getPixel(0, 0);
@@ -305,6 +301,7 @@ class BitmapFont extends FlxFramesCollection
 		var numCols:Int = (charWidth == 0) ? 1 : Std.int((bitmapWidth + xSpacing) / spacedWidth);
 		
 		font = new BitmapFont(graphic);
+		font.fontName = graphic.key;
 		font.lineHeight = font.size = charHeight;
 		
 		var charRect:Rectangle;
@@ -485,4 +482,37 @@ class BitmapFont extends FlxFramesCollection
 		
 		return w;
 	}*/
+	
+	/*
+	#if FLX_RENDER_BLIT
+	/**
+	 * Serializes font data to cryptic bit string.
+	 * 
+	 * @return	Cryptic string with font as bits.
+	 */
+	public function getFontData():String 
+	{
+		var output:String = "";
+		
+		for (i in 0...(_glyphString.length)) 
+		{
+			var charCode:Int = _glyphString.charCodeAt(i);
+			var glyph:BitmapData = _glyphs[charCode];
+			output += _glyphString.substr(i, 1);
+			output += glyph.width;
+			output += glyph.height;
+			
+			for (py in 0...(glyph.height)) 
+			{
+				for (px in 0...(glyph.width)) 
+				{
+					output += (glyph.getPixel32(px, py) != 0 ? "1":"0");
+				}
+			}
+		}
+		
+		return output;
+	}
+	#end
+	*/
 }

@@ -5,9 +5,9 @@ import flixel.FlxBasic;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
+import flixel.graphics.frames.BitmapFont;
 import flixel.system.layer.DrawStackItem;
-import flixel.text.pxText.PxBitmapFont;
-import flixel.text.pxText.PxDefaultFontGenerator;
+import flixel.text.pxText.DefaultBitmapFontGen;
 import flixel.text.pxText.PxTextAlign;
 import flixel.math.FlxAngle;
 import flixel.util.FlxColor;
@@ -22,37 +22,40 @@ import flixel.util.FlxDestroyUtil;
  */
 class FlxBitmapTextField extends FlxSprite
 {
-	private var _font:PxBitmapFont;
-	private var _text:String = "";
-	private var _textColor:FlxColor = 0x0;
-	private var _useTextColor:Bool = true;
-	private var _outline:Bool = false;
-	private var _outlineColor:FlxColor = 0x0;
-	private var _shadow:Bool = false;
-	private var _shadowColor:FlxColor = 0x0;
-	private var _background:Bool = false;
-	private var _backgroundColor:FlxColor = 0xFFFFFF;
-	private var _alignment:Int = 1;
-	private var _padding:Int = 0;
+	@:isVar
+	private var font(default, set):BitmapFont;
 	
-	private var _lineSpacing:Int = 0;
-	private var _letterSpacing:Int = 0;
-	private var _fontScale:Float = 1;
-	private var _autoUpperCase:Bool = false;
-	private var _wordWrap:Bool = true;
-	private var _fixedWidth:Bool;
+	@:isVar
+	private var text(default, set):String = "";
 	
-	private var _numSpacesInTab:Int = 4;
+	@:isVar
+	public var alignment(default, set):Int = 1;
+	
+	@:isVar
+	public var lineSpacing(default, set):Int = 0;
+	
+	@:isVar
+	public var letterSpacing(default, set):Int = 0;
+	
+	@:isVar
+	public var autoUpperCase(default, set):Bool = false;
+	
+	@:isVar
+	public var wordWrap(default, set):Bool = true;
+	
+	@:isVar
+	public var fixedWidth(default, set):Bool;
+	
+	@:isVar
+	public var numSpacesInTab(default, set):Int = 4;
 	private var _tabSpaces:String = "    ";
 	
 	private var _pendingTextChange:Bool = false;
-	private var _multiLine:Bool = false;
 	
-	#if FLX_RENDER_BLIT
-	private var _preparedTextGlyphs:Array<BitmapData>;
-	private var _preparedShadowGlyphs:Array<BitmapData>;
-	private var _preparedOutlineGlyphs:Array<BitmapData>;
-	#else
+	@:isVar
+	public var multiLine(default, set):Bool = false;
+	
+	#if FLX_RENDER_TILE
 	private var _drawData:Array<Float>;
 	private var _bgDrawData:Array<Float>;
 	#end
@@ -61,29 +64,21 @@ class FlxBitmapTextField extends FlxSprite
 	 * Constructs a new text field component.
 	 * @param 	PxFont	Optional parameter for component's font prop
 	 */
-	public function new(?PxFont:PxBitmapFont) 
+	public function new(font:BitmapFont) 
 	{
 		super();
 		
 		width = 2;
 		alpha = 1;
 		
-		if (PxFont == null)
+		if (font == null)
 		{
-			if (PxBitmapFont.fetch("default") == null)
-			{
-				PxDefaultFontGenerator.generateAndStoreDefaultFont();
-			}
-			
-			_font = PxBitmapFont.fetch("default");
-		}
-		else
-		{
-			_font = PxFont;
+			font = DefaultBitmapFontGen.getDefaultFont();
 		}
 		
+		this.font = font;
+		
 		#if FLX_RENDER_BLIT
-		updateGlyphs(true, _shadow, _outline);
 		pixels = new BitmapData(1, 1, true);
 		#else
 		pixels = _font.pixels;
@@ -99,13 +94,9 @@ class FlxBitmapTextField extends FlxSprite
 	 */
 	override public function destroy():Void 
 	{
-		_font = null;
+		font = null;
 		
-		#if FLX_RENDER_BLIT
-		clearPreparedGlyphs(_preparedTextGlyphs);
-		clearPreparedGlyphs(_preparedShadowGlyphs);
-		clearPreparedGlyphs(_preparedOutlineGlyphs);
-		#else
+		#if FLX_RENDER_TILE
 		_drawData = null;
 		_bgDrawData = null;
 		#end
@@ -121,31 +112,6 @@ class FlxBitmapTextField extends FlxSprite
 		}
 		
 		super.update();
-	}
-	
-	public var numSpacesInTab(get, set):Int;
-	
-	private function get_numSpacesInTab():Int 
-	{
-		return _numSpacesInTab;
-	}
-	
-	private function set_numSpacesInTab(Value:Int):Int 
-	{
-		if (_numSpacesInTab != Value && Value > 0)
-		{
-			_numSpacesInTab = Value;
-			_tabSpaces = "";
-			
-			for (i in 0...Value)
-			{
-				_tabSpaces += " ";
-			}
-			
-			_pendingTextChange = true;
-		}
-		
-		return Value;
 	}
 	
 	#if FLX_RENDER_BLIT
@@ -672,128 +638,19 @@ class FlxBitmapTextField extends FlxSprite
 	}
 	
 	/**
-	 * Specifies whether the text field should have a filled background.
-	 */
-	public var background(get, set):Bool;
-	
-	private function get_background():Bool
-	{
-		return _background;
-	}
-	
-	private function set_background(Value:Bool):Bool 
-	{
-		if (_background != Value)
-		{
-			_background = Value;
-			_pendingTextChange = true;
-		}
-		
-		return _background;
-	}
-	
-	/**
-	 * Specifies the color of the text field background.
-	 */
-	public var backgroundColor(get, set):Int;
-	
-	private function get_backgroundColor():Int
-	{
-		return _backgroundColor;
-	}
-	
-	private function set_backgroundColor(Value:Int):Int
-	{
-		if (_backgroundColor != Value)
-		{
-			_backgroundColor = Value;
-			
-			if (_background)
-			{
-				_pendingTextChange = true;
-			}
-		}
-		return _backgroundColor;
-	}
-	
-	/**
-	 * Specifies whether the text should have a shadow.
-	 */
-	public var shadow(get, set):Bool;
-	
-	private function get_shadow():Bool
-	{
-		return _shadow;
-	}
-	
-	private function set_shadow(Value:Bool):Bool
-	{
-		if (_shadow != Value)
-		{
-			_shadow = Value;
-			_outline = false;
-			updateGlyphs(false, _shadow, false);
-			_pendingTextChange = true;
-		}
-		
-		return Value;
-	}
-	
-	/**
-	 * Specifies the color of the text field shadow.
-	 */
-	public var shadowColor(get, set):Int;
-	
-	private function get_shadowColor():Int
-	{
-		return _shadowColor;
-	}
-	
-	private function set_shadowColor(Value:Int):Int 
-	{
-		if (_shadowColor != Value)
-		{
-			_shadowColor = Value;
-			updateGlyphs(false, _shadow, false);
-			_pendingTextChange = true;
-		}
-		
-		return Value;
-	}
-	
-	/**
-	 * Sets the padding of the text field. This is the distance between the text and the border of the background (if any).
-	 */
-	public var padding(get, set):Int;
-	
-	private function get_padding():Int
-	{
-		return _padding;
-	}
-	
-	private function set_padding(Value:Int):Int 
-	{
-		if (_padding != Value)
-		{
-			_padding = Value;
-			_pendingTextChange = true;
-		}
-		
-		return Value;
-	}
-	
-	/**
 	 * Sets the width of the text field. If the text does not fit, it will spread on multiple lines.
 	 */
-	override private function set_width(PxWidth:Float):Float
+	override private function set_width(Width:Float):Float
 	{
-		PxWidth = Std.int(PxWidth);
+		Width = Std.int(Width);
+		
+		// TODO: if width is <= 0 then set fixed width to false
 		
 		if (PxWidth < 1) 
 		{
 			PxWidth = 1;
 		}
-		if (PxWidth != width)
+		if (Width != width)
 		{
 			_pendingTextChange = true;
 		}
@@ -801,110 +658,33 @@ class FlxBitmapTextField extends FlxSprite
 		return super.set_width(PxWidth);
 	}
 	
-	/**
-	 * Specifies how the text field should align text.
-	 * LEFT, RIGHT, CENTER.
-	 */
-	public var alignment(get, set):Int;
-	
-	private function get_alignment():Int
+	private function set_alignment(value:Int):Int 
 	{
-		return _alignment;
-	}
-	
-	private function set_alignment(PxAlignment:Int):Int 
-	{
-		if (_alignment != PxAlignment)
+		if (alignment != value)
 		{
-			_alignment = PxAlignment;
+			alignment = value;
 			_pendingTextChange = true;
 		}
 		
-		return PxAlignment;
+		return value;
 	}
 	
-	/**
-	 * Specifies whether the text field will break into multiple lines or not on overflow.
-	 */
-	public var multiLine(get, set):Bool;
-	
-	private function get_multiLine():Bool
+	private function set_multiLine(value:Bool):Bool 
 	{
-		return _multiLine;
-	}
-	
-	private function set_multiLine(PxMultiLine:Bool):Bool 
-	{
-		if (_multiLine != PxMultiLine)
+		if (multiLine != value)
 		{
-			_multiLine = PxMultiLine;
+			multiLine = value;
 			_pendingTextChange = true;
 		}
 		
-		return PxMultiLine;
+		return value;
 	}
 	
-	/**
-	 * Specifies whether the text should have an outline.
-	 */
-	public var outline(get, set):Bool;
-	
-	private function get_outline():Bool
+	private function set_font(value:BitmapFont):BitmapFont 
 	{
-		return _outline;
-	}
-	
-	private function set_outline(Value:Bool):Bool 
-	{
-		if (_outline != Value)
+		if (font != value)
 		{
-			_outline = Value;
-			_shadow = false;
-			updateGlyphs(false, false, true);
-			_pendingTextChange = true;
-		}
-		
-		return Value;
-	}
-	
-	/**
-	 * Specifies whether color of the text outline.
-	 */
-	public var outlineColor(get, set):Int;
-	
-	private function get_outlineColor():Int
-	{
-		return _outlineColor;
-	}
-	
-	private function set_outlineColor(Value:Int):Int 
-	{
-		if (_outlineColor != Value)
-		{
-			_outlineColor = Value;
-			updateGlyphs(false, false, _outline);
-			_pendingTextChange = true;
-		}
-		
-		return Value;
-	}
-	
-	/**
-	 * Sets which font to use for rendering.
-	 */
-	public var font(get, set):PxBitmapFont;
-	
-	private function get_font():PxBitmapFont
-	{
-		return _font;
-	}
-	
-	private function set_font(PxFont:PxBitmapFont):PxBitmapFont 
-	{
-		if (_font != PxFont)
-		{
-			_font = PxFont;
-			updateGlyphs(true, _shadow, _outline);
+			font = value;
 			_pendingTextChange = true;
 			
 			#if FLX_RENDER_TILE
@@ -912,163 +692,81 @@ class FlxBitmapTextField extends FlxSprite
 			#end
 		}
 		
-		return PxFont;
+		return value;
 	}
 	
-	/**
-	 * Sets the distance between lines
-	 */
-	public var lineSpacing(get, set):Int;
-	
-	private function get_lineSpacing():Int
+	private function set_lineSpacing(value:Int):Int
 	{
-		return _lineSpacing;
-	}
-	
-	private function set_lineSpacing(PxSpacing:Int):Int
-	{
-		if (_lineSpacing != PxSpacing)
+		if (lineSpacing != value)
 		{
-			_lineSpacing = Std.int(Math.abs(PxSpacing));
+			lineSpacing = Std.int(Math.abs(value));
 			_pendingTextChange = true;
 		}
 		
-		return PxSpacing;
+		return lineSpacing;
 	}
 	
-	/**
-	 * Sets the "font size" of the text
-	 */
-	public var fontScale(get, set):Float;
-	
-	private function get_fontScale():Float
+	private function set_letterSpacing(value:Int):Int
 	{
-		return _fontScale;
-	}
-	
-	private function set_fontScale(PxScale:Float):Float
-	{
-		var tmp:Float = Math.abs(PxScale);
+		var tmp:Int = Std.int(Math.abs(value));
 		
-		if (tmp != _fontScale)
+		if (tmp != letterSpacing)
 		{
-			_fontScale = tmp;
-			updateGlyphs(true, _shadow, _outline);
+			letterSpacing = tmp;
 			_pendingTextChange = true;
 		}
 		
-		return PxScale;
+		return letterSpacing;
 	}
 	
-	public var letterSpacing(get, set):Int;
-	
-	private function get_letterSpacing():Int
+	private function set_autoUpperCase(value:Bool):Bool 
 	{
-		return _letterSpacing;
-	}
-	
-	private function set_letterSpacing(PxSpacing:Int):Int
-	{
-		var tmp:Int = Std.int(Math.abs(PxSpacing));
-		
-		if (tmp != _letterSpacing)
+		if (autoUpperCase != value)
 		{
-			_letterSpacing = tmp;
+			autoUpperCase = value;
 			_pendingTextChange = true;
 		}
 		
-		return _letterSpacing;
+		return autoUpperCase;
 	}
 	
-	public var autoUpperCase(get, set):Bool;
-	
-	private function get_autoUpperCase():Bool 
+	private function set_wordWrap(value:Bool):Bool 
 	{
-		return _autoUpperCase;
-	}
-	
-	private function set_autoUpperCase(Value:Bool):Bool 
-	{
-		if (_autoUpperCase != Value)
+		if (wordWrap != value)
 		{
-			_autoUpperCase = Value;
+			wordWrap = value;
 			_pendingTextChange = true;
 		}
 		
-		return _autoUpperCase;
+		return wordWrap;
 	}
 	
-	public var wordWrap(get, set):Bool;
-	
-	private function get_wordWrap():Bool 
+	private function set_fixedWidth(value:Bool):Bool 
 	{
-		return _wordWrap;
-	}
-	
-	private function set_wordWrap(Value:Bool):Bool 
-	{
-		if (_wordWrap != Value)
+		if (fixedWidth != value)
 		{
-			_wordWrap = Value;
+			fixedWidth = Value;
 			_pendingTextChange = true;
 		}
 		
-		return _wordWrap;
+		return fixedWidth;
 	}
 	
-	public var fixedWidth(get, set):Bool;
-	
-	private function get_fixedWidth():Bool 
+	private function set_numSpacesInTab(Value:Int):Int 
 	{
-		return _fixedWidth;
-	}
-	
-	private function set_fixedWidth(Value:Bool):Bool 
-	{
-		if (_fixedWidth != Value)
+		if (_numSpacesInTab != Value && Value > 0)
 		{
-			_fixedWidth = Value;
-			_pendingTextChange = true;
-		}
-		
-		return _fixedWidth;
-	}
-	
-	private function updateGlyphs(TextGlyphs:Bool = false, ShadowGlyphs:Bool = false, OutlineGlyphs:Bool = false):Void
-	{
-		#if FLX_RENDER_BLIT
-		if (TextGlyphs)
-		{
-			clearPreparedGlyphs(_preparedTextGlyphs);
-			_preparedTextGlyphs = _font.getPreparedGlyphs(_fontScale, _textColor, _useTextColor);
-		}
-		
-		if (ShadowGlyphs)
-		{
-			clearPreparedGlyphs(_preparedShadowGlyphs);
-			_preparedShadowGlyphs = _font.getPreparedGlyphs(_fontScale, _shadowColor);
-		}
-		
-		if (OutlineGlyphs)
-		{
-			clearPreparedGlyphs(_preparedOutlineGlyphs);
-			_preparedOutlineGlyphs = _font.getPreparedGlyphs(_fontScale, _outlineColor);
-		}
-		#end
-	}
-	
-	#if FLX_RENDER_BLIT
-	private function clearPreparedGlyphs(PxGlyphs:Array<BitmapData>):Void
-	{
-		if (PxGlyphs != null)
-		{
-			for (bmd in PxGlyphs)
+			_numSpacesInTab = Value;
+			_tabSpaces = "";
+			
+			for (i in 0...Value)
 			{
-				FlxDestroyUtil.dispose(bmd);
+				_tabSpaces += " ";
 			}
 			
-			PxGlyphs = null;
+			_pendingTextChange = true;
 		}
+		
+		return Value;
 	}
-	#end
 }
