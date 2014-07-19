@@ -11,6 +11,6 @@ enum FrameCollectionType
 	ATLAS;
 	FONT; 											// TODO: implement it
 	BAR(type:flixel.ui.FlxBar.FlxBarFillDirection);
-	CLIPPED;										// TODO: implement it
+	CLIPPED;
 	USER(type:String);
 }

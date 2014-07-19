@@ -188,15 +188,15 @@ class FlxFramesCollection implements IFlxDestroyable
 		
 		if (angle != 0)
 		{
-			texFrame.center.set(texFrame.frame.height * 0.5 + texFrame.offset.x, texFrame.frame.width * 0.5 + texFrame.offset.y);
+			texFrame.center.set(frame.height * 0.5 + texFrame.offset.x, frame.width * 0.5 + texFrame.offset.y);
 		}
 		else
 		{
-			texFrame.center.set(texFrame.frame.width * 0.5 + texFrame.offset.x, texFrame.frame.height * 0.5 + texFrame.offset.y);
+			texFrame.center.set(frame.width * 0.5 + texFrame.offset.x, frame.height * 0.5 + texFrame.offset.y);
 		}
 		
 		#if FLX_RENDER_TILE
-		texFrame.tileID = parent.tilesheet.addTileRect(texFrame.frame, new Point(0.5 * texFrame.frame.width, 0.5 * texFrame.frame.height));
+		texFrame.tileID = parent.tilesheet.addTileRect(frame, new Point(0.5 * frame.width, 0.5 * frame.height));
 		#end
 		
 		frames.push(texFrame);

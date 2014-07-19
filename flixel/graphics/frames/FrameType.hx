@@ -9,4 +9,5 @@ enum FrameType
 	REGULAR;
 	ROTATED;
 	EMPTY;
+	GLYPH;
 }

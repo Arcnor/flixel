@@ -33,7 +33,7 @@ class FlxFrame implements IFlxDestroyable
 	 * Rotation angle of this frame. 
 	 * Required for packed atlas images.
 	 */
-	public var angle:Float = 0;
+	public var angle:Float = 0;  // TODO: remove casting from frame collections generation methods which detects if the frame is rotated or not 
 	
 	/**
 	 * Original (uncropped) image size.
