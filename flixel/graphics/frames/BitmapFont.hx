@@ -80,7 +80,7 @@ class BitmapFont extends FlxFramesCollection
 	 * @return	Generated bitmap font object.
 	 */
 	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function AngelCode(Source:Dynamic, Data:Xml):BitmapFont
+	public static function fromAngelCode(Source:Dynamic, Data:Xml):BitmapFont
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(Source, false);
 		if (graphic == null)	return null;
@@ -169,7 +169,7 @@ class BitmapFont extends FlxFramesCollection
 	 * @return	
 	 */
 	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function XNA(source:Dynamic, letters:String = null, glyphBGColor:Int = FlxColor.TRANSPARENT):BitmapFont
+	public static function fromXNA(source:Dynamic, letters:String = null, glyphBGColor:Int = FlxColor.TRANSPARENT):BitmapFont
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		if (graphic == null)	return null;
@@ -258,19 +258,19 @@ class BitmapFont extends FlxFramesCollection
 		return font;
 	}
 	
-	// TODO: check it and document it...
+	// TODO: check it...
 	/**
+	 * Loads monospace bitmap font.
 	 * 
-	 * 
-	 * @param	source
-	 * @param	letters
-	 * @param	charSize
-	 * @param	region
-	 * @param	spacing
+	 * @param	source		Source image for this font.
+	 * @param	letters		The characters used in the font set, in display order. You can use the TEXT_SET consts for common font set arrangements.
+	 * @param	charSize	The size of each character in the font set.
+	 * @param	region		The region of image to use for the font. Default is null which means that the whole image will be used.
+	 * @param	spacing		Spaces between characters in the font set. Default is null which means no spaces.
 	 * @return
 	 */
 	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function Monospace(source:Dynamic, letters:String = null, charSize:Point, region:Rectangle = null, spacing:Point = null):BitmapFont
+	public static function fromMonospace(source:Dynamic, letters:String = null, charSize:Point, region:Rectangle = null, spacing:Point = null):BitmapFont
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		if (graphic == null)	return null;
@@ -301,8 +301,8 @@ class BitmapFont extends FlxFramesCollection
 		var spacedWidth:Int = charWidth + xSpacing;
 		var spacedHeight:Int = charHeight + ySpacing;
 		
-		var numRows:Int = (height == 0) ? 1 : Std.int((bitmapHeight + ySpacing) / spacedHeight);
-		var numCols:Int = (width == 0) ? 1 : Std.int((bitmapWidth + xSpacing) / spacedWidth);
+		var numRows:Int = (charHeight == 0) ? 1 : Std.int((bitmapHeight + ySpacing) / spacedHeight);
+		var numCols:Int = (charWidth == 0) ? 1 : Std.int((bitmapWidth + xSpacing) / spacedWidth);
 		
 		font = new BitmapFont(graphic);
 		font.lineHeight = font.size = charHeight;
@@ -377,190 +377,6 @@ class BitmapFont extends FlxFramesCollection
 		return null;
 	}
 	
-	/**
-	 * Updates and caches tile data for passed node object
-	 */
-	/*public function updateGlyphData(Tiles:TileSheetData = null):Void
-	{
-		#if FLX_RENDER_TILE
-		_glyphs = new Map<Int, PxFontSymbol>();
-		#end
-		
-		var rect:Rectangle;
-		
-		if (_symbols != null)
-		{
-			_glyphString = "";
-			var point:Point = new Point();
-			var bd:BitmapData;
-			var charString:String;
-			
-			for (symbol in _symbols)
-			{
-				rect = new Rectangle();
-				rect.x = symbol.x;
-				rect.y = symbol.y;
-				rect.width = symbol.width;
-				rect.height = symbol.height;
-				
-				point.x = symbol.xoffset;
-				point.y = symbol.yoffset;
-				
-				charString = String.fromCharCode(symbol.charCode);
-				_glyphString += charString;
-				
-				var xadvance:Int = symbol.xadvance;
-				var charWidth:Int = xadvance;
-				
-				if (rect.width > xadvance)
-				{
-					charWidth = symbol.width;
-					point.x = 0;
-				}
-				
-				// Create glyph
-				#if FLX_RENDER_BLIT
-				bd = null;
-				
-				if (charString != " " && charString != "")
-				{
-					bd = new BitmapData(charWidth, symbol.height + symbol.yoffset, true, 0x0);
-				}
-				else
-				{
-					bd = new BitmapData(charWidth, 1, true, 0x0);
-				}
-				
-				bd.copyPixels(graphic.bitmap, rect, point, null, null, true);
-				
-				// Store glyph
-				setGlyph(symbol.charCode, bd);
-				
-				#else
-				if (charString != " " && charString != "")
-				{
-					setGlyph(Tiles, symbol.charCode, rect, Math.floor(point.x), Math.floor(point.y), charWidth);
-				}
-				else
-				{
-					setGlyph(Tiles, symbol.charCode, rect, Math.floor(point.x), 1, charWidth);
-				}
-				#end
-			}
-		}
-		else if (_tileRects != null)
-		{
-			for (letterID in 0...(_tileRects.length))
-			{
-				rect = _tileRects[letterID];
-				
-				// Create glyph
-				#if FLX_RENDER_BLIT
-				var bd:BitmapData = new BitmapData(Std.int(rect.width), Std.int(rect.height), true, 0x0);
-				bd.copyPixels(graphic.bitmap, rect, ZERO_POINT, null, null, true);
-				
-				// Store glyph
-				setGlyph(_glyphString.charCodeAt(letterID), bd);
-				#else
-				setGlyph(Tiles, _glyphString.charCodeAt(letterID), rect, 0, 0, Std.int(rect.width));
-				#end
-			}
-		}
-	}*/
-	/*
-	#if FLX_RENDER_BLIT
-	public function getPreparedGlyphs(PxScale:Float, PxColor:FlxColor, PxUseColorTransform:Bool = true):Array<BitmapData>
-	{
-		var result:Array<BitmapData> = [];
-		
-		_matrix.identity();
-		_matrix.scale(PxScale, PxScale);
-		
-		var colorMultiplier:Float = 1 / 255;
-		_colorTransform.redOffset = 0;
-		_colorTransform.greenOffset = 0;
-		_colorTransform.blueOffset = 0;
-		_colorTransform.redMultiplier = (PxColor >> 16) * colorMultiplier;
-		_colorTransform.greenMultiplier = (PxColor >> 8 & 0xff) * colorMultiplier;
-		_colorTransform.blueMultiplier = (PxColor & 0xff) * colorMultiplier;
-		
-		var glyph:BitmapData;
-		var preparedGlyph:BitmapData;
-		
-		for (i in 0...(_glyphs.length))
-		{
-			glyph = _glyphs[i];
-			var bdWidth:Int;
-			var bdHeight:Int;
-			
-			if (glyph != null)
-			{
-				if (PxScale > 0)
-				{
-					bdWidth = Math.ceil(glyph.width * PxScale);
-					bdHeight = Math.ceil(glyph.height * PxScale);
-				}
-				else
-				{
-					bdWidth = 1;
-					bdHeight = 1;
-				}
-				
-				preparedGlyph = new BitmapData(bdWidth, bdHeight, true, 0x00000000);
-				
-				if (PxUseColorTransform)
-				{
-					preparedGlyph.draw(glyph,  _matrix, _colorTransform);
-				}
-				else
-				{
-					preparedGlyph.draw(glyph,  _matrix);
-				}
-				
-				result[i] = preparedGlyph;
-			}
-		}
-		
-		return result;
-	}
-	#end
-	*/
-	/*
-	#if FLX_RENDER_BLIT
-	private function setGlyph(PxCharID:Int, PxBitmapData:BitmapData):Void 
-	{
-		if (_glyphs[PxCharID] != null) 
-		{
-			_glyphs[PxCharID].dispose();
-		}
-		
-		_glyphs[PxCharID] = PxBitmapData;
-		
-		if (PxBitmapData.height > _maxHeight) 
-		{
-			_maxHeight = PxBitmapData.height;
-		}
-	}
-	#else
-	private function setGlyph(Tiles:TileSheetData, PxCharID:Int, PxRect:Rectangle, PxOffsetX:Int = 0, PxOffsetY:Int = 0, PxAdvanceX:Int = 0):Void
-	{
-		var tileID:Int = Tiles.addTileRect(PxRect, ZERO_POINT);
-		var symbol:PxFontSymbol = new PxFontSymbol();
-		symbol.tileID = tileID;
-		symbol.xoffset = PxOffsetX;
-		symbol.yoffset = PxOffsetY;
-		symbol.xadvance = PxAdvanceX;
-		
-		_glyphs.set(PxCharID, symbol);
-		_num_letters++;
-		
-		if ((Math.floor(PxRect.height) + PxOffsetY) > _maxHeight) 
-		{
-			_maxHeight = Math.floor(PxRect.height) + PxOffsetY;
-		}
-	}
-	#end
-	*/
 	/**
 	 * Renders a string of text onto bitmap data using the font.
 	 * 
@@ -646,7 +462,7 @@ class BitmapFont extends FlxFramesCollection
 			#if FLX_RENDER_BLIT
 			var glyph:BitmapData = _glyphs[charCode];
 			
-			if (glyph != null) 
+			if (glyph != null)
 			{
 				
 				w += glyph.width;
@@ -669,54 +485,4 @@ class BitmapFont extends FlxFramesCollection
 		
 		return w;
 	}*/
-	
-	/**
-	 * Returns height of font in pixels.
-	 * 
-	 * @return Height of font in pixels.
-	 */
-	/*public function getFontHeight():Int 
-	{
-		return _maxHeight;
-	}*/
-	
-	/*private function get_numLetters():Int 
-	{
-		#if FLX_RENDER_BLIT
-		return _glyphs.length;
-		#else
-		return _num_letters;
-		#end
-	}*/
-	
-	#if FLX_RENDER_BLIT
-	/**
-	 * Serializes font data to cryptic bit string.
-	 * 
-	 * @return	Cryptic string with font as bits.
-	 */
-	/*public function getFontData():String 
-	{
-		var output:String = "";
-		
-		for (i in 0...(_glyphString.length)) 
-		{
-			var charCode:Int = _glyphString.charCodeAt(i);
-			var glyph:BitmapData = _glyphs[charCode];
-			output += _glyphString.substr(i, 1);
-			output += glyph.width;
-			output += glyph.height;
-			
-			for (py in 0...(glyph.height)) 
-			{
-				for (px in 0...(glyph.width)) 
-				{
-					output += (glyph.getPixel32(px, py) != 0 ? "1":"0");
-				}
-			}
-		}
-		
-		return output;
-	}*/
-	#end
 }

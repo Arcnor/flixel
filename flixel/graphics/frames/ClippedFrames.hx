@@ -55,9 +55,7 @@ class ClippedFrames extends FlxFramesCollection
 			
 			if (rotated)
 			{
-				var rotatedFrame:FlxRotatedFrame = cast frame;
-				angle = rotatedFrame.angle;
-				
+				angle = frame.angle;
 				clippedRect1.width = frame.frame.height;
 				clippedRect1.height = frame.frame.width;
 			}

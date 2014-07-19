@@ -123,9 +123,7 @@ class BarFrames extends FlxFramesCollection
 		
 		if (rotated)
 		{
-			var rotatedFrame:FlxRotatedFrame = cast frame;
-			angle = rotatedFrame.angle;
-			
+			angle = frame.angle;
 			clippedRect.width = frame.frame.height;
 			clippedRect.height = frame.frame.width;
 		}
