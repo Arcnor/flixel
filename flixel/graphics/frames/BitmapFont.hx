@@ -9,6 +9,7 @@ import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.math.FlxPoint;
+import flixel.text.pxText.DefaultBitmapFont;
 import flixel.text.pxText.PxFontSymbol;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
@@ -23,11 +24,7 @@ import haxe.xml.Fast;
  */
 class BitmapFont extends FlxFramesCollection
 {
-	private static var DEFAULT_GLYPHS:String = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-	
-	// TODO: add static methods for retrieving/deleting/saving fonts
-	
-	private static var fonts:Map<String, BitmapFont> = new Map<String, BitmapFont>();
+	public static inline var DEFAULT_GLYPHS:String = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 	
 	private static var POINT:Point = new Point();
 	
@@ -62,9 +59,15 @@ class BitmapFont extends FlxFramesCollection
 	override public function destroy():Void 
 	{
 		super.destroy();
-		
 		fontName = null;
-		// TODO: dispose some vars...
+	}
+	
+	/**
+	 * Retrieves default BitmapFont.
+	 */
+	public static function getDefault():BitmapFont
+	{
+		return DefaultBitmapFont.getDefaultFont();
 	}
 	
 	/**
@@ -280,6 +283,17 @@ class BitmapFont extends FlxFramesCollection
 		if (graphic == null) return null;
 		
 		region = (region == null) ? graphic.bitmap.rect : region;
+		
+		if (region.width == 0 || region.right > graphic.bitmap.width)
+		{
+			region.width = graphic.bitmap.width - region.x;
+		}
+		
+		if (region.height == 0 || region.bottom > graphic.bitmap.height)
+		{
+			region.height = graphic.bitmap.height - region.y;
+		}
+		
 		spacing = (spacing == null) ? new Point(0, 0) : spacing;
 		
 		var bitmapWidth:Int = Std.int(region.width);
@@ -363,7 +377,7 @@ class BitmapFont extends FlxFramesCollection
 		framesHash.set(glyph, glyphFrame);
 	}
 	
-	private static inline function findFont(graphic:FlxGraphic):BitmapFont
+	public static inline function findFont(graphic:FlxGraphic):BitmapFont
 	{
 		var bitmapFonts:Array<BitmapFont> = cast graphic.getFramesCollections(FrameCollectionType.FONT);
 		if (bitmapFonts.length > 0 && bitmapFonts[0] != null)
@@ -483,13 +497,21 @@ class BitmapFont extends FlxFramesCollection
 		return w;
 	}*/
 	
-	/*
+	
 	#if FLX_RENDER_BLIT
+	public function prepareGlyphs(scale:Float, color:FlxColor, useColor:Bool = true):BitmapGlyphCollection
+	{
+		return new BitmapGlyphCollection(this, scale, color, useColor);
+	}
+	#end
+	
 	/**
 	 * Serializes font data to cryptic bit string.
 	 * 
 	 * @return	Cryptic string with font as bits.
 	 */
+	#if FLX_RENDER_BLIT
+	/*
 	public function getFontData():String 
 	{
 		var output:String = "";
@@ -513,6 +535,117 @@ class BitmapFont extends FlxFramesCollection
 		
 		return output;
 	}
-	#end
 	*/
+	#end
+}
+
+/**
+ * Helper class for blit render mode to reduce BitmapData draw() method calls.
+ * It stores info about transformed bitmap font glyphs. 
+ */
+class BitmapGlyphCollection implements IFlxDestroyable
+{
+	public var minOffsetX:Float = 0;
+	
+	public var glyphMap:Map<String, BitmapGlyph>;
+	
+	public var glyphs:Array<BitmapGlyph>;
+	
+	public var color:FlxColor;
+	
+	public var scale:Float;
+	
+	public var font:BitmapFont;
+	
+	public function new(font:BitmapFont, scale:Float, color:FlxColor, useColor:Bool = true)
+	{
+		glyphMap = new Map<String, BitmapGlyph>();
+		glyphs = new Array<BitmapGlyph>();
+		this.font = font;
+		this.scale = scale;
+		this.color = (useColor) ? color.to24Bit() : FlxColor.WHITE;
+		this.minOffsetX = font.minOffsetX * scale;
+		
+		prepareGlyphs();
+	}
+	
+	private function prepareGlyphs():Void
+	{
+		var matrix:Matrix = new Matrix();
+		matrix.scale(scale, scale);
+		
+		var colorTransform:ColorTransform = new ColorTransform();
+		colorTransform.color = color;
+		
+		var glyphBD:BitmapData;
+		var preparedBD:BitmapData;
+		var frame:FlxFrame;
+		var glyph:GlyphFrame;
+		var preparedGlyph:BitmapGlyph;
+		var bdWidth:Int, bdHeight:Int;
+		var offsetX:Float, offsetY:Float, xAdvance:Float;
+		
+		for (frame in font.frames)
+		{
+			glyph = cast(frame, GlyphFrame);
+			glyphBD = glyph.getBitmap();
+			
+			bdWidth = Math.ceil(glyphBD.width * scale);
+			bdHeight = Math.ceil(glyphBD.height * scale);
+			
+			bdWidth = (bdWidth > 0) ? bdWidth : 1;
+			bdHeight = (bdHeight > 0) ? bdHeight : 1;
+			
+			preparedBD = new BitmapData(bdWidth, bdHeight, true, FlxColor.TRANSPARENT);
+			preparedBD.draw(glyphBD, matrix, colorTransform);
+			
+			offsetX = glyph.offset.x * scale;
+			offsetY = glyph.offset.y * scale;
+			xAdvance = glyph.xAdvance * scale;
+			
+			preparedGlyph = new BitmapGlyph(glyph.name, preparedBD, offsetX, offsetY, xAdvance);
+			
+			glyphs.push(preparedGlyph);
+			glyphMap.set(preparedGlyph.glyph, preparedGlyph);
+		}
+	}
+	
+	public function destroy():Void
+	{
+		glyphs = FlxDestroyUtil.destroyArray(glyphs);
+		glyphMap = null;
+		font = null;
+	}
+}
+
+/**
+ * Helper class for blit render mode. 
+ * Stores info about single transformed bitmap glyph.
+ */
+class BitmapGlyph implements IFlxDestroyable
+{
+	public var glyph:String;
+	
+	public var bitmap:BitmapData;
+	
+	public var offsetX:Float = 0;
+	
+	public var offsetY:Float = 0;
+	
+	public var xAdvance:Float = 0;
+	
+	public function new(glyph:String, bmd:BitmapData, offsetX:Float = 0, offsetY:Float = 0, xAdvance:Float = 0)
+	{
+		this.glyph = glyph;
+		this.bitmap = bmd;
+		this.offsetX = offsetX;
+		this.offsetY = offsetY;
+		this.xAdvance = xAdvance;
+	}
+	
+	public function destroy():Void
+	{
+		bitmap = FlxDestroyUtil.dispose(bitmap);
+		glyph = null;
+	}
 }
