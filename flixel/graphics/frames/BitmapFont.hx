@@ -10,7 +10,6 @@ import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.math.FlxPoint;
 import flixel.text.pxText.DefaultBitmapFont;
-import flixel.text.pxText.PxFontSymbol;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxDestroyUtil.IFlxDestroyable;
@@ -46,6 +45,10 @@ class BitmapFont extends FlxFramesCollection
 	
 	public var minOffsetX:Int = 0;
 	
+	public var spaceWidth:Int = 0;
+	
+	public var glyphs:Map<String, GlyphFrame>;
+	
 	/**
 	 * Creates a new bitmap font using specified bitmap data and letter input.
 	 */
@@ -54,11 +57,13 @@ class BitmapFont extends FlxFramesCollection
 		super(parent, FrameCollectionType.FONT);
 		parent.persist = true;
 		parent.destroyOnNoUse = false;
+		glyphs = new Map<String, GlyphFrame>();
 	}
 	
 	override public function destroy():Void 
 	{
 		super.destroy();
+		glyphs = null;
 		fontName = null;
 	}
 	
@@ -153,6 +158,11 @@ class BitmapFont extends FlxFramesCollection
 			}
 			
 			font.addGlyphFrame(glyph, frame, sourceSize, offset, xAdvance);
+			
+			if (glyph == ' ')
+			{
+				font.spaceWidth = xAdvance;
+			}
 		}
 		
 		return font;
@@ -225,6 +235,11 @@ class BitmapFont extends FlxFramesCollection
 					xAdvance = gw;
 					
 					font.addGlyphFrame(glyph, rect, sourceSize, offset, xAdvance);
+					
+					if (glyph == ' ')
+					{
+						font.spaceWidth = xAdvance;
+					}
 					
 					// store max size
 					if (gh > rowHeight) rowHeight = gh;
@@ -343,6 +358,7 @@ class BitmapFont extends FlxFramesCollection
 			}
 		}
 		
+		font.spaceWidth = xAdvance;
 		return font;
 	}
 	
@@ -375,6 +391,7 @@ class BitmapFont extends FlxFramesCollection
 		
 		frames.push(glyphFrame);
 		framesHash.set(glyph, glyphFrame);
+		glyphs.set(glyph, glyphFrame);
 	}
 	
 	public static inline function findFont(graphic:FlxGraphic):BitmapFont
@@ -555,6 +572,8 @@ class BitmapGlyphCollection implements IFlxDestroyable
 	
 	public var scale:Float;
 	
+	public var spaceWidth:Float = 0;
+	
 	public var font:BitmapFont;
 	
 	public function new(font:BitmapFont, scale:Float, color:FlxColor, useColor:Bool = true)
@@ -584,6 +603,8 @@ class BitmapGlyphCollection implements IFlxDestroyable
 		var preparedGlyph:BitmapGlyph;
 		var bdWidth:Int, bdHeight:Int;
 		var offsetX:Float, offsetY:Float, xAdvance:Float;
+		
+		spaceWidth = font.spaceWidth * scale;
 		
 		for (frame in font.frames)
 		{

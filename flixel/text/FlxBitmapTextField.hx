@@ -7,7 +7,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.BitmapFont;
 import flixel.system.layer.DrawStackItem;
-import flixel.text.pxText.PxTextAlign;
+import flixel.text.FlxText.FlxTextAlign;
 import flixel.math.FlxAngle;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
@@ -16,61 +16,128 @@ import flixel.util.FlxDestroyUtil;
  * Extends FlxSprite to support rendering text.
  * Can tint, fade, rotate and scale just like a sprite.
  * Doesn't really animate though, as far as I know.
- * Also does nice pixel-perfect centering on pixel fonts
- * as long as they are only one liners.
  */
 class FlxBitmapTextField extends FlxSprite
 {
+	/**
+	 * 
+	 */
 	@:isVar
-	private var font(default, set):BitmapFont;
+	public var font(default, set):BitmapFont;
 	
+	/**
+	 * 
+	 */
 	@:isVar
-	private var text(default, set):String = "";
+	public var text(default, set):String = "";
 	
+	private var _lines:Array<String> = [];
+	
+	/**
+	 * 
+	 */
 	@:isVar
-	public var alignment(default, set):Int = 1;
+	public var alignment(default, set):FlxTextAlign = FlxTextAlign.LEFT;
 	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var lineSpacing(default, set):Int = 0;
 	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var letterSpacing(default, set):Int = 0;
 	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var autoUpperCase(default, set):Bool = false;
 	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var wordWrap(default, set):Bool = true;
 	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var fixedWidth(default, set):Bool;
 	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var numSpacesInTab(default, set):Int = 4;
 	private var _tabSpaces:String = "    ";
 	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var textColor(default, set):FlxColor = 0x0;
+	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var useTextColor(default, set):Bool = true;
 	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var outline(default, set):Bool = false;
+	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var outlineColor(default, set):FlxColor = 0x0;
 	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var shadow(default, set):Bool = false;
+	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var shadowColor(default, set):FlxColor = 0x0;
 	
-	private var _pendingTextChange:Bool = false;
-	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var multiLine(default, set):Bool = false;
 	
+	/**
+	 * 
+	 */
+	@:isVar
+	public var numLines(default, set):Int = 0;
+	
+	/**
+	 * 
+	 */
 	@:isVar
 	public var fontScale(default, set):Float = 1;
+	
+	/**
+	 * 
+	 */
+	private var _pendingTextChange:Bool = false;
+	/**
+	 * 
+	 */
+	private var _pendingGraphicChange:Bool = false;
 	
 	#if FLX_RENDER_TILE
 	private var _drawData:Array<Float>;
@@ -100,14 +167,15 @@ class FlxBitmapTextField extends FlxSprite
 		this.font = font;
 		
 		#if FLX_RENDER_BLIT
-		pixels = new BitmapData(1, 1, true);
+		pixels = new BitmapData(1, 1, true, FlxColor.TRANSPARENT);
 		#else
-		pixels = _font.pixels;
+		pixels = _font.parent.bitmap;
 		_drawData = [];
 		_bgDrawData = [];
 		#end
 		
 		_pendingTextChange = true;
+		_pendingGraphicChange = true;
 	}
 	
 	/**
@@ -116,6 +184,8 @@ class FlxBitmapTextField extends FlxSprite
 	override public function destroy():Void 
 	{
 		font = null;
+		text = null;
+		_lines = [];
 		
 		#if FLX_RENDER_TILE
 		_drawData = null;
@@ -132,6 +202,12 @@ class FlxBitmapTextField extends FlxSprite
 	override public function update():Void 
 	{
 		if (_pendingTextChange)
+		{
+			updateLines();
+			_pendingTextChange = true;
+		}
+		
+		if (_pendingGraphicChange)
 		{
 			updateBitmapData();
 		}
@@ -300,6 +376,225 @@ class FlxBitmapTextField extends FlxSprite
 		return value;
 	}
 	
+	private function updateLines():Void 
+	{
+		var tmp:String = (autoUpperCase) ? text.toUpperCase() : text;
+		
+		_lines = tmp.split("\n");
+		
+		if (fixedWidth)
+		{
+			if (wordWrap)
+			{
+				wrap();
+			}
+			else
+			{
+				cutLines();
+			}
+		}
+		
+		if (!multiLine)
+		{
+			_lines = [_lines[0]];
+		}
+		
+		computeTextSize();
+	}
+	
+	// TODO: implement it...
+	/**
+	 * Just cuts the lines which are too long to fit in the field
+	 */
+	private function cutLines():Void 
+	{
+		// TODO: continue from here...
+		
+	}
+	
+	private function computeTextSize():Void 
+	{
+		
+	}
+	
+	/**
+	 * Automatically wraps text by figuring out how many characters can fit on a
+	 * single line, and splitting the remainder onto a new line.
+	 */
+	private function wrap():Void
+	{
+		// subdivide lines
+		var newLines:Array<String> = [];
+		
+		var lineLength:Int;			// lenght of the current line
+		
+		var words:Array<String>;	// the array of words in the current line
+		var numWords:Int;			// number of words in the current line
+		
+		var w:Int;					// word index in the current line
+		var word:String;			// current word to process
+		var wordWidth:Float;		// total width of current word
+		var wordLength:Int;			// number of letters in current word
+		
+		var isSpaceWord:Bool = false; // whether current word consists of spaces or not
+		
+		var char:String; 			// current character in word
+		var c:Int;					// char index
+		var charWidth:Float = 0;	// the width of current character
+		
+		var subLines:Array<String>;	// helper array for subdividing lines
+		
+		var subLine:String;			// current subline to assemble
+		var subLineWidth:Float;		// the width of current subline
+		
+		var spaceWidth:Float = font.spaceWidth * fontScale;
+		var tabWidth:Float = spaceWidth * numSpacesInTab;
+		
+		for (line in _lines)
+		{
+			subLines = [];
+			words = [];
+			// split this line into words
+			word = "";
+			isSpaceWord = false;
+			lineLength = line.length;
+			
+			c = 0;
+			while (c < lineLength)
+			{
+				char = line.charAt(c);
+				switch(char)
+				{
+					case ' ', '\t': {
+						if (!isSpaceWord)
+						{
+							isSpaceWord = true;
+							
+							if (word != "")
+							{
+								words.push(word);
+								word = "";
+							}
+						}
+						
+						word += char;
+					}
+					case '-': {
+						if (isSpaceWord && word != "")
+						{
+							isSpaceWord = false;
+							words.push(word);
+							words.push(char);
+						}
+						else if (isSpaceWord == false)
+						{
+							words.push(word + char);
+						}
+						
+						word = "";
+					}
+					default: {
+						if (isSpaceWord && word != "")
+						{
+							isSpaceWord = false;
+							words.push(word);
+							word = "";
+						}
+						
+						word += char;
+					}
+				}
+				
+				c++;
+			}
+			
+			if (word != "") words.push(word);
+			
+			numWords = words.length;
+			
+			if (numWords > 0)
+			{
+				w = 0;
+				subLineWidth = 0;
+				subLine = "";
+				
+				while (w < numWords)
+				{
+					wordWidth = 0;
+					word = words[w];
+					wordLength = word.length;
+					
+					isSpaceWord = (word.charAt(0) == ' ' || word.charAt(0) == '\t');
+					
+					c = 0;
+					
+					while (c < wordLength)
+					{
+						char = word.charAt(c);
+						
+						if (char == ' ')
+						{
+							charWidth = spaceWidth;
+						}
+						else if (char == '\t')
+						{
+							charWidth = tabWidth;
+						}
+						else
+						{
+							charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance : 0;
+						}
+						charWidth += letterSpacing;
+						
+						if (subLineWidth + charWidth > width)
+						{
+							if (isSpaceWord) // new line ends with space / tab char, so we push it to sublines array, skip all the rest spaces and start another line
+							{
+								subLines.push(subLine);
+								c = wordLength;
+								subLine = "";
+								wordWidth = subLineWidth = 0;
+							}
+							else if (subLine != "") // new line isn't empty so we should add it to sublines array and start another one
+							{
+								subLines.push(subLine);
+								subLine = char;
+								wordWidth = subLineWidth = charWidth;
+							}
+							else	// the line is too tight to hold even one glyph
+							{
+								subLine = char;
+								wordWidth = subLineWidth = charWidth;
+							}
+						}
+						else
+						{
+							subLine += char;
+							subLineWidth += charWidth;
+							wordWidth += charWidth;
+						}
+						
+						c++;
+					}
+					
+					w++;
+				}
+				
+				if (subLine != "")
+				{
+					subLines.push(subLine);
+				}
+			}
+			
+			for (subline in subLines)
+			{
+				newLines.push(subline);
+			}
+		}
+		
+		_lines = newLines;
+	}
+	
 	/**
 	 * Internal method for updating the view of the text component
 	 */
@@ -316,7 +611,7 @@ class FlxBitmapTextField extends FlxSprite
 		}
 		
 		var preparedText:String = (autoUpperCase) ? text.toUpperCase() : text;
-		var calcFieldWidth:Int = 0; // Std.int(width);
+		var calcFieldWidth:Int = 0;
 		var rows:Array<String> = [];
 		
 		#if FLX_RENDER_BLIT
@@ -568,7 +863,7 @@ class FlxBitmapTextField extends FlxSprite
 				var ox:Int = 0;
 				var oy:Int = 0;
 				
-				if (alignment == PxTextAlign.CENTER) 
+				if (alignment == FlxTextAlign.CENTER) 
 				{
 					if (fixedWidth)
 					{
@@ -579,7 +874,7 @@ class FlxBitmapTextField extends FlxSprite
 						ox = Std.int((finalWidth - font.getTextWidth(t, letterSpacing, fontScale)) / 2);
 					}
 				}
-				if (alignment == PxTextAlign.RIGHT) 
+				if (alignment == FlxTextAlign.RIGHT) 
 				{
 					if (fixedWidth)
 					{
@@ -654,9 +949,9 @@ class FlxBitmapTextField extends FlxSprite
 		return super.set_width(value);
 	}
 	
-	private function set_alignment(value:Int):Int 
+	private function set_alignment(value:FlxTextAlign):FlxTextAlign 
 	{
-		if (alignment != value)
+		if (alignment != value && alignment != FlxTextAlign.JUSTIFY)
 		{
 			alignment = value;
 			_pendingTextChange = true;
@@ -830,6 +1125,13 @@ class FlxBitmapTextField extends FlxSprite
 		}
 		
 		return value;
+	}
+	
+	private function set_numLines(value:Int):Int
+	{
+		// TODO: actually implement this feature
+		
+		return numLines = value;
 	}
 	
 	private function updateTextGlyphs():Void
