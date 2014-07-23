@@ -411,7 +411,74 @@ class FlxBitmapTextField extends FlxSprite
 	}
 	
 	/**
-	 * Just cuts the lines which are too long to fit in the field
+	 * Calculates the size of text field.
+	 */
+	private function computeTextSize():Void 
+	{
+		var textWidth:Int = Math.ceil(width);
+		var textHeight:Int = Math.ceil(font.lineHeight * scale * _lines.length);
+		
+		if (!fixedWidth)
+		{
+			textWidth = Math.ceil(getMaxLineWidth());
+		}
+		
+		// TODO: use these var for pixels dimensions
+		frameWidth = textWidth;
+		frameHeight = textHeight;
+	}
+	
+	private function getMaxLineWidth():Float
+	{
+		var max:Float = 0;
+		for (line in _lines)
+		{
+			max = Math.max(max, getLineWidth(line));
+		}
+		return max;
+	}
+	
+	private function getLineWidth(line:String):Float
+	{
+		var spaceWidth:Float = font.spaceWidth * fontScale;
+		var tabWidth:Float = spaceWidth * numSpacesInTab;
+		
+		var lineLength:Int = line.length;	// lenght of the current line
+		var lineWidth:Float = 0;
+		
+		var char:String; 					// current character in word
+		var charWidth:Float = 0;			// the width of current character
+		
+		for (c in 0...lineLength)
+		{
+			char = line.charAt(c);
+			
+			if (char == ' ')
+			{
+				charWidth = spaceWidth;
+			}
+			else if (char == '\t')
+			{
+				charWidth = tabWidth;
+			}
+			else
+			{
+				charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance * fontScale : 0;
+			}
+			
+			lineWidth += (charWidth + letterSpacing);
+		}
+		
+		if (lineLength > 0)
+		{
+			lineWidth -= letterSpacing;
+		}
+		
+		return lineWidth;
+	}
+	
+	/**
+	 * Just cuts the lines which are too long to fit in the field.
 	 */
 	private function cutLines():Void 
 	{
@@ -450,7 +517,7 @@ class FlxBitmapTextField extends FlxSprite
 				}
 				else
 				{
-					charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance : 0;
+					charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance * fontScale : 0;
 				}
 				charWidth += letterSpacing;
 				
@@ -473,15 +540,6 @@ class FlxBitmapTextField extends FlxSprite
 		}
 		
 		_lines = newLines;
-	}
-	
-	// TODO: implement it...
-	/**
-	 * 
-	 */
-	private function computeTextSize():Void 
-	{
-		
 	}
 	
 	/**
@@ -513,12 +571,11 @@ class FlxBitmapTextField extends FlxSprite
 		_lines = newLines;
 	}
 	
-	// TODO: document it...
 	/**
+	 * Helper function for splitting line of text into separate words.
 	 * 
-	 * 
-	 * @param	line
-	 * @param	words
+	 * @param	line	line to split.
+	 * @param	words	result array to fill with words.
 	 */
 	private function splitLineIntoWords(line:String, words:Array<String>):Void
 	{
@@ -581,12 +638,11 @@ class FlxBitmapTextField extends FlxSprite
 		
 	}
 	
-	// TODO: document it...
 	/**
-	 * 
+	 * Wraps provided line by words.
 	 * 
 	 * @param	words		The array of words in the line to process.
-	 * @param	newLines
+	 * @param	newLines	Array to fill with result lines.
 	 */
 	private function wrapLineByWord(words:Array<String>, newLines:Array<String>):Void
 	{
@@ -637,7 +693,7 @@ class FlxBitmapTextField extends FlxSprite
 					}
 					else
 					{
-						charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance : 0;
+						charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance * fontScale : 0;
 					}
 					
 					wordWidth += charWidth + letterSpacing;
@@ -684,12 +740,11 @@ class FlxBitmapTextField extends FlxSprite
 		}
 	}
 	
-	// TODO: document it...
 	/**
-	 * 
+	 * Wraps provided line by characters (as in standart flash text fields).
 	 * 
 	 * @param	words		The array of words in the line to process.
-	 * @param	newLines	
+	 * @param	newLines	Array to fill with result lines.
 	 */
 	private function wrapLineByCharacter(words:Array<String>, newLines:Array<String>):Void
 	{
@@ -741,7 +796,7 @@ class FlxBitmapTextField extends FlxSprite
 					}
 					else
 					{
-						charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance : 0;
+						charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance * fontScale : 0;
 					}
 					charWidth += letterSpacing;
 					
@@ -796,7 +851,7 @@ class FlxBitmapTextField extends FlxSprite
 	 */
 	private function updateBitmapData():Void 
 	{
-		if (!_pendingTextChange) 
+		if (!_pendingGraphicChange) 
 		{
 			return;
 		}
