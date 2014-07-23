@@ -64,6 +64,12 @@ class FlxBitmapTextField extends FlxSprite
 	public var wordWrap(default, set):Bool = true;
 	
 	/**
+	 * Whether word wrapping algorithm should wrap lines by words or by single character
+	 */
+	@:isVar 
+	public var wrapByWord(default, set):Bool = false;
+	
+	/**
 	 * 
 	 */
 	@:isVar
@@ -400,18 +406,79 @@ class FlxBitmapTextField extends FlxSprite
 		}
 		
 		computeTextSize();
+		
+		_pendingTextChange = false;
 	}
 	
-	// TODO: implement it...
 	/**
 	 * Just cuts the lines which are too long to fit in the field
 	 */
 	private function cutLines():Void 
 	{
-		// TODO: continue from here...
+		var newLines:Array<String> = [];
 		
+		var lineLength:Int;			// lenght of the current line
+		
+		var c:Int;					// char index
+		var char:String; 			// current character in word
+		var charWidth:Float = 0;	// the width of current character
+		
+		var subLine:String;			// current subline to assemble
+		var subLineWidth:Float;		// the width of current subline
+		
+		var spaceWidth:Float = font.spaceWidth * fontScale;
+		var tabWidth:Float = spaceWidth * numSpacesInTab;
+		
+		for (line in _lines)
+		{
+			lineLength = line.length;
+			subLine = "";
+			subLineWidth = 0;
+			
+			c = 0;
+			while (c < lineLength)
+			{
+				char = line.charAt(c);
+				
+				if (char == ' ')
+				{
+					charWidth = spaceWidth;
+				}
+				else if (char == '\t')
+				{
+					charWidth = tabWidth;
+				}
+				else
+				{
+					charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance : 0;
+				}
+				charWidth += letterSpacing;
+				
+				if (subLineWidth + charWidth > width)
+				{
+					subLine += char;
+					newLines.push(subLine);
+					subLine = "";
+					subLineWidth = 0;
+					c = lineLength;
+				}
+				else
+				{
+					subLine += char;
+					subLineWidth += charWidth;
+				}
+				
+				c++;
+			}
+		}
+		
+		_lines = newLines;
 	}
 	
+	// TODO: implement it...
+	/**
+	 * 
+	 */
 	private function computeTextSize():Void 
 	{
 		
@@ -425,174 +492,303 @@ class FlxBitmapTextField extends FlxSprite
 	{
 		// subdivide lines
 		var newLines:Array<String> = [];
-		
-		var lineLength:Int;			// lenght of the current line
-		
-		var words:Array<String>;	// the array of words in the current line
-		var numWords:Int;			// number of words in the current line
-		
-		var w:Int;					// word index in the current line
-		var word:String;			// current word to process
-		var wordWidth:Float;		// total width of current word
-		var wordLength:Int;			// number of letters in current word
-		
-		var isSpaceWord:Bool = false; // whether current word consists of spaces or not
-		
-		var char:String; 			// current character in word
-		var c:Int;					// char index
-		var charWidth:Float = 0;	// the width of current character
-		
-		var subLines:Array<String>;	// helper array for subdividing lines
-		
-		var subLine:String;			// current subline to assemble
-		var subLineWidth:Float;		// the width of current subline
-		
-		var spaceWidth:Float = font.spaceWidth * fontScale;
-		var tabWidth:Float = spaceWidth * numSpacesInTab;
+		var words:Array<String>;			// the array of words in the current line
 		
 		for (line in _lines)
 		{
-			subLines = [];
 			words = [];
 			// split this line into words
-			word = "";
-			isSpaceWord = false;
-			lineLength = line.length;
+			splitLineIntoWords(line, words);
 			
-			c = 0;
-			while (c < lineLength)
+			if (wrapByWord)
 			{
-				char = line.charAt(c);
-				switch(char)
-				{
-					case ' ', '\t': {
-						if (!isSpaceWord)
-						{
-							isSpaceWord = true;
-							
-							if (word != "")
-							{
-								words.push(word);
-								word = "";
-							}
-						}
-						
-						word += char;
-					}
-					case '-': {
-						if (isSpaceWord && word != "")
-						{
-							isSpaceWord = false;
-							words.push(word);
-							words.push(char);
-						}
-						else if (isSpaceWord == false)
-						{
-							words.push(word + char);
-						}
-						
-						word = "";
-					}
-					default: {
-						if (isSpaceWord && word != "")
-						{
-							isSpaceWord = false;
-							words.push(word);
-							word = "";
-						}
-						
-						word += char;
-					}
-				}
-				
-				c++;
+				wrapLineByWord(words, newLines);
 			}
-			
-			if (word != "") words.push(word);
-			
-			numWords = words.length;
-			
-			if (numWords > 0)
+			else
 			{
-				w = 0;
-				subLineWidth = 0;
-				subLine = "";
-				
-				while (w < numWords)
-				{
-					wordWidth = 0;
-					word = words[w];
-					wordLength = word.length;
-					
-					isSpaceWord = (word.charAt(0) == ' ' || word.charAt(0) == '\t');
-					
-					c = 0;
-					
-					while (c < wordLength)
-					{
-						char = word.charAt(c);
-						
-						if (char == ' ')
-						{
-							charWidth = spaceWidth;
-						}
-						else if (char == '\t')
-						{
-							charWidth = tabWidth;
-						}
-						else
-						{
-							charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance : 0;
-						}
-						charWidth += letterSpacing;
-						
-						if (subLineWidth + charWidth > width)
-						{
-							if (isSpaceWord) // new line ends with space / tab char, so we push it to sublines array, skip all the rest spaces and start another line
-							{
-								subLines.push(subLine);
-								c = wordLength;
-								subLine = "";
-								wordWidth = subLineWidth = 0;
-							}
-							else if (subLine != "") // new line isn't empty so we should add it to sublines array and start another one
-							{
-								subLines.push(subLine);
-								subLine = char;
-								wordWidth = subLineWidth = charWidth;
-							}
-							else	// the line is too tight to hold even one glyph
-							{
-								subLine = char;
-								wordWidth = subLineWidth = charWidth;
-							}
-						}
-						else
-						{
-							subLine += char;
-							subLineWidth += charWidth;
-							wordWidth += charWidth;
-						}
-						
-						c++;
-					}
-					
-					w++;
-				}
-				
-				if (subLine != "")
-				{
-					subLines.push(subLine);
-				}
-			}
-			
-			for (subline in subLines)
-			{
-				newLines.push(subline);
+				wrapLineByCharacter(words, newLines);
 			}
 		}
 		
 		_lines = newLines;
+	}
+	
+	// TODO: document it...
+	/**
+	 * 
+	 * 
+	 * @param	line
+	 * @param	words
+	 */
+	private function splitLineIntoWords(line:String, words:Array<String>):Void
+	{
+		var word:String = "";				// current word to process
+		var isSpaceWord:Bool = false; 		// whether current word consists of spaces or not
+		var lineLength:Int = line.length;	// lenght of the current line
+		
+		var c:Int = 0;						// char index on the line
+		var char:String; 					// current character in word
+		
+		while (c < lineLength)
+		{
+			char = line.charAt(c);
+			switch(char)
+			{
+				case ' ', '\t': {
+					if (!isSpaceWord)
+					{
+						isSpaceWord = true;
+						
+						if (word != "")
+						{
+							words.push(word);
+							word = "";
+						}
+					}
+					
+					word += char;
+				}
+				case '-': {
+					if (isSpaceWord && word != "")
+					{
+						isSpaceWord = false;
+						words.push(word);
+						words.push(char);
+					}
+					else if (isSpaceWord == false)
+					{
+						words.push(word + char);
+					}
+					
+					word = "";
+				}
+				default: {
+					if (isSpaceWord && word != "")
+					{
+						isSpaceWord = false;
+						words.push(word);
+						word = "";
+					}
+					
+					word += char;
+				}
+			}
+			
+			c++;
+		}
+		
+		if (word != "") words.push(word);
+		
+	}
+	
+	// TODO: document it...
+	/**
+	 * 
+	 * 
+	 * @param	words		The array of words in the line to process.
+	 * @param	newLines
+	 */
+	private function wrapLineByWord(words:Array<String>, newLines:Array<String>):Void
+	{
+		var numWords:Int = words.length;	// number of words in the current line
+		var w:Int;							// word index in the current line
+		var word:String;					// current word to process
+		var wordWidth:Float;				// total width of current word
+		var wordLength:Int;					// number of letters in current word
+		
+		var isSpaceWord:Bool = false; 		// whether current word consists of spaces or not
+		
+		var char:String; 					// current character in word
+		var charWidth:Float = 0;			// the width of current character
+		
+		var subLines:Array<String> = [];	// helper array for subdividing lines
+		
+		var subLine:String;					// current subline to assemble
+		var subLineWidth:Float;				// the width of current subline
+		
+		var spaceWidth:Float = font.spaceWidth * fontScale;
+		var tabWidth:Float = spaceWidth * numSpacesInTab;
+		
+		if (numWords > 0)
+		{
+			w = 0;
+			subLineWidth = 0;
+			subLine = "";
+			
+			while (w < numWords)
+			{
+				wordWidth = 0;
+				word = words[w];
+				wordLength = word.length;
+				
+				isSpaceWord = (word.charAt(0) == ' ' || word.charAt(0) == '\t');
+				
+				for (c in 0...wordLength)
+				{
+					char = word.charAt(c);
+					
+					if (char == ' ')
+					{
+						charWidth = spaceWidth;
+					}
+					else if (char == '\t')
+					{
+						charWidth = tabWidth;
+					}
+					else
+					{
+						charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance : 0;
+					}
+					
+					wordWidth += charWidth + letterSpacing;
+				}
+				
+				if (subLineWidth + wordWidth > width)
+				{
+					if (isSpaceWord)
+					{
+						subLines.push(subLine);
+						subLine = "";
+						subLineWidth = 0;
+					}
+					else if (subLine != "") // new line isn't empty so we should add it to sublines array and start another one
+					{
+						subLines.push(subLine);
+						subLine = word;
+						subLineWidth = wordWidth;
+					}
+					else					// the line is too tight to hold even one word
+					{
+						subLine = word;
+						subLineWidth = wordWidth;
+					}
+				}
+				else
+				{
+					subLine += word;
+					subLineWidth += wordWidth;
+				}
+				
+				w++;
+			}
+			
+			if (subLine != "")
+			{
+				subLines.push(subLine);
+			}
+		}
+		
+		for (subline in subLines)
+		{
+			newLines.push(subline);
+		}
+	}
+	
+	// TODO: document it...
+	/**
+	 * 
+	 * 
+	 * @param	words		The array of words in the line to process.
+	 * @param	newLines	
+	 */
+	private function wrapLineByCharacter(words:Array<String>, newLines:Array<String>):Void
+	{
+		var numWords:Int = words.length;	// number of words in the current line
+		var w:Int;							// word index in the current line
+		var word:String;					// current word to process
+		var wordLength:Int;					// number of letters in current word
+		
+		var isSpaceWord:Bool = false; 		// whether current word consists of spaces or not
+		
+		var char:String; 					// current character in word
+		var c:Int;							// char index
+		var charWidth:Float = 0;			// the width of current character
+		
+		var subLines:Array<String> = [];	// helper array for subdividing lines
+		
+		var subLine:String;					// current subline to assemble
+		var subLineWidth:Float;				// the width of current subline
+		
+		var spaceWidth:Float = font.spaceWidth * fontScale;
+		var tabWidth:Float = spaceWidth * numSpacesInTab;
+		
+		if (numWords > 0)
+		{
+			w = 0;
+			subLineWidth = 0;
+			subLine = "";
+			
+			while (w < numWords)
+			{
+				word = words[w];
+				wordLength = word.length;
+				
+				isSpaceWord = (word.charAt(0) == ' ' || word.charAt(0) == '\t');
+				
+				c = 0;
+				
+				while (c < wordLength)
+				{
+					char = word.charAt(c);
+					
+					if (char == ' ')
+					{
+						charWidth = spaceWidth;
+					}
+					else if (char == '\t')
+					{
+						charWidth = tabWidth;
+					}
+					else
+					{
+						charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance : 0;
+					}
+					charWidth += letterSpacing;
+					
+					if (subLineWidth + charWidth > width)
+					{
+						if (isSpaceWord) // new line ends with space / tab char, so we push it to sublines array, skip all the rest spaces and start another line
+						{
+							subLines.push(subLine);
+							c = wordLength;
+							subLine = "";
+							subLineWidth = 0;
+						}
+						else if (subLine != "") // new line isn't empty so we should add it to sublines array and start another one
+						{
+							subLines.push(subLine);
+							subLine = char;
+							subLineWidth = charWidth;
+						}
+						else	// the line is too tight to hold even one glyph
+						{
+							subLine = char;
+							subLineWidth = charWidth;
+						}
+					}
+					else
+					{
+						subLine += char;
+						subLineWidth += charWidth;
+						charWidth;
+					}
+					
+					c++;
+				}
+				
+				w++;
+			}
+			
+			if (subLine != "")
+			{
+				subLines.push(subLine);
+			}
+		}
+		
+		for (subline in subLines)
+		{
+			newLines.push(subline);
+		}
 	}
 	
 	/**
@@ -1030,6 +1226,17 @@ class FlxBitmapTextField extends FlxSprite
 		}
 		
 		return wordWrap;
+	}
+	
+	private function set_wrapByWord(value:Bool):Bool
+	{
+		if (wrapByWord != value)
+		{
+			wrapByWord = value;
+			_pendingTextChange = true;
+		}
+		
+		return value;
 	}
 	
 	private function set_fixedWidth(value:Bool):Bool 
