@@ -85,6 +85,12 @@ class FlxBitmapTextField extends FlxSprite
 	public var fixedWidth(default, set):Bool;
 	
 	/**
+	 * Number of pixels between text and text field border
+	 */
+	@:isVar
+	public var padding(default, set):Int = 0;
+	
+	/**
 	 * Number of space characters in one tab.
 	 */
 	@:isVar
@@ -415,11 +421,11 @@ class FlxBitmapTextField extends FlxSprite
 	private function computeTextSize():Void 
 	{
 		var textWidth:Int = Math.ceil(width);
-		var textHeight:Int = Math.ceil(font.lineHeight * fontScale * _lines.length);
+		var textHeight:Int = Math.ceil(font.lineHeight * fontScale * _lines.length) + 2 * padding;
 		
 		if (!fixedWidth)
 		{
-			textWidth = Math.ceil(getMaxLineWidth());
+			textWidth = Math.ceil(getMaxLineWidth()) + 2 * padding;
 		}
 		
 		// TODO: use these vars for pixels dimensions
@@ -532,7 +538,7 @@ class FlxBitmapTextField extends FlxSprite
 				}
 				charWidth += letterSpacing;
 				
-				if (subLineWidth + charWidth > width)
+				if (subLineWidth + charWidth > width - 2 * padding)
 				{
 					subLine += char;
 					newLines.push(subLine);
@@ -714,7 +720,7 @@ class FlxBitmapTextField extends FlxSprite
 				
 				wordWidth += ((wordLength - 1) * letterSpacing);
 				
-				if (subLineWidth + wordWidth > width)
+				if (subLineWidth + wordWidth > width - 2 * padding)
 				{
 					if (isSpaceWord)
 					{
@@ -816,7 +822,7 @@ class FlxBitmapTextField extends FlxSprite
 						charWidth = (font.glyphs.exists(char)) ? font.glyphs.get(char).xAdvance * fontScale : 0;
 					}
 					
-					if (subLineWidth + charWidth > width)
+					if (subLineWidth + charWidth > width - 2 * padding)
 					{
 						if (isSpaceWord) // new line ends with space / tab char, so we push it to sublines array, skip all the rest spaces and start another line
 						{
@@ -906,15 +912,19 @@ class FlxBitmapTextField extends FlxSprite
 				
 				// LEFT
 				var ox:Int = Std.int(Math.abs(font.minOffsetX) * fontScale);
-				var oy:Int = Std.int(i * (font.lineHeight * fontScale + lineSpacing));
+				var oy:Int = Std.int(i * (font.lineHeight * fontScale + lineSpacing)) + padding;
 				
 				if (alignment == FlxTextAlign.CENTER) 
 				{
-					ox += Std.int((frameWidth - lineWidth) / 2);
+					ox += Std.int((frameWidth - lineWidth) / 2) - padding;
 				}
 				if (alignment == FlxTextAlign.RIGHT) 
 				{
-					ox += (frameWidth - Std.int(lineWidth));
+					ox += (frameWidth - Std.int(lineWidth)) - padding;
+				}
+				else	// LEFT
+				{
+					ox += padding;
 				}
 				
 				if (outline) 
@@ -1191,6 +1201,17 @@ class FlxBitmapTextField extends FlxSprite
 			updateTextGlyphs();
 			updateShadowGlyphs();
 			updateOutlineGlyphs();
+			_pendingTextChange = true;
+		}
+		
+		return value;
+	}
+	
+	private function set_padding(value:Int):Int
+	{
+		if (value != padding)
+		{
+			padding = value;
 			_pendingTextChange = true;
 		}
 		
