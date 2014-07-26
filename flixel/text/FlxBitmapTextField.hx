@@ -14,6 +14,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 
 // TODO: add background again
+// TODO: implement border style from FlxText
 
 /**
  * Extends FlxSprite to support rendering text.
