@@ -379,6 +379,7 @@ class BitmapFont extends FlxFramesCollection
 		glyphFrame.sourceSize.copyFrom(sourceSize);
 		glyphFrame.halfSize.set(0.5 * sourceSize.x, 0.5 * sourceSize.y);
 		glyphFrame.offset.copyFrom(offset);
+		glyphFrame.xAdvance = xAdvance;
 		glyphFrame.frame = frame;
 		glyphFrame.center.set(frame.width * 0.5, frame.height * 0.5);
 		
@@ -602,7 +603,7 @@ class BitmapGlyphCollection implements IFlxDestroyable
 		var glyph:GlyphFrame;
 		var preparedGlyph:BitmapGlyph;
 		var bdWidth:Int, bdHeight:Int;
-		var offsetX:Float, offsetY:Float, xAdvance:Float;
+		var offsetX:Int, offsetY:Int, xAdvance:Int;
 		
 		spaceWidth = font.spaceWidth * scale;
 		
@@ -620,9 +621,9 @@ class BitmapGlyphCollection implements IFlxDestroyable
 			preparedBD = new BitmapData(bdWidth, bdHeight, true, FlxColor.TRANSPARENT);
 			preparedBD.draw(glyphBD, matrix, colorTransform);
 			
-			offsetX = glyph.offset.x * scale;
-			offsetY = glyph.offset.y * scale;
-			xAdvance = glyph.xAdvance * scale;
+			offsetX = Math.ceil(glyph.offset.x * scale);
+			offsetY = Math.ceil(glyph.offset.y * scale);
+			xAdvance = Math.ceil(glyph.xAdvance * scale);
 			
 			preparedGlyph = new BitmapGlyph(glyph.name, preparedBD, offsetX, offsetY, xAdvance);
 			
@@ -649,19 +650,22 @@ class BitmapGlyph implements IFlxDestroyable
 	
 	public var bitmap:BitmapData;
 	
-	public var offsetX:Float = 0;
+	public var offsetX:Int = 0;
 	
-	public var offsetY:Float = 0;
+	public var offsetY:Int = 0;
 	
-	public var xAdvance:Float = 0;
+	public var xAdvance:Int = 0;
 	
-	public function new(glyph:String, bmd:BitmapData, offsetX:Float = 0, offsetY:Float = 0, xAdvance:Float = 0)
+	public var rect:Rectangle;
+	
+	public function new(glyph:String, bmd:BitmapData, offsetX:Int = 0, offsetY:Int = 0, xAdvance:Int = 0)
 	{
 		this.glyph = glyph;
 		this.bitmap = bmd;
 		this.offsetX = offsetX;
 		this.offsetY = offsetY;
 		this.xAdvance = xAdvance;
+		this.rect = bmd.rect;
 	}
 	
 	public function destroy():Void
