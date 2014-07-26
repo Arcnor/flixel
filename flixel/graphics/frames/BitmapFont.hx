@@ -15,8 +15,6 @@ import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 import haxe.xml.Fast;
 
-// TODO: provide default font
-// TODO: add size, lineHeight, bold, italic props
 // TODO: document it...
 /**
  * 
@@ -31,9 +29,9 @@ class BitmapFont extends FlxFramesCollection
 	
 	private static var COLOR_TRANSFORM:ColorTransform = new ColorTransform();
 	
-	public var size(default, null):Int;
+	public var size(default, null):Int = 0;
 	
-	public var lineHeight(default, null):Int;
+	public var lineHeight(default, null):Int = 0;
 	
 	public var bold:Bool = false;
 	
@@ -406,154 +404,11 @@ class BitmapFont extends FlxFramesCollection
 		return null;
 	}
 	
-	/**
-	 * Renders a string of text onto bitmap data using the font.
-	 * 
-	 * @param	PxBitmapData	Where to render the text.
-	 * @param	PxText			Test to render.
-	 * @param	PxColor			Color of text to render.
-	 * @param	PxOffsetX		X position of thext output.
-	 * @param	PxOffsetY		Y position of thext output.
-	 */
-	/*#if FLX_RENDER_BLIT 
-	public function render(PxBitmapData:BitmapData, PxFontData:Array<BitmapData>, PxText:String, PxColor:FlxColor, PxOffsetX:Int, PxOffsetY:Int, PxLetterSpacing:Int):Void 
-	#else
-	public function render(DrawData:Array<Float>, PxText:String, PxColor:FlxColor, PxSecondColor:FlxColor, PxAlpha:Float, PxOffsetX:Float, PxOffsetY:Float, PxLetterSpacing:Int, PxScale:Float, PxUseColor:Bool = true):Void 
-	#end
-	{
-		_point.x = PxOffsetX;
-		_point.y = PxOffsetY;
-		
-		#if FLX_RENDER_BLIT
-		var glyph:BitmapData;
-		#else
-		var glyph:PxFontSymbol;
-		var glyphWidth:Int;
-		
-		if (PxUseColor)
-		{
-			PxSecondColor = PxColor * PxSecondColor;
-		}
-		#end
-		
-		for (i in 0...PxText.length) 
-		{
-			var charCode:Int = PxText.charCodeAt(i);
-			
-			#if FLX_RENDER_BLIT
-			glyph = PxFontData[charCode];
-			if (glyph != null) 
-			#else
-			glyph = _glyphs.get(charCode);
-			if (_glyphs.exists(charCode))
-			#end
-			{
-				#if FLX_RENDER_BLIT
-				PxBitmapData.copyPixels(glyph, glyph.rect, _point, null, null, true);
-				_point.x += glyph.width + PxLetterSpacing;
-				#else
-				glyphWidth = glyph.xadvance;
-				
-				// Tile_ID
-				DrawData.push(glyph.tileID);
-				// X
-				DrawData.push(_point.x + glyph.xoffset * PxScale);	
-				// Y
-				DrawData.push(_point.y + glyph.yoffset * PxScale);	
-				DrawData.push(PxSecondColor.redFloat);
-				DrawData.push(PxSecondColor.greenFloat);
-				DrawData.push(PxSecondColor.blueFloat);
-				
-				_point.x += glyphWidth * PxScale + PxLetterSpacing;
-				#end
-			}
-		}
-	}*/
-	
-	/**
-	 * Returns the width of a certain test string.
-	 * 
-	 * @param	PxText	String to measure.
-	 * @param	PxLetterSpacing	distance between letters
-	 * @param	PxFontScale	"size" of the font
-	 * @return	Width in pixels.
-	 */
-	/*public function getTextWidth(PxText:String, PxLetterSpacing:Int = 0, PxFontScale:Float = 1):Int 
-	{
-		var w:Int = 0;
-		
-		var textLength:Int = PxText.length;
-		
-		for (i in 0...(textLength)) 
-		{
-			var charCode:Int = PxText.charCodeAt(i);
-			
-			#if FLX_RENDER_BLIT
-			var glyph:BitmapData = _glyphs[charCode];
-			
-			if (glyph != null)
-			{
-				
-				w += glyph.width;
-			}
-			#else
-			if (_glyphs.exists(charCode)) 
-			{
-				
-				w += _glyphs.get(charCode).xadvance;
-			}
-			#end
-		}
-		
-		w = Math.round(w * PxFontScale);
-		
-		if (textLength > 1)
-		{
-			w += (textLength - 1) * PxLetterSpacing;
-		}
-		
-		return w;
-	}*/
-	
-	
 	#if FLX_RENDER_BLIT
 	public function prepareGlyphs(scale:Float, color:FlxColor, useColor:Bool = true):BitmapGlyphCollection
 	{
 		return new BitmapGlyphCollection(this, scale, color, useColor);
 	}
-	#end
-	
-	/**
-	 * Serializes font data to cryptic bit string.
-	 * 
-	 * @return	Cryptic string with font as bits.
-	 */
-	#if FLX_RENDER_BLIT
-	/*
-	public function getFontData():String 
-	{
-		var output:String = "";
-		
-		for (i in 0...(_glyphString.length)) 
-		{
-			var charCode:Int = _glyphString.charCodeAt(i);
-			var glyph:BitmapData = _glyphs[charCode];
-			output += _glyphString.substr(i, 1);
-			output += glyph.width;
-			output += glyph.height;
-			
-			for (py in 0...(glyph.height)) 
-			{
-				for (px in 0...(glyph.width)) 
-				{
-					output += (glyph.getPixel32(px, py) != 0 ? "1":"0");
-				}
-			}
-		}
-		
-		return output;
-	}
-	*/
 	#end
 }
 
