@@ -438,9 +438,8 @@ class BitmapGlyphCollection implements IFlxDestroyable
 		glyphs = new Array<BitmapGlyph>();
 		this.font = font;
 		this.scale = scale;
-		this.color = (useColor) ? color.to24Bit() : FlxColor.WHITE;
+		this.color = (useColor) ? color.to24Bit() : FlxColor.WHITE.to24Bit();
 		this.minOffsetX = font.minOffsetX * scale;
-		
 		prepareGlyphs();
 	}
 	
