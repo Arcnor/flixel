@@ -189,9 +189,10 @@ class FlxBitmapTextField extends FlxSprite
 	@:isVar
 	public var size(default, set):Float = 1;
 	
-	private var _pendingTextChange:Bool = false;
-	private var _pendingGraphicChange:Bool = false;
+	private var _pendingTextChange:Bool = true;
+	private var _pendingGraphicChange:Bool = true;
 	
+	private var _pendingTextGlyphsChange:Bool = true;
 	private var _pendingBorderGlyphsChange:Bool = false;
 	
 	#if FLX_RENDER_TILE
@@ -228,9 +229,6 @@ class FlxBitmapTextField extends FlxSprite
 		_drawData = [];
 		_bgDrawData = [];
 		#end
-		
-		_pendingTextChange = true;
-		_pendingGraphicChange = true;
 	}
 	
 	/**
@@ -266,14 +264,8 @@ class FlxBitmapTextField extends FlxSprite
 	
 	inline private function checkPendingChanges():Void
 	{
-		if (_pendingTextChange)
-		{
-			updateText();
-			_pendingGraphicChange = true;
-		}
-		
 		#if FLX_RENDER_BLIT
-		if (textGlyphs == null)
+		if (_pendingTextGlyphsChange)
 		{
 			updateTextGlyphs();
 		}
@@ -283,6 +275,12 @@ class FlxBitmapTextField extends FlxSprite
 			updateBorderGlyphs();
 		}
 		#end
+		
+		if (_pendingTextChange)
+		{
+			updateText();
+			_pendingGraphicChange = true;
+		}
 		
 		if (_pendingGraphicChange)
 		{
@@ -397,8 +395,7 @@ class FlxBitmapTextField extends FlxSprite
 		if (textColor != value)
 		{
 			textColor = value;
-			updateTextGlyphs();
-			_pendingGraphicChange = true;
+			_pendingTextGlyphsChange = true;
 		}
 		
 		return value;
@@ -409,8 +406,7 @@ class FlxBitmapTextField extends FlxSprite
 		if (useTextColor != value)
 		{
 			useTextColor = value;
-			updateTextGlyphs();
-			_pendingGraphicChange = true;
+			_pendingTextGlyphsChange = true;
 		}
 		
 		return value;
@@ -1350,9 +1346,9 @@ class FlxBitmapTextField extends FlxSprite
 		if (tmp != size)
 		{
 			size = tmp;
-			updateTextGlyphs();
-			_pendingTextChange = true;
+			_pendingTextGlyphsChange = true;
 			_pendingBorderGlyphsChange = true;
+			_pendingTextChange = true;
 		}
 		
 		return value;
@@ -1506,6 +1502,7 @@ class FlxBitmapTextField extends FlxSprite
 		if (font == null)	return;
 		textGlyphs = FlxDestroyUtil.destroy(textGlyphs);
 		textGlyphs = font.prepareGlyphs(size, textColor, useTextColor);
+		_pendingTextGlyphsChange = false;
 		_pendingGraphicChange = true;
 		#end
 	}
