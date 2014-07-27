@@ -278,7 +278,7 @@ class FlxBitmapTextField extends FlxSprite
 			updateTextGlyphs();
 		}
 		
-		if (_pendingBorderGlyphsChange && font != null)
+		if (_pendingBorderGlyphsChange)
 		{
 			updateBorderGlyphs();
 		}
@@ -293,7 +293,6 @@ class FlxBitmapTextField extends FlxSprite
 	override public function update():Void 
 	{
 		checkPendingChanges();
-		
 		super.update();
 	}
 	
@@ -301,7 +300,6 @@ class FlxBitmapTextField extends FlxSprite
 	override public function draw():Void 
 	{
 		checkPendingChanges();
-		
 		super.draw();
 	}
 	#else
@@ -1515,7 +1513,7 @@ class FlxBitmapTextField extends FlxSprite
 	private function updateBorderGlyphs():Void
 	{
 		#if FLX_RENDER_BLIT
-		if (borderGlyphs == null || borderColor.to24Bit() != borderGlyphs.color || size != borderGlyphs.scale || font != borderGlyphs.font)
+		if (font != null && (borderGlyphs == null || borderColor.to24Bit() != borderGlyphs.color || size != borderGlyphs.scale || font != borderGlyphs.font))
 		{
 			borderGlyphs = FlxDestroyUtil.destroy(borderGlyphs);
 			borderGlyphs = font.prepareGlyphs(size, borderColor);
