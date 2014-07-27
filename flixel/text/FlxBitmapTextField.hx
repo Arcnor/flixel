@@ -243,8 +243,7 @@ class FlxBitmapTextField extends FlxSprite
 		_lines = null;
 		_linesWidth = null;
 		
-		shadowOffset.put();
-		shadowOffset = null;
+		shadowOffset = FlxDestroyUtil.put(shadowOffset);
 		
 		#if FLX_RENDER_TILE
 		_drawData = null;
