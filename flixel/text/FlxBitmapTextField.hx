@@ -1514,7 +1514,7 @@ class FlxBitmapTextField extends FlxSprite
 	private function updateBorderGlyphs():Void
 	{
 		#if FLX_RENDER_BLIT
-		if (font != null && (borderGlyphs == null || borderColor.to24Bit() != borderGlyphs.color || size != borderGlyphs.scale || font != borderGlyphs.font))
+		if (font != null && (borderGlyphs == null || borderColor != borderGlyphs.color || size != borderGlyphs.scale || font != borderGlyphs.font))
 		{
 			borderGlyphs = FlxDestroyUtil.destroy(borderGlyphs);
 			borderGlyphs = font.prepareGlyphs(size, borderColor);

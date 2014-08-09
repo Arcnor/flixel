@@ -164,10 +164,6 @@ class FlxGradient
 			data.draw(tempBitmap, sM);
 		}
 		
-		#if FLX_RENDER_TILE
-		FlxG.bitmap.add(data, false, key);
-		#end
-		
 		return data;
 	}
 	
