@@ -116,7 +116,6 @@ class FlxBar extends FlxSprite
 	#else
 	private var _emptyBar:BitmapData;
 	private var _emptyBarRect:Rectangle;
-	private var _emptyBarPoint:Point;
 	
 	private var _filledBar:BitmapData;
 	private var _filledBarRect:Rectangle;
@@ -151,7 +150,6 @@ class FlxBar extends FlxSprite
 		#if FLX_RENDER_BLIT
 		_zeroOffset = new Point();
 		_emptyBarRect = new Rectangle();
-		_emptyBarPoint = new Point();
 		_filledBarPoint = new Point();
 		_filledBarRect = new Rectangle();
 		
@@ -176,11 +174,9 @@ class FlxBar extends FlxSprite
 		positionOffset = FlxDestroyUtil.put(positionOffset);
 		
 		#if FLX_RENDER_TILE
-		_filledBarFrames = null;
 		_front = FlxDestroyUtil.destroy(_front);
 		#else
 		_emptyBarRect = null;
-		_emptyBarPoint = null;
 		_zeroOffset = null;
 		_filledBarRect = null;
 		_filledBarPoint = null;
@@ -554,7 +550,7 @@ class FlxBar extends FlxSprite
 			filledKey += ",border: " + borderA + "." + borderRGB;
 		}
 		
-		if (FlxG.bitmap.checkCache(emptyKey) == false)
+		if (FlxG.bitmap.checkCache(filledKey) == false)
 		{
 			var filledBar:BitmapData = null;
 			

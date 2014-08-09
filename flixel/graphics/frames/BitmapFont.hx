@@ -428,8 +428,6 @@ class BitmapGlyphCollection implements IFlxDestroyable
 	
 	public var color:FlxColor;
 	
-	public var useColor:Bool;
-	
 	public var scale:Float;
 	
 	public var spaceWidth:Float = 0;
@@ -443,7 +441,6 @@ class BitmapGlyphCollection implements IFlxDestroyable
 		this.font = font;
 		this.scale = scale;
 		this.color = (useColor) ? color : FlxColor.WHITE;
-		this.useColor = useColor;
 		this.minOffsetX = font.minOffsetX * scale;
 		prepareGlyphs();
 	}
@@ -454,10 +451,10 @@ class BitmapGlyphCollection implements IFlxDestroyable
 		matrix.scale(scale, scale);
 		
 		var colorTransform:ColorTransform = new ColorTransform();
-		if (useColor)
-		{
-			colorTransform.color = color;
-		}
+		colorTransform.redMultiplier = color.redFloat;
+		colorTransform.greenMultiplier = color.greenFloat;
+		colorTransform.blueMultiplier = color.blueFloat;
+		colorTransform.alphaMultiplier = color.alphaFloat;
 		
 		var glyphBD:BitmapData;
 		var preparedBD:BitmapData;
