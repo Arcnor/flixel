@@ -335,6 +335,7 @@ class BitmapFont extends FlxFramesCollection
 		var sourceSize:FlxPoint;
 		var offset:FlxPoint;
 		var xAdvance:Int = charWidth;
+		font.spaceWidth = xAdvance;
 		var letterIndex:Int = 0;
 		var numLetters:Int = letters.length;
 		
@@ -356,22 +357,23 @@ class BitmapFont extends FlxFramesCollection
 			}
 		}
 		
-		font.spaceWidth = xAdvance;
 		return font;
 	}
 	
 	// TODO: document it...
 	/**
+	 * Internal method which creates and add glyph frames into this font.
 	 * 
-	 * 
-	 * @param	glyph
-	 * @param	frame
-	 * @param	sourceSize
-	 * @param	offset
-	 * @param	xAdvance
+	 * @param	glyph			Letter for glyph frame.
+	 * @param	frame			Glyph area from source image.
+	 * @param	sourceSize		
+	 * @param	offset			Offset before rendering this glyph.
+	 * @param	xAdvance		How much cursor will jump after this glyph.
 	 */
 	private function addGlyphFrame(glyph:String, frame:Rectangle, sourceSize:FlxPoint, offset:FlxPoint, xAdvance:Int):Void
 	{
+		if (frame.width == 0 || frame.height == 0)	return;
+		
 		var glyphFrame:GlyphFrame = new GlyphFrame(parent);
 		glyphFrame.name = glyph;
 		glyphFrame.sourceSize.copyFrom(sourceSize);
@@ -426,6 +428,8 @@ class BitmapGlyphCollection implements IFlxDestroyable
 	
 	public var color:FlxColor;
 	
+	public var useColor:Bool;
+	
 	public var scale:Float;
 	
 	public var spaceWidth:Float = 0;
@@ -438,7 +442,8 @@ class BitmapGlyphCollection implements IFlxDestroyable
 		glyphs = new Array<BitmapGlyph>();
 		this.font = font;
 		this.scale = scale;
-		this.color = (useColor) ? color.to24Bit() : FlxColor.WHITE.to24Bit();
+		this.color = (useColor) ? color : FlxColor.WHITE;
+		this.useColor = useColor;
 		this.minOffsetX = font.minOffsetX * scale;
 		prepareGlyphs();
 	}
@@ -449,7 +454,10 @@ class BitmapGlyphCollection implements IFlxDestroyable
 		matrix.scale(scale, scale);
 		
 		var colorTransform:ColorTransform = new ColorTransform();
-		colorTransform.color = color;
+		if (useColor)
+		{
+			colorTransform.color = color;
+		}
 		
 		var glyphBD:BitmapData;
 		var preparedBD:BitmapData;

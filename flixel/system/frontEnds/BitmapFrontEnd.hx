@@ -53,14 +53,13 @@ class BitmapFrontEnd
 	
 	private function get_whitePixel():FlxFrame
 	{
+		// TODO: make changes to classes which use _whitePixel (FlxBitmapTextField)
 		if (_whitePixel == null)
 		{
-			var bd:BitmapData = new BitmapData(2, 2, true, FlxColor.WHITE);
-			var graphic:FlxGraphic = FlxG.bitmap.add(bd, true, "whitePixel");
+			var bd:BitmapData = new BitmapData(10, 10, true, FlxColor.WHITE);
+			var graphic:FlxGraphic = FlxG.bitmap.add(bd, true, "whitePixels");
 			graphic.persist = true;
-			_whitePixel = ImageFrame.fromRectangle(graphic, new Rectangle(0, 0, 2, 2)).frame;
-			// TODO: make changes to classes which use _whitePixel (FlxBitmapTextField)
-			// _whitePixel.tilesheet.addTileRect(new Rectangle(0, 0, 1, 1), new Point(0, 0));
+			_whitePixel = ImageFrame.fromRectangle(graphic, new Rectangle(0, 0, 10, 10)).frame;
 		}
 		
 		return _whitePixel;

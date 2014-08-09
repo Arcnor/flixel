@@ -15,7 +15,7 @@ import flixel.text.FlxText.FlxTextBorderStyle;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 
-// TODO: add background again
+// TODO: add background again (on tile renderer)
 
 /**
  * Extends FlxSprite to support rendering text.
@@ -78,17 +78,17 @@ class FlxBitmapTextField extends FlxSprite
 	
 	/**
 	 * Whether word wrapping algorithm should wrap lines by words or by single character.
-	 * Default value is false which means word wrapping by characters.
+	 * Default value is true.
 	 */
 	@:isVar 
-	public var wrapByWord(default, set):Bool = false;
+	public var wrapByWord(default, set):Bool = true;
 	
 	/**
 	 * Whether this text field have fixed width or not.
-	 * Default value if false.
+	 * Default value if true.
 	 */
 	@:isVar
-	public var autoSize(default, set):Bool;
+	public var autoSize(default, set):Bool = true;
 	
 	/**
 	 * Number of pixels between text and text field border
@@ -119,17 +119,17 @@ class FlxBitmapTextField extends FlxSprite
 	private var _tabSpaces:String = "    ";
 	
 	/**
-	 * The color of the text.
+	 * The color of the text in 0xAARRGGBB format.
 	 * Result color of text will be multiplication of textColor and color.
 	 */
 	@:isVar
-	public var textColor(default, set):FlxColor = 0x0;
+	public var textColor(default, set):FlxColor = 0xFFFFFFFF;
 	
 	/**
 	 * Whether to use textColor while rendering or not.
 	 */
 	@:isVar
-	public var useTextColor(default, set):Bool = true;
+	public var useTextColor(default, set):Bool = false;
 	
 	/**
 	 * Use a border style
@@ -137,9 +137,9 @@ class FlxBitmapTextField extends FlxSprite
 	public var borderStyle(default, set):FlxTextBorderStyle = NONE;
 	
 	/**
-	 * The color of the border in 0xRRGGBB format
+	 * The color of the border in 0xAARRGGBB format
 	 */	
-	public var borderColor(default, set):FlxColor = FlxColor.TRANSPARENT;
+	public var borderColor(default, set):FlxColor = FlxColor.BLACK;
 	
 	/**
 	 * The size of the border, in pixels.
@@ -431,7 +431,7 @@ class FlxBitmapTextField extends FlxSprite
 		
 		_lines = tmp.split("\n");
 		
-		if (autoSize)
+		if (!autoSize)
 		{
 			if (wordWrap)
 			{
@@ -462,14 +462,15 @@ class FlxBitmapTextField extends FlxSprite
 		// need to calculate it here
 		var maxWidth:Int = Math.ceil(textWidth);
 		
-		if (!autoSize)
+		if (autoSize)
 		{
-			txtWidth = maxWidth + 2 * padding;
+			maxWidth = maxWidth + 2 * padding;
+			txtWidth = (maxWidth > frameWidth) ? maxWidth : frameWidth;
 		}
 		
 		// TODO: use these vars for pixels dimensions
 		frameWidth = txtWidth;
-		frameHeight = txtHeight;
+		frameHeight = (txtHeight == 0) ? 1 : txtHeight;
 	}
 	
 	/**
@@ -931,6 +932,11 @@ class FlxBitmapTextField extends FlxSprite
 		
 		if (pixels == null || (frameWidth != pixels.width || frameHeight != pixels.height))
 		{
+			if (pixels != null)
+			{
+				FlxG.bitmap.remove(graphic.key);
+			}
+			
 			pixels = new BitmapData(frameWidth, frameHeight, true, colorForFill);
 		}
 		else 
@@ -947,8 +953,6 @@ class FlxBitmapTextField extends FlxSprite
 			var lineWidth:Float;
 			
 			var ox:Int, oy:Int;
-			
-			// TODO: continue from here...
 			
 			var iterations:Int = Std.int(borderSize * borderQuality);
 			iterations = (iterations <= 0) ? 1 : iterations; 
@@ -1488,7 +1492,7 @@ class FlxBitmapTextField extends FlxSprite
 	
 	private function get_textHeight():Float
 	{
-		return lineHeight * _lines.length;
+		return (lineHeight + lineSpacing) * _lines.length - lineSpacing;
 	}
 	
 	private function get_lineHeight():Float
@@ -1502,9 +1506,9 @@ class FlxBitmapTextField extends FlxSprite
 		if (font == null)	return;
 		textGlyphs = FlxDestroyUtil.destroy(textGlyphs);
 		textGlyphs = font.prepareGlyphs(size, textColor, useTextColor);
-		_pendingTextGlyphsChange = false;
 		_pendingGraphicChange = true;
 		#end
+		_pendingTextGlyphsChange = false;
 	}
 	
 	private function updateBorderGlyphs():Void
@@ -1514,9 +1518,9 @@ class FlxBitmapTextField extends FlxSprite
 		{
 			borderGlyphs = FlxDestroyUtil.destroy(borderGlyphs);
 			borderGlyphs = font.prepareGlyphs(size, borderColor);
-			_pendingBorderGlyphsChange = false;
 			_pendingGraphicChange = true;
 		}
 		#end
+		_pendingBorderGlyphsChange = false;
 	}
 }
