@@ -596,12 +596,12 @@ class FlxSprite extends FlxObject
 				
 				_matrix.identity();
 				
+				// handle rotated frames
+				frame.prepareFrameMatrix(_matrix);
+				
 				var x1:Float = (ox - frame.center.x);
 				var y1:Float = (oy - frame.center.y);
 				_matrix.translate(x1, y1);
-				
-				// handle rotated frames
-				frame.prepareFrameMatrix(_matrix);
 				
 				var sx:Float = scale.x * _facingHorizontalMult;
 				var sy:Float = scale.y * _facingVerticalMult;
