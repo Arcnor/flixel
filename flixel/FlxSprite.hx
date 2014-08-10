@@ -621,12 +621,14 @@ class FlxSprite extends FlxObject
 					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
 				}
 				
+				_point.addPoint(origin);
+				
 				if (isPixelPerfectRender(camera))
 				{
 					_point.floor();
 				}
 				
-				_point.addPoint(origin).subtract(_matrix.tx, _matrix.ty);
+				_point.subtract(_matrix.tx, _matrix.ty);
 				
 				setDrawData(drawItem, camera, _matrix.a, _matrix.b, _matrix.c, _matrix.d);
 	#end
