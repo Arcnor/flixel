@@ -28,7 +28,7 @@ class TileSheetExt extends Tilesheet implements IFlxDestroyable
 		
 		for (i in 0...(old.tileOrder.length))
 		{
-			newSheet.addTileRect(old.tileOrder[i]);
+			newSheet.addTileRect(old.tileOrder[i], new Point(0.5 * old.tileOrder[i].width, 0.5 * old.tileOrder[i].height));
 		}
 		
 		FlxDestroyUtil.destroy(old);
@@ -55,7 +55,7 @@ class TileSheetExt extends Tilesheet implements IFlxDestroyable
 	 */
 	override public function addTileRect(rectangle:Rectangle, centerPoint:Point = null):Int 
 	{
-		var tileID:Int = super.addTileRect(rectangle);
+		var tileID:Int = super.addTileRect(rectangle, centerPoint);
 		tileOrder[tileID] = rectangle;
 		return tileID;
 	}

@@ -306,8 +306,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	
 	override private function updateMap():Void 
 	{
-		#if FLX_RENDER_BLIT
-		#if !FLX_NO_DEBUG
+		#if (!FLX_NO_DEBUG && FLX_RENDER_BLIT)
 		_debugRect = new Rectangle(0, 0, _tileWidth, _tileHeight);
 		#end
 		
@@ -315,9 +314,6 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		{
 			updateTile(i);
 		}
-		#else
-		updateFrameData();
-		#end
 	}
 	
 	#if !FLX_NO_DEBUG

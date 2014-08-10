@@ -14,6 +14,7 @@ import flixel.graphics.frames.ClippedFrames;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FrameCollectionType;
+import flixel.graphics.frames.FrameType;
 import flixel.graphics.frames.ImageFrame;
 import flixel.graphics.frames.TileFrames;
 import flixel.math.FlxAngle;
@@ -539,146 +540,100 @@ class FlxSprite extends FlxObject
 			calcFrame();
 		}
 		
-	#if FLX_RENDER_TILE
-		var drawItem:DrawStackItem;
-		
-		var cos:Float;
-		var sin:Float;
-		
-		var ox:Float = origin.x;
-		if (_facingHorizontalMult != 1)
+		if (frame.type != FrameType.EMPTY)
 		{
-			ox = frameWidth - ox;
-		}
-		var oy:Float = origin.y;
-		if (_facingVerticalMult != 1)
-		{
-			oy = frameHeight - oy;
-		}
-	#end
-		
-		for (camera in cameras)
-		{
-			if (!camera.visible || !camera.exists || !isOnScreen(camera))
-			{
-				continue;
-			}
+		#if FLX_RENDER_TILE
+			var drawItem:DrawStackItem;
 			
-			getScreenPosition(_point, camera).subtractPoint(offset);
+			var cos:Float;
+			var sin:Float;
 			
-#if FLX_RENDER_BLIT
-			if (isSimpleRender(camera))
+			var ox:Float = origin.x;
+			if (_facingHorizontalMult != 1)
 			{
-				_point.floor().copyToFlash(_flashPoint);
-				camera.buffer.copyPixels(framePixels, _flashRect, _flashPoint, null, null, true);
+				ox = frameWidth - ox;
 			}
-			else
+			var oy:Float = origin.y;
+			if (_facingVerticalMult != 1)
 			{
-				_matrix.identity();
-				_matrix.translate(-origin.x, -origin.y);
-				_matrix.scale(scale.x, scale.y);
-				
-				if ((angle != 0) && (bakedRotationAngle <= 0))
+				oy = frameHeight - oy;
+			}
+		#end
+			
+			for (camera in cameras)
+			{
+				if (!camera.visible || !camera.exists || !isOnScreen(camera))
 				{
-					_matrix.rotate(angle * FlxAngle.TO_RAD);
+					continue;
 				}
 				
-				_point.addPoint(origin).floor();
+				getScreenPosition(_point, camera).subtractPoint(offset);
 				
-				_matrix.translate(_point.x, _point.y);
-				camera.buffer.draw(framePixels, _matrix, null, blend, null, (antialiasing || camera.antialiasing));
-			}
-#else
-			drawItem = camera.getDrawStackItem(graphic, isColored, _blendInt, antialiasing);
-			
-			if (isPixelPerfectRender(camera))
-			{
-				_point.floor();
-			}
-			
-			_point.addPoint(origin);
-			
-			var csx:Float = _facingHorizontalMult;
-			var csy:Float = _facingVerticalMult;
-			var ssy:Float = 0;
-			var ssx:Float = 0;
-			
-			var x1:Float = (ox - frame.center.x);
-			var y1:Float = (oy - frame.center.y);
-			
-			var x2:Float = x1;
-			var y2:Float = y1;
-			
-			// transformation matrix coefficients
-			var a:Float = csx;
-			var b:Float = ssx;
-			var c:Float = ssy;
-			var d:Float = csy;
-			// TODO: add matrix2x2util class which will handle 
-			// this mess
-			if (!isSimpleRender(camera))
-			{
-				if (_angleChanged && (bakedRotationAngle <= 0))
+	#if FLX_RENDER_BLIT
+				if (isSimpleRender(camera))
 				{
-					var radians:Float = -angle * FlxAngle.TO_RAD;
-					_sinAngle = Math.sin(radians);
-					_cosAngle = Math.cos(radians);
-					_angleChanged = false;
-				}
-				
-				var sx:Float = scale.x * _facingHorizontalMult;
-				var sy:Float = scale.y * _facingVerticalMult;
-				
-				// todo: handle different additional angles (since different packers adds different values, e.g. -90 or +90)
-				if (frame.type == ROTATED)
-				{
-					cos = -_sinAngle;
-					sin = _cosAngle;
-					
-					csx = cos * sx;
-					ssy = sin * sy;
-					ssx = sin * sx;
-					csy = cos * sy;
-					
-					x2 = x1 * ssx - y1 * csy;
-					y2 = x1 * csx + y1 * ssy;
-					
-					a = csy;
-					b = ssy;
-					c = ssx;
-					d = csx;
+					_point.floor().copyToFlash(_flashPoint);
+					camera.buffer.copyPixels(framePixels, _flashRect, _flashPoint, null, null, true);
 				}
 				else
 				{
-					cos = _cosAngle;
-					sin = _sinAngle;
+					_matrix.identity();
+					_matrix.translate(-origin.x, -origin.y);
+					_matrix.scale(scale.x, scale.y);
 					
-					csx = cos * sx;
-					ssy = sin * sy;
-					ssx = sin * sx;
-					csy = cos * sy;
+					if ((angle != 0) && (bakedRotationAngle <= 0))
+					{
+						_matrix.rotate(angle * FlxAngle.TO_RAD);
+					}
 					
-					x2 = x1 * csx + y1 * ssy;
-					y2 = -x1 * ssx + y1 * csy;
+					_point.addPoint(origin).floor();
 					
-					a = csx;
-					b = ssx;
-					c = ssy;
-					d = csy;
+					_matrix.translate(_point.x, _point.y);
+					camera.buffer.draw(framePixels, _matrix, null, blend, null, (antialiasing || camera.antialiasing));
 				}
+	#else
+				drawItem = camera.getDrawStackItem(graphic, isColored, _blendInt, antialiasing);
+				
+				_matrix.identity();
+				
+				var x1:Float = (ox - frame.center.x);
+				var y1:Float = (oy - frame.center.y);
+				_matrix.translate(x1, y1);
+				
+				// handle rotated frames
+				frame.prepareFrameMatrix(_matrix);
+				
+				var sx:Float = scale.x * _facingHorizontalMult;
+				var sy:Float = scale.y * _facingVerticalMult;
+				_matrix.scale(sx, sy);
+				
+				// rotate matrix if sprite's graphic isn't prerotated
+				if (!isSimpleRender(camera))
+				{
+					if (_angleChanged && (bakedRotationAngle <= 0))
+					{
+						var radians:Float = angle * FlxAngle.TO_RAD;
+						_sinAngle = Math.sin(radians);
+						_cosAngle = Math.cos(radians);
+						_angleChanged = false;
+					}
+					
+					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+				}
+				
+				if (isPixelPerfectRender(camera))
+				{
+					_point.floor();
+				}
+				
+				_point.addPoint(origin).subtract(_matrix.tx, _matrix.ty);
+				
+				setDrawData(drawItem, camera, _matrix.a, _matrix.b, _matrix.c, _matrix.d);
+	#end
+				#if !FLX_NO_DEBUG
+				FlxBasic.visibleCount++;
+				#end
 			}
-			else
-			{
-				x2 = x1 * csx;
-				y2 = y1 * csy;
-			}
-			
-			_point.subtract(x2, y2);
-			setDrawData(drawItem, camera, a, -b, c, d);
-#end
-			#if !FLX_NO_DEBUG
-			FlxBasic.visibleCount++;
-			#end
 		}
 		
 		#if !FLX_NO_DEBUG
@@ -1123,8 +1078,7 @@ class FlxSprite extends FlxObject
 	 */
 	public function isSimpleRenderTile():Bool
 	{
-		return ((angle == 0 && frame.angle == 0) || (bakedRotationAngle > 0))
-			&& (scale.x == 1) && (scale.y == 1);
+		return ((angle == 0 && frame.angle == 0) || (bakedRotationAngle > 0));
 	}
 	
 	/**
