@@ -800,7 +800,7 @@ class FlxBar extends FlxSprite
 			var prct:Int = Std.int(percent);
 			if (prct > 0)
 			{
-				_frontFrame = _front.frame = _front.frames.frames[prct - 1];
+				_frontFrame = _front.frame = frontFrames.frames[prct - 1];
 			}
 		}
 		#end
@@ -864,7 +864,7 @@ class FlxBar extends FlxSprite
 				_matrix.identity();
 				
 				// handle rotated frames
-				_front.frame.prepareFrameMatrix(_matrix);
+				_frontFrame.prepareFrameMatrix(_matrix);
 				
 				var x1:Float = (ox - _frontFrame.center.x);
 				var y1:Float = (oy - _frontFrame.center.y);
