@@ -545,9 +545,6 @@ class FlxSprite extends FlxObject
 		#if FLX_RENDER_TILE
 			var drawItem:DrawStackItem;
 			
-			var cos:Float;
-			var sin:Float;
-			
 			var ox:Float = origin.x;
 			if (_facingHorizontalMult != 1)
 			{

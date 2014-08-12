@@ -11,6 +11,7 @@ import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.BarFrames;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
+import flixel.graphics.frames.FrameType;
 import flixel.graphics.frames.ImageFrame;
 import flixel.system.layer.DrawStackItem;
 import flixel.ui.FlxBar.FlxBarFillDirection;
@@ -113,6 +114,7 @@ class FlxBar extends FlxSprite
 	 * FlxSprite which is used for rendering front graphics of bar (showing value) in tile render mode.
 	 */
 	private var _front:FlxSprite;
+	private var _frontFrame:FlxFrame;
 	#else
 	private var _emptyBar:BitmapData;
 	private var _emptyBarRect:Rectangle;
@@ -156,6 +158,7 @@ class FlxBar extends FlxSprite
 		makeGraphic(width, height, FlxColor.TRANSPARENT, true);
 		#else
 		_front = new FlxSprite();
+		_frontFrame = _front.frame;
 		#end
 		
 		if (parentRef != null)
@@ -175,6 +178,7 @@ class FlxBar extends FlxSprite
 		
 		#if FLX_RENDER_TILE
 		_front = FlxDestroyUtil.destroy(_front);
+		_frontFrame = null;
 		#else
 		_emptyBarRect = null;
 		_zeroOffset = null;
@@ -794,11 +798,9 @@ class FlxBar extends FlxSprite
 		if (frontFrames != null)
 		{
 			var prct:Int = Std.int(percent);
-			_front.visible = (prct > 0);
-			
 			if (prct > 0)
 			{
-				_front.animation.frameIndex = prct;
+				_frontFrame = _front.frame = _front.frames.frames[prct - 1];
 			}
 		}
 		#end
@@ -828,16 +830,68 @@ class FlxBar extends FlxSprite
 	{
 		super.draw();
 		
-		if (!_front.visible)	return;
+		if (alpha == 0)
+		{
+			return;
+		}
 		
-		_front.x = this.x;
-		_front.y = this.y;
-		_front.alpha = alpha;
-		_front.color = color;
-		_front.scale.copyFrom(this.scale);
-		_front.origin.copyFrom(this.origin);
-		_front.offset.copyFrom(this.offset);
-		_front.draw();
+		if (percent > 0 && _frontFrame.type != FrameType.EMPTY)
+		{
+			var drawItem:DrawStackItem;
+			
+			var ox:Float = origin.x;
+			if (_facingHorizontalMult != 1)
+			{
+				ox = frameWidth - ox;
+			}
+			var oy:Float = origin.y;
+			if (_facingVerticalMult != 1)
+			{
+				oy = frameHeight - oy;
+			}
+			
+			for (camera in cameras)
+			{
+				if (!camera.visible || !camera.exists || !isOnScreen(camera))
+				{
+					continue;
+				}
+				
+				getScreenPosition(_point, camera).subtractPoint(offset);
+				
+				drawItem = camera.getDrawStackItem(_front.graphic, isColored, _blendInt, antialiasing);
+				
+				_matrix.identity();
+				
+				// handle rotated frames
+				_front.frame.prepareFrameMatrix(_matrix);
+				
+				var x1:Float = (ox - _frontFrame.center.x);
+				var y1:Float = (oy - _frontFrame.center.y);
+				_matrix.translate(x1, y1);
+				
+				var sx:Float = scale.x * _facingHorizontalMult;
+				var sy:Float = scale.y * _facingVerticalMult;
+				_matrix.scale(sx, sy);
+				
+				// rotate matrix if sprite's graphic isn't prerotated
+				if (angle != 0)
+				{
+					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+				}
+				
+				_point.addPoint(origin);
+				
+				if (isPixelPerfectRender(camera))
+				{
+					_point.floor();
+				}
+				
+				_point.subtract(_matrix.tx, _matrix.ty);
+				
+				setDrawData(drawItem, camera, _matrix.a, _matrix.b, _matrix.c, _matrix.d, _frontFrame.tileID);
+			}
+		}
 	}
 	
 	override private function set_pixels(Pixels:BitmapData):BitmapData
@@ -929,6 +983,7 @@ class FlxBar extends FlxSprite
 		if (_front != null)
 		{
 			_front.frames = value;
+			_frontFrame = _front.frame;
 		}
 		#else
 		createImageFilledBar(value.getFilledBitmap());
