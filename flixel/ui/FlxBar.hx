@@ -702,7 +702,7 @@ class FlxBar extends FlxSprite
 		}
 		
 		#if FLX_RENDER_TILE
-		if (_front != null)
+		if (frontFrames != null)
 		{
 			frontFrames = frontFrames.changeType(fillDirection);
 		}
@@ -790,6 +790,17 @@ class FlxBar extends FlxSprite
 		
 		frame.destroyBitmaps();
 		dirty = true;
+		#else
+		if (frontFrames != null)
+		{
+			var prct:Int = Std.int(percent);
+			_front.visible = (prct > 0);
+			
+			if (prct > 0)
+			{
+				_front.animation.frameIndex = prct;
+			}
+		}
 		#end
 	}
 	
@@ -817,8 +828,12 @@ class FlxBar extends FlxSprite
 	{
 		super.draw();
 		
+		if (!_front.visible)	return;
+		
 		_front.x = this.x;
 		_front.y = this.y;
+		_front.alpha = alpha;
+		_front.color = color;
 		_front.scale.copyFrom(this.scale);
 		_front.origin.copyFrom(this.origin);
 		_front.offset.copyFrom(this.offset);

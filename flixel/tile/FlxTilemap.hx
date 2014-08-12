@@ -886,7 +886,6 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	#else
 		getScreenPosition(_point, Camera).add(0.5 * _scaledTileWidth, 0.5 * _scaledTileHeight).copyToFlash(_helperPoint);
 		
-		var tileID:Int;
 		var drawX:Float;
 		var drawY:Float;
 		
@@ -943,10 +942,11 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 			{
 				tile = _tileObjects[_data[columnIndex]];
 				
-				#if FLX_RENDER_BLIT
 				if (tile != null && tile.visible && tile.frame.type != FrameType.EMPTY)
 				{
 					frame = tile.frame;
+					
+				#if FLX_RENDER_BLIT
 					Buffer.pixels.copyPixels(frame.getBitmap(), _flashRect, _flashPoint, null, null, true);
 					
 					#if !FLX_NO_DEBUG
@@ -974,10 +974,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 						}
 					}
 					#end
-				}
 				#else
-				if (tile != null && tile.visible && tile.frame.type != FrameType.EMPTY)
-				{
 					drawX = _helperPoint.x + (columnIndex % widthInTiles) * _scaledTileWidth;
 					drawY = _helperPoint.y + Math.floor(columnIndex / widthInTiles) * _scaledTileHeight;
 					
@@ -985,9 +982,9 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 					_point.y = isPixelPerfectRender(Camera) ? Math.floor(drawY) : drawY;
 					
 					var drawItem:DrawStackItem = Camera.getDrawStackItem(graphic, false, 0);
-					drawItem.setDrawData(_point, tile.frame.tileID, hackScaleX, 0, 0, hackScaleY);
-				}
+					drawItem.setDrawData(_point, frame.tileID, hackScaleX, 0, 0, hackScaleY);
 				#end
+				}
 				
 				#if FLX_RENDER_BLIT
 				_flashPoint.x += _tileWidth;
