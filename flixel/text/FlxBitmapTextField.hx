@@ -363,6 +363,11 @@ class FlxBitmapTextField extends FlxSprite
 			
 			getScreenPosition(_point, camera).subtractPoint(offset).addPoint(origin);
 			
+			if (isPixelPerfectRender(camera))
+			{
+				_point.floor();
+			}
+			
 			if (background)
 			{
 				drawItem = camera.getDrawStackItem(FlxG.bitmap.whitePixel.parent, true, _blendInt, antialiasing);
@@ -1009,8 +1014,8 @@ class FlxBitmapTextField extends FlxSprite
 		_textDrawData.splice(0, _textDrawData.length);
 		_borderDrawData.splice(0, _borderDrawData.length);
 		
-		var borderGlyphs:Dynamic = false;
-		var textGlyphs:Dynamic = true;
+		var borderGlyphs:Bool = false;
+		var textGlyphs:Bool = true;
 		#end
 		
 		if (size > 0)

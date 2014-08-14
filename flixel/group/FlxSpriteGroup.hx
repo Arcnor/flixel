@@ -11,7 +11,6 @@ import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets.FlxGraphicAsset;
-import flixel.system.FlxAssets.FlxTextureAsset;
 import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxSort;
 

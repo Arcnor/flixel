@@ -170,9 +170,8 @@ class BitmapFrontEnd
 	 * @return	The FlxGraphic we just created.
 	 */
 	// TODO: maybe add optional arguments for persist and destroyOnNoUse here and in other places (for frame generation, for example)
-	public function add(Graphic:Dynamic, Unique:Bool = false, ?Key:String):FlxGraphic
+	public function add(Graphic:FlxGraphicAsset, Unique:Bool = false, ?Key:String):FlxGraphic
 	{
-		// TODO: make it accept only String, BitmapData and FlxGraphic
 		if (Std.is(Graphic, FlxGraphic))
 		{
 			var graphic:FlxGraphic = cast(Graphic, FlxGraphic);

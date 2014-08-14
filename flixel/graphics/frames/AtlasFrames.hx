@@ -1,6 +1,7 @@
 package flixel.graphics.frames;
 
 import flixel.math.FlxPoint;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import haxe.xml.Fast;
 
 import flash.display.BitmapData;
@@ -30,8 +31,7 @@ class AtlasFrames extends FlxFramesCollection
 	 * @param	Description		contents of json file with atlas description. You can get it with Assets.getText(path/to/description.json).
 	 * @return	Newly created AtlasFrames collection
 	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function texturePackerJSON(Source:Dynamic, Description:String):AtlasFrames
+	public static function texturePackerJSON(Source:FlxGraphicAsset, Description:String):AtlasFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(Source, false);
 		if (graphic == null)	return null;
@@ -78,8 +78,7 @@ class AtlasFrames extends FlxFramesCollection
 	 * @param	Description		contents of the file with atlas description. You can get it with Assets.getText(path/to/description/file)
 	 * @return	Newly created AtlasFrames collection
 	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function libGDX(Source:Dynamic, Description:String):AtlasFrames
+	public static function libGDX(Source:FlxGraphicAsset, Description:String):AtlasFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(Source);
 		if (graphic == null)	return null;
@@ -181,8 +180,7 @@ class AtlasFrames extends FlxFramesCollection
 	 * @param	Description		contents of xml file with atlas description. You can get it with Assets.getText(path/to/description.xml)
 	 * @return	Newly created AtlasFrames collection.
 	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function sparrow(Source:Dynamic, Description:String):AtlasFrames
+	public static function sparrow(Source:FlxGraphicAsset, Description:String):AtlasFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(Source);
 		if (graphic == null)	return null;
@@ -232,8 +230,7 @@ class AtlasFrames extends FlxFramesCollection
 	 * @param	Description		contents of xml file with atlas description. You can get it with Assets.getText(path/to/description.xml)
 	 * @return	Newly created AtlasFrames collection.
 	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function texturePackerXML(Source:Dynamic, Description:String):AtlasFrames
+	public static function texturePackerXML(Source:FlxGraphicAsset, Description:String):AtlasFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(Source, false);
 		if (graphic == null)	return null;

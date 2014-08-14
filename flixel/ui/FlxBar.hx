@@ -13,6 +13,7 @@ import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FrameType;
 import flixel.graphics.frames.ImageFrame;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.layer.DrawStackItem;
 import flixel.ui.FlxBar.FlxBarFillDirection;
 import flixel.math.FlxAngle;
@@ -602,7 +603,7 @@ class FlxBar extends FlxSprite
 	 * @param	fillBackground		If no foreground (fill) image is given, use this colour value instead. 0xAARRGGBB format
 	 * @return	This FlxBar object with generated images for front and backround.
 	 */
-	public function createImageBar(?empty:Dynamic, ?fill:Dynamic, emptyBackground:Int = 0xff000000, fillBackground:Int = 0xff00ff00):FlxBar
+	public function createImageBar(?empty:FlxGraphicAsset, ?fill:FlxGraphicAsset, emptyBackground:Int = 0xff000000, fillBackground:Int = 0xff00ff00):FlxBar
 	{
 		createImageEmptyBar(empty, emptyBackground);
 		createImageFilledBar(fill, fillBackground);
@@ -616,8 +617,7 @@ class FlxBar extends FlxSprite
 	 * @param	emptyBackground		If no background (empty) image is given, use this colour value instead. 0xAARRGGBB format
 	 * @return	This FlxBar object with generated image for backround rendering.
 	 */
-	// TODO: bound input type (BitmapData, FlxGraphic and String)
-	public function createImageEmptyBar(?empty:Dynamic, emptyBackground:Int = 0xff000000):FlxBar
+	public function createImageEmptyBar(?empty:FlxGraphicAsset, emptyBackground:Int = 0xff000000):FlxBar
 	{
 		if (empty != null)
 		{
@@ -656,8 +656,7 @@ class FlxBar extends FlxSprite
 	 * @param	fillBackground		If no foreground (fill) image is given, use this colour value instead. 0xAARRGGBB format
 	 * @return	This FlxBar object with generated image for rendering actual values.
 	 */
-	// TODO: bound input type (BitmapData, FlxGraphic and String)
-	public function createImageFilledBar(?fill:Dynamic, fillBackground:Int = 0xff00ff00):FlxBar
+	public function createImageFilledBar(?fill:FlxGraphicAsset, fillBackground:Int = 0xff00ff00):FlxBar
 	{
 		if (fill != null)
 		{

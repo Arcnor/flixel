@@ -21,16 +21,13 @@ import flixel.math.FlxAngle;
 import flixel.math.FlxMath;
 import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
+import flixel.system.FlxAssets;
 import flixel.system.FlxAssets.FlxGraphicAsset;
-import flixel.system.FlxAssets.FlxTextureAsset;
 import flixel.system.layer.DrawStackItem;
 import flixel.util.FlxBitmapDataUtil;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import openfl.display.Tilesheet;
-
-@:bitmap("assets/images/logo/default.png")
-private class GraphicDefault extends BitmapData {}
 
 /**
  * The main "game object" class, the sprite is a FlxObject
@@ -248,6 +245,7 @@ class FlxSprite extends FlxObject
 	 * @return	this FlxSprite object.
 	 */
 	// TODO: use FlxRect instead of Rectangle
+	// TODO: store cliprect
 	public function clipRect(rect:Rectangle, useOriginal:Bool = true):FlxSprite
 	{
 		if (frames != null)
@@ -313,7 +311,6 @@ class FlxSprite extends FlxObject
 	 * @param	Key			Optional, set this parameter if you're loading BitmapData.
 	 * @return	This FlxSprite instance (nice for chaining stuff together, if you're into that).
 	 */
-	// TODO: make it accept only FlxGraphic and String as a Graphic source
 	public function loadGraphic(Graphic:FlxGraphicAsset, Animated:Bool = false, Width:Int = 0, Height:Int = 0, Unique:Bool = false, ?Key:String):FlxSprite
 	{
 		var graph:FlxGraphic = FlxG.bitmap.add(Graphic, Unique, Key);
@@ -355,7 +352,6 @@ class FlxSprite extends FlxObject
 	 * @param	Key				Optional, set this parameter if you're loading BitmapData.
 	 * @return	This FlxSprite instance (nice for chaining stuff together, if you're into that).
 	 */
-	// TODO: make it accept only FlxGraphic and String as a Graphic source
 	public function loadRotatedGraphic(Graphic:FlxGraphicAsset, Rotations:Int = 16, Frame:Int = -1, AntiAliasing:Bool = false, AutoBuffer:Bool = false, ?Key:String):FlxSprite
 	{
 		var brushGraphic:FlxGraphic = FlxG.bitmap.add(Graphic, false, Key);
@@ -879,7 +875,7 @@ class FlxSprite extends FlxObject
 	{
 		if (graphic == null)	
 		{
-			loadGraphic(GraphicDefault);
+			loadGraphic(FlxAssets.DEFAULT_SPRITE_GRAPHIC);
 		}
 		
 		#if FLX_RENDER_TILE

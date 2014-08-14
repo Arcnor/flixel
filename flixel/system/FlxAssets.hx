@@ -3,6 +3,7 @@ package flixel.system;
 #if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import openfl.display.GraphicsStroke;
 import sys.FileSystem;
 using StringTools;
 #else
@@ -96,6 +97,10 @@ class FlxAssets
 	public static var FONT_DEFAULT:String = "Nokia Cellphone FC Small";
 	public static var FONT_DEBUGGER:String = "Arial";
 	
+	public static var DEFAULT_BUTTON_GRAPHIC:String = "assets/images/ui/button.png";
+	
+	public static var DEFAULT_SPRITE_GRAPHIC:String = "assets/images/logo/default.png";
+	
 	public static function init():Void
 	{
 		Font.registerFont(FontDefault);
@@ -188,8 +193,7 @@ class FlxAssets
 	 * @param	Graphic	input data to get BitmapData object for.
 	 * @return	BitmapData for specified Dynamic object.
 	 */
-	// TODO: make it accept only BitmapData, Class or String as input
-	public static function resolveBitmapData(Graphic:Dynamic):BitmapData
+	public static function resolveBitmapData(Graphic:FlxGraphicSource):BitmapData
 	{
 		if (Std.is(Graphic, BitmapData))
 		{
@@ -218,8 +222,7 @@ class FlxAssets
 	 * @param	Key	optional key string.
 	 * @return	Key String for specified Graphic object.
 	 */
-	// TODO: make it accept only BitmapData, Class or String as input
-	public static function resolveKey(Graphic:Dynamic, ?Key:String):String
+	public static function resolveKey(Graphic:FlxGraphicSource, ?Key:String):String
 	{
 		if (Key != null)
 		{
@@ -278,9 +281,8 @@ private class FileReference
 #else
 // TODO: change these typedefs
 typedef FlxSoundAsset = OneOfThree<String, Sound, Class<Sound>>;
-// Class<Dynamic> should actually be Class<BitmapData>, but needs to be the former so we can use Std.is() on it
-typedef FlxGraphicAsset = OneOfFive<String, Class<Dynamic>, FlxGraphic, BitmapData, FlxFramesCollection>;
-typedef FlxTextureAsset = OneOfTwo<FlxGraphic, FlxFramesCollection>;
+typedef FlxGraphicAsset = OneOfThree<FlxGraphic, BitmapData, String>;
+typedef FlxGraphicSource = OneOfThree<BitmapData, Class<Dynamic>, String>;
 typedef FlxTilemapAsset = OneOfTwo<String, Array<Int>>;
 
 private abstract OneOfTwo<T1, T2>(Dynamic) from T1 from T2 to T1 to T2 { }

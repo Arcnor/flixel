@@ -16,6 +16,7 @@ import flixel.graphics.frames.ImageFrame;
 import flixel.graphics.frames.TileFrames;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.FlxAssets.FlxTilemapAsset;
 import flixel.system.layer.DrawStackItem;
 import flixel.tile.FlxBaseTilemap.FlxTilemapAutoTiling;
@@ -248,7 +249,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	}
 	
 	// TODO: rework this, rename this and document this
-	override private function cacheGraphics(TileWidth:Int, TileHeight:Int, TileGraphic:Dynamic):Void 
+	override private function cacheGraphics(TileWidth:Int, TileHeight:Int, TileGraphic:FlxGraphicAsset):Void 
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(TileGraphic);
 		// Figure out the size of the tiles

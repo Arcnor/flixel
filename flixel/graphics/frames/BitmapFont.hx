@@ -9,6 +9,7 @@ import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.math.FlxPoint;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.text.pxText.DefaultBitmapFont;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
@@ -80,8 +81,7 @@ class BitmapFont extends FlxFramesCollection
 	 * @param	Data		XML font data.
 	 * @return	Generated bitmap font object.
 	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function fromAngelCode(Source:Dynamic, Data:Xml):BitmapFont
+	public static function fromAngelCode(Source:FlxGraphicAsset, Data:Xml):BitmapFont
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(Source, false);
 		if (graphic == null)	return null;
@@ -174,8 +174,7 @@ class BitmapFont extends FlxFramesCollection
 	 * @param	glyphBGColor	An additional background color to remove. Defaults to 0xFF202020, often used for glyphs background.
 	 * @return	
 	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function fromXNA(source:Dynamic, letters:String = null, glyphBGColor:Int = FlxColor.TRANSPARENT):BitmapFont
+	public static function fromXNA(source:FlxGraphicAsset, letters:String = null, glyphBGColor:Int = FlxColor.TRANSPARENT):BitmapFont
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		if (graphic == null)	return null;
@@ -281,8 +280,7 @@ class BitmapFont extends FlxFramesCollection
 	 * @param	spacing		Spaces between characters in the font set. Default is null which means no spaces.
 	 * @return
 	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function fromMonospace(source:Dynamic, letters:String = null, charSize:Point, region:Rectangle = null, spacing:Point = null):BitmapFont
+	public static function fromMonospace(source:FlxGraphicAsset, letters:String = null, charSize:Point, region:Rectangle = null, spacing:Point = null):BitmapFont
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		if (graphic == null)	return null;

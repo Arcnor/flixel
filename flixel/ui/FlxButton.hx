@@ -7,18 +7,16 @@ import flixel.FlxSprite;
 import flixel.input.FlxInput;
 import flixel.input.touch.FlxTouch;
 import flixel.math.FlxPoint;
+import flixel.system.FlxAssets;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.util.FlxDestroyUtil;
-
-@:bitmap("assets/images/ui/button.png")
-class GraphicButton extends BitmapData {}
 
 /**
  * A simple button class that calls a function when clicked by the mouse.
  */
 class FlxButton extends FlxTypedButton<FlxText>
-{
+{	
 	/**
 	 * Used with public variable status, means not highlighted or pressed.
 	 */
@@ -167,7 +165,7 @@ class FlxTypedButton<T:FlxSprite> extends FlxSprite
 	{
 		super(X, Y);
 		
-		loadGraphic(GraphicButton, true, 80, 20);
+		loadGraphic(FlxAssets.DEFAULT_BUTTON_GRAPHIC, true, 80, 20);
 		
 		onUp = new FlxButtonEvent(OnClick);
 		onDown = new FlxButtonEvent();

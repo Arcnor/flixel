@@ -6,6 +6,7 @@ import flash.geom.Rectangle;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FrameCollectionType;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.layer.TileSheetExt;
 import flixel.math.FlxPoint;
 import flixel.graphics.FlxGraphic;
@@ -326,8 +327,7 @@ class BarFrames extends FlxFramesCollection
 	 * 							which means that whole image will be used for it.
 	 * @return	Newly created BarFrames collection
 	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function fromRectangle(source:Dynamic, barType:FlxBarFillDirection, numFrames:Int = 100, region:Rectangle = null):BarFrames
+	public static function fromRectangle(source:FlxGraphicAsset, barType:FlxBarFillDirection, numFrames:Int = 100, region:Rectangle = null):BarFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		if (graphic == null)	return null;

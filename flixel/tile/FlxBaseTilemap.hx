@@ -86,7 +86,7 @@ class FlxBaseTilemap<Tile:FlxObject> extends FlxObject
 		throw "updateTile must be implemented";
 	}
 	
-	private function cacheGraphics(TileWidth:Int, TileHeight:Int, TileGraphic:Dynamic):Void
+	private function cacheGraphics(TileWidth:Int, TileHeight:Int, TileGraphic:FlxGraphicAsset):Void
 	{
 		throw "cacheGraphics must be implemented";
 	}

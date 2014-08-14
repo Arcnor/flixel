@@ -304,8 +304,6 @@ class FlxGraphic
 	 */
 	public var atlasFrames:AtlasFrames;
 	
-	// TODO: add font frames and bar frames
-	
 	/**
 	 * Storage for all available frame collection of all types for this graphic object.
 	 */

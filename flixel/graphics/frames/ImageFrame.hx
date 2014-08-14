@@ -2,6 +2,7 @@ package flixel.graphics.frames;
 
 import flash.geom.Point;
 import flash.geom.Rectangle;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.layer.TileSheetExt;
 import flixel.util.FlxDestroyUtil;
 import flixel.math.FlxPoint;
@@ -55,8 +56,7 @@ class ImageFrame extends FlxFramesCollection
 	 * @param	source	image graphic for ImageFrame. It could be String, BitmapData or FlxGraphic.
 	 * @return	Newly created ImageFrame object for specified graphic.
 	 */
-	// TODO: make it accept only BitmapData, String or FlxGraphic
-	public static function fromImage(source:Dynamic):ImageFrame
+	public static function fromImage(source:FlxGraphicAsset):ImageFrame
 	{
 		return fromRectangle(source, null);
 	}
@@ -120,7 +120,7 @@ class ImageFrame extends FlxFramesCollection
 	 * @param	region	region of image to create ImageFrame for.
 	 * @return	Newly created ImageFrame object for specified region of image.
 	 */
-	public static function fromRectangle(source:Dynamic, region:Rectangle = null):ImageFrame
+	public static function fromRectangle(source:FlxGraphicAsset, region:Rectangle = null):ImageFrame
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		return fromGraphic(graphic, region);

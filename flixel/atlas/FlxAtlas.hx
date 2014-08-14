@@ -90,8 +90,7 @@ class FlxAtlas implements IFlxDestroyable
 	 * @param	Key		Image name, optional. You can ommit it if you pass String or Class<Dynamic> as Graphic source
 	 * @return			Newly created and added node, or null if there is no place for it.
 	 */
-	// TODO: make it accept only String, BitmapData or Class
-	public function addNode(Graphic:Dynamic, ?Key:String):FlxNode
+	public function addNode(Graphic:FlxGraphicSource, ?Key:String):FlxNode
 	{
 		var key:String = FlxAssets.resolveKey(Graphic, Key);
 		
@@ -170,8 +169,7 @@ class FlxAtlas implements IFlxDestroyable
 	 * @param	region			Region of source image to use as a source graphic
 	 * @return	Generated TileFrames for added node
 	 */
-	// TODO: make it accept only String, BitmapData or Class
-	public function addNodeWithSpacings(Graphic:Dynamic, ?Key:String, tileSize:Point, tileSpacing:Point, region:Rectangle = null):TileFrames
+	public function addNodeWithSpacings(Graphic:FlxGraphicSource, ?Key:String, tileSize:Point, tileSpacing:Point, region:Rectangle = null):TileFrames
 	{
 		var key:String = FlxAssets.resolveKey(Graphic, Key);
 		

@@ -6,6 +6,7 @@ import flash.geom.Rectangle;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FrameCollectionType;
+import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.layer.TileSheetExt;
 import flixel.math.FlxPoint;
 import flixel.graphics.FlxGraphic;
@@ -63,8 +64,7 @@ class TileFrames extends FlxFramesCollection
 	 * 							whole image will be used for spritesheet generation
 	 * @return	Newly created spritesheet
 	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function fromBitmapWithSpacings(source:Dynamic, tileSize:Point, tileSpacing:Point, region:Rectangle = null):TileFrames
+	public static function fromBitmapWithSpacings(source:FlxGraphicAsset, tileSize:Point, tileSpacing:Point, region:Rectangle = null):TileFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		if (graphic == null) return null;
@@ -284,8 +284,7 @@ class TileFrames extends FlxFramesCollection
 	 * @param	tileSpacing		offsets between frames in spritesheet. Default value is null, which means no offsets between tiles
 	 * @return	Newly created spritesheet frame collection
 	 */
-	// TODO: make it accept only FlxGraphic, String, or BitmapData
-	public static function fromRectangle(source:Dynamic, tileSize:Point, region:Rectangle = null, tileSpacing:Point = null):TileFrames
+	public static function fromRectangle(source:FlxGraphicAsset, tileSize:Point, region:Rectangle = null, tileSpacing:Point = null):TileFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		if (graphic == null)	return null;
