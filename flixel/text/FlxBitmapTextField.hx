@@ -7,6 +7,8 @@ import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.BitmapFont;
+import flixel.graphics.frames.GlyphFrame;
+import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
 import flixel.system.layer.DrawStackItem;
 import flixel.text.FlxText.FlxTextAlign;
@@ -14,8 +16,6 @@ import flixel.math.FlxAngle;
 import flixel.text.FlxText.FlxTextBorderStyle;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
-
-// TODO: add background again (on tile renderer)
 
 /**
  * Extends FlxSprite to support rendering text.
@@ -196,8 +196,10 @@ class FlxBitmapTextField extends FlxSprite
 	private var _pendingBorderGlyphsChange:Bool = false;
 	
 	#if FLX_RENDER_TILE
-	private var _drawData:Array<Float>;
-	private var _bgDrawData:Array<Float>;
+	private var _textDrawData:Array<Float>;
+	private var _borderDrawData:Array<Float>;
+	private var _helperPoint:FlxPoint;
+	private var _helperMatrix:FlxMatrix;
 	#else
 	private var textGlyphs:BitmapGlyphCollection;
 	private var borderGlyphs:BitmapGlyphCollection;
@@ -226,8 +228,10 @@ class FlxBitmapTextField extends FlxSprite
 		#if FLX_RENDER_BLIT
 		pixels = new BitmapData(1, 1, true, FlxColor.TRANSPARENT);
 		#else
-		_drawData = [];
-		_bgDrawData = [];
+		_textDrawData = [];
+		_borderDrawData = [];
+		_helperPoint = new FlxPoint();
+		_helperMatrix = new FlxMatrix();
 		#end
 	}
 	
@@ -244,8 +248,10 @@ class FlxBitmapTextField extends FlxSprite
 		shadowOffset = FlxDestroyUtil.put(shadowOffset);
 		
 		#if FLX_RENDER_TILE
-		_drawData = null;
-		_bgDrawData = null;
+		_textDrawData = null;
+		_borderDrawData = null;
+		_helperPoint = null;
+		_helperMatrix = null;
 		#else
 		textGlyphs = FlxDestroyUtil.destroy(textGlyphs);
 		borderGlyphs = FlxDestroyUtil.destroy(borderGlyphs);
@@ -305,8 +311,49 @@ class FlxBitmapTextField extends FlxSprite
 	{
 		checkPendingChanges();
 		
-		var textLength:Int = Std.int(_drawData.length / 6);
-
+		var textLength:Int = Std.int(_textDrawData.length / 3);
+		var borderLength:Int = Std.int(_borderDrawData.length / 3);
+		
+		var dataPos:Int;
+		
+		var borderRed:Float = borderColor.redFloat * color.redFloat;
+		var borderGreen:Float = borderColor.greenFloat * color.greenFloat;
+		var borderBlue:Float = borderColor.blueFloat * color.blueFloat;
+		var bAlpha:Float = borderColor.alphaFloat * alpha;
+		var bColor:FlxColor = FlxColor.fromRGBFloat(borderRed, borderGreen, borderBlue);
+		
+		var textRed:Float = textColor.redFloat * color.redFloat;
+		var textGreen:Float = textColor.greenFloat * color.greenFloat;
+		var textBlue:Float = textColor.blueFloat * color.blueFloat;
+		var tAlpha:Float = textColor.alpha * alpha;
+		var tColor:FlxColor = FlxColor.fromRGBFloat(textRed, textGreen, textBlue); 
+		
+		var alphaToUse:Float = 0;
+		
+		var drawItem:DrawStackItem;
+		var tileID:Float = -1;
+		var currTileX:Float = 0;
+		var currTileY:Float = 0;
+		var sx:Float = scale.x * _facingHorizontalMult;
+		var sy:Float = scale.y * _facingVerticalMult;
+		
+		var bgAlpha:Float = backgroundColor.alphaFloat * alpha;
+		
+		if (_angleChanged)
+		{
+			var radians:Float = angle * FlxAngle.TO_RAD;
+			_sinAngle = Math.sin(radians);
+			_cosAngle = Math.cos(radians);
+			_angleChanged = false;
+		}
+		
+		_helperMatrix.identity();
+		_helperMatrix.scale(sx * size, sy * size);
+		if (angle != 0)
+		{
+			_helperMatrix.rotateWithTrig(_cosAngle, _sinAngle);
+		}
+		
 		for (camera in cameras)
 		{
 			if (!camera.visible || !camera.exists || !isOnScreen(camera))
@@ -314,59 +361,75 @@ class FlxBitmapTextField extends FlxSprite
 				continue;
 			}
 			
-			_point.x = (x - (camera.scroll.x * scrollFactor.x) - (offset.x)) + origin.x;
-			_point.y = (y - (camera.scroll.y * scrollFactor.y) - (offset.y)) + origin.y;
+			getScreenPosition(_point, camera).subtractPoint(offset).addPoint(origin);
 			
-			var csx:Float = 1;
-			var ssy:Float = 0;
-			var ssx:Float = 0;
-			var csy:Float = 1;
-			var x1:Float = 0;
-			var y1:Float = 0;
-			
-			if (!isSimpleRender(camera))
+			if (background)
 			{
-				if (_angleChanged)
+				drawItem = camera.getDrawStackItem(FlxG.bitmap.whitePixel.parent, true, _blendInt, antialiasing);
+				
+				tileID = FlxG.bitmap.whitePixel.tileID;
+				
+				_matrix.identity();
+				_matrix.scale(0.1 * frameWidth * sx, 0.1 * frameHeight * sy);
+				
+				if (angle != 0)
 				{
-					var radians:Float = angle * FlxAngle.TO_RAD;
-					_sinAngle = Math.sin(radians);
-					_cosAngle = Math.cos(radians);
-					_angleChanged = false;
+					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
 				}
 				
-				csx = _cosAngle * scale.x;
-				ssy = _sinAngle * scale.y;
-				ssx = _sinAngle * scale.x;
-				csy = _cosAngle * scale.y;
-				
-				x1 = (origin.x - _halfWidth);
-				y1 = (origin.y - _halfHeight);
+				drawItem.setDrawData(_point, tileID, _matrix.a, _matrix.b, _matrix.c, _matrix.d, true, backgroundColor.to24Bit(), bgAlpha * camera.alpha);
 			}
 			
-			var j = 0;
-			while (j < textLength)
+			drawItem = camera.getDrawStackItem(font.parent, true, _blendInt, antialiasing);
+			
+			alphaToUse = bAlpha * camera.alpha;
+			
+			for (j in 0...borderLength)
 			{
-				var drawItem = camera.getDrawStackItem(graphic, true, _blendInt, antialiasing);
+				dataPos = j * 3;
 				
-				drawItem.position = j * 6;
+				tileID = _borderDrawData[dataPos];
 				
-				var currTileX = _drawData[drawItem.position + 1] - x1;
-				var currTileY = _drawData[drawItem.position + 2] - y1;
+				currTileX = _borderDrawData[dataPos + 1];
+				currTileY = _borderDrawData[dataPos + 2];
 				
-				var relativeX = (currTileX * csx - currTileY * ssy);
-				var relativeY = (currTileX * ssx + currTileY * csy);
+				_matrix.identity();
+				_matrix.translate(currTileX, currTileY);
+				_matrix.scale(sx, sy);
 				
-				_point.set(currTileX, currTileY).add(relativeX, relativeY);
+				if (angle != 0)
+				{
+					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+				}
 				
-				var red = _drawData[drawItem.position + 3];
-				var green = _drawData[drawItem.position + 4];
-				var blue = _drawData[drawItem.position + 5];
+				_helperPoint.copyFrom(_point).add(_matrix.tx, _matrix.ty);
 				
-				drawItem.setDrawData(_point, _drawData[drawItem.position],
-					csx * fontScale, ssx * fontScale, -ssy * fontScale, csy * fontScale,
-					FlxColor.fromRGBFloat(red, green, blue), alpha * camera.alpha);
-
-				j++;
+				drawItem.setDrawData(_helperPoint, tileID, _helperMatrix.a, _helperMatrix.b, _helperMatrix.c, _helperMatrix.d, true, bColor, alphaToUse);
+			}
+			
+			alphaToUse = tAlpha * camera.alpha;
+			
+			for (j in 0...textLength)
+			{
+				dataPos = j * 3;
+				
+				tileID = _textDrawData[dataPos];
+				
+				currTileX = _textDrawData[dataPos + 1];
+				currTileY = _textDrawData[dataPos + 2];
+				
+				_matrix.identity();
+				_matrix.translate(currTileX, currTileY);
+				_matrix.scale(sx, sy);
+				
+				if (angle != 0)
+				{
+					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+				}
+				
+				_helperPoint.copyFrom(_point).add(_matrix.tx, _matrix.ty);
+				
+				drawItem.setDrawData(_helperPoint, tileID, _helperMatrix.a, _helperMatrix.b, _helperMatrix.c, _helperMatrix.d, true, tColor, alphaToUse);
 			}
 			
 			#if !FLX_NO_DEBUG
@@ -468,7 +531,6 @@ class FlxBitmapTextField extends FlxSprite
 			txtWidth = (maxWidth > frameWidth) ? maxWidth : frameWidth;
 		}
 		
-		// TODO: use these vars for pixels dimensions
 		frameWidth = txtWidth;
 		frameHeight = (txtHeight == 0) ? 1 : txtHeight;
 	}
@@ -915,21 +977,15 @@ class FlxBitmapTextField extends FlxSprite
 	private function updateGraphic():Void 
 	{
 		computeTextSize();
-		
-		#if FLX_RENDER_BLIT
 		updateBuffer();
-		#else
-		updateDrawData();
-		#end
-		
 		_pendingGraphicChange = false;
 	}
 	
-	#if FLX_RENDER_BLIT
 	private function updateBuffer():Void
 	{
 		var colorForFill:Int = (background) ? backgroundColor : FlxColor.TRANSPARENT;
 		
+		#if FLX_RENDER_BLIT
 		if (pixels == null || (frameWidth != pixels.width || frameHeight != pixels.height))
 		{
 			if (pixels != null)
@@ -943,10 +999,25 @@ class FlxBitmapTextField extends FlxSprite
 		{
 			pixels.fillRect(graphic.bitmap.rect, colorForFill);
 		}
+		#else
+		width = frameWidth;
+		height = frameHeight;
+		
+		origin.x = frameWidth * 0.5;
+		origin.y = frameHeight * 0.5;
+		
+		_textDrawData.splice(0, _textDrawData.length);
+		_borderDrawData.splice(0, _borderDrawData.length);
+		
+		var borderGlyphs:Dynamic = false;
+		var textGlyphs:Dynamic = true;
+		#end
 		
 		if (size > 0)
 		{
+			#if FLX_RENDER_BLIT
 			pixels.lock();
+			#end
 			
 			var numLines:Int = _lines.length;
 			var line:String;
@@ -1080,15 +1151,29 @@ class FlxBitmapTextField extends FlxSprite
 				blitLine(line, textGlyphs, ox, oy);
 			}
 			
+			#if FLX_RENDER_BLIT
 			pixels.unlock();
 			frame.destroyBitmaps();
 			dirty = true;
+			#end
 		}
 	}
 	
+	#if FLX_RENDER_BLIT
 	private function blitLine(line:String, glyphs:BitmapGlyphCollection, startX:Int, startY:Int):Void
+	#else
+	private function blitLine(line:String, glyphs:Bool, startX:Int, startY:Int):Void
+	#end
 	{
+		#if FLX_RENDER_BLIT
 		var glyph:BitmapGlyph;
+		#else
+		var glyph:GlyphFrame;
+		
+		var isFrontText:Bool = glyphs;
+		var drawData:Array<Float> = (isFrontText) ? _textDrawData : _borderDrawData;
+		var pos:Int = drawData.length;
+		#end
 		var char:String;
 		var curX:Int = startX;
 		var curY:Int = startY;
@@ -1112,6 +1197,7 @@ class FlxBitmapTextField extends FlxSprite
 			}
 			else
 			{
+				#if FLX_RENDER_BLIT
 				glyph = glyphs.glyphMap.get(char);
 				if (glyph != null)
 				{
@@ -1119,90 +1205,25 @@ class FlxBitmapTextField extends FlxSprite
 					_flashPoint.y = curY + glyph.offsetY;
 					pixels.copyPixels(glyph.bitmap, glyph.rect, _flashPoint, null, null, true);
 					curX += glyph.xAdvance;
-				}				
+				}
+				#else
+				glyph = font.glyphs.get(char);
+				if (glyph != null)
+				{
+					_flashPoint.x = curX + (glyph.offset.x + 0.5 * glyph.frame.width) * size - origin.x;
+					_flashPoint.y = curY + (glyph.offset.y + 0.5 * glyph.frame.height) * size - origin.y;
+					
+					drawData[pos++] = glyph.tileID;
+					drawData[pos++] = _flashPoint.x;
+					drawData[pos++] = _flashPoint.y;
+					curX += Math.ceil(glyph.xAdvance * size);
+				}
+				#end
 			}
 			
 			curX += letterSpacing;
 		}
 	}
-	#else
-	private function updateDrawData():Void
-	{
-		var finalHeight:Int = Std.int(Math.max(1, (rows.length * fontHeight * fontScale + (shadow ? 1 : 0)) + (outline ? 2 : 0))) + ((rows.length >= 1) ? lineSpacing * (rows.length - 1) : 0);
-		
-		width = frameWidth = finalWidth;
-		height = frameHeight = finalHeight;
-		frames = 1;
-		origin.x = width * 0.5;
-		origin.y = height * 0.5;
-		
-		_halfWidth = origin.x;
-		_halfHeight = origin.y;
-		
-		_drawData.splice(0, _drawData.length);
-		_bgDrawData.splice(0, _bgDrawData.length);
-		
-		if (graphic == null)
-		{
-			return;
-		}
-		
-		if (fontScale > 0)
-		{
-			// Render text
-			var row:Int = 0;
-			
-			for (t in rows) 
-			{
-				// LEFT
-				var ox:Int = 0;
-				var oy:Int = 0;
-				
-				if (alignment == FlxTextAlign.CENTER) 
-				{
-					if (fixedWidth)
-					{
-						ox = Std.int((width - font.getTextWidth(t, letterSpacing, fontScale)) / 2);
-					}
-					else
-					{
-						ox = Std.int((finalWidth - font.getTextWidth(t, letterSpacing, fontScale)) / 2);
-					}
-				}
-				if (alignment == FlxTextAlign.RIGHT) 
-				{
-					if (fixedWidth)
-					{
-						ox = Std.int(width) - Std.int(font.getTextWidth(t, letterSpacing, fontScale));
-					}
-					else
-					{
-						ox = finalWidth - Std.int(font.getTextWidth(t, letterSpacing, fontScale));
-					}
-				}
-				if (outline) 
-				{
-					for (py in 0...(2 + 1)) 
-					{
-						for (px in 0...(2 + 1)) 
-						{
-							font.render(_drawData, t, outlineColor, color, alpha, px + ox - _halfWidth, py + row * (fontHeight * fontScale + lineSpacing) - _halfHeight, letterSpacing, fontScale);
-						}
-					}
-					ox += 1;
-					oy += 1;
-				}
-				if (shadow) 
-				{
-					font.render(_drawData, t, shadowColor, color, alpha, 1 + ox - _halfWidth, 1 + oy + row * (fontHeight * fontScale + _lineSpacing) - _halfHeight, letterSpacing, fontScale);
-				}
-				
-				font.render(_drawData, t, textColor, color, alpha, ox - _halfWidth, oy + row * (fontHeight * fontScale + lineSpacing) - _halfHeight, letterSpacing, fontScale, useTextColor);
-				row++;
-			}
-		}
-	}
-	#end
 	
 	/**
 	 * Set border's style (shadow, outline, etc), color, and size all in one go!

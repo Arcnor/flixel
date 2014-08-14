@@ -994,12 +994,16 @@ class FlxSprite extends FlxObject
 		}
 		else
 		{
-			var radiusX:Float = frame.halfSize.x;
-			var radiusY:Float = frame.halfSize.y;
+			// TODO: add halfSize var to FlxSprite...
+			//var radiusX:Float = frame.halfSize.x;
+			//var radiusY:Float = frame.halfSize.y;
 			
-			if (origin.x == frame.halfSize.x)
+			var radiusX:Float = 0.5 * frameWidth;
+			var radiusY:Float = 0.5 * frameHeight;
+			
+			if (origin.x == radiusX)
 			{
-				radiusX = Math.abs(frame.halfSize.x * scale.x);
+				radiusX = Math.abs(radiusX * scale.x);
 			}
 			else
 			{
@@ -1010,9 +1014,9 @@ class FlxSprite extends FlxObject
 				radiusX = Math.max(x2, x1);
 			}
 			
-			if (origin.y == frame.halfSize.y)
+			if (origin.y == radiusY)
 			{
-				radiusY = Math.abs(frame.halfSize.y * scale.y);
+				radiusY = Math.abs(radiusY * scale.y);
 			}
 			else
 			{
