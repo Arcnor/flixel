@@ -279,7 +279,6 @@ private class FileReference
 	}
 }
 #else
-// TODO: change these typedefs
 typedef FlxSoundAsset = OneOfThree<String, Sound, Class<Sound>>;
 typedef FlxGraphicAsset = OneOfThree<FlxGraphic, BitmapData, String>;
 typedef FlxGraphicSource = OneOfThree<BitmapData, Class<Dynamic>, String>;

@@ -24,7 +24,6 @@ class FlxRotatedFrame extends FlxFrame
 	 */
 	override public function prepareFrameMatrix(mat:FlxMatrix):FlxMatrix 
 	{
-		// TODO: check this later
 		if (angle == 90)
 		{
 			mat.rotateByPositive90();

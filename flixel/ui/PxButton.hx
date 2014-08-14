@@ -7,6 +7,8 @@ import flixel.text.pxText.PxTextAlign;
 import flixel.math.FlxPoint;
 import flixel.ui.FlxButton;
 
+// TODO: rename this class to BitmapTextButton
+
 /**
  * A button with a bitmap text field for the label
  */

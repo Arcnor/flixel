@@ -1,8 +1,6 @@
 package flixel.math;
 import flash.geom.Matrix;
 
-// TODO: move this class to flixel.math package
-
 /**
  * Helper class for making fast matrix calculations for rendering.
  * It mostly copies Matrix class, but with some additions for
