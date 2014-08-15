@@ -139,6 +139,7 @@ class FlxSprite extends FlxObject
 	
 	/**
 	 * Clipping rectangle for this sprite.
+	 * Changing it's properties doesn't change graphic of the sprite, so you should reapply clipping rect on sprite again (with clip() method).
 	 */
 	public var clipRect(default, null):FlxRect;
 	
@@ -256,7 +257,7 @@ class FlxSprite extends FlxObject
 		{
 			frames = ClippedFrames.clip(frames, rect, useOriginal);
 			frame = frames.frames[animation.frameIndex];		
-			clipRect = rect;
+			clipRect = rect.copyTo(new FlxRect());
 		}
 		
 		return this;
@@ -647,6 +648,7 @@ class FlxSprite extends FlxObject
 	}
 	
 	#if FLX_RENDER_TILE
+	// TODO: make it accept matrix instead of matrix coefficients
 	private inline function setDrawData(drawItem:DrawStackItem, camera:FlxCamera, a:Float = 1,
 		b:Float = 0, c:Float = 0, d:Float = 1, ?tileID:Float)
 	{
