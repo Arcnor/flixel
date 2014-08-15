@@ -9,7 +9,7 @@ enum FrameCollectionType
 	IMAGE;
 	TILES;
 	ATLAS;
-	FONT; 											// TODO: implement it
+	FONT;
 	BAR(type:flixel.ui.FlxBar.FlxBarFillDirection);
 	CLIPPED;
 	USER(type:String);

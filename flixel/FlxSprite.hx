@@ -502,7 +502,8 @@ class FlxSprite extends FlxObject
 	 */
 	private function resetHelpers():Void
 	{
-		resetSize();
+		resetFrameSize();
+		resetSizeFromFrame();
 		_flashRect2.x = 0;
 		_flashRect2.y = 0;
 		_flashRect2.width = graphic.width;
@@ -1115,9 +1116,6 @@ class FlxSprite extends FlxObject
 		}
 		
 		frames = ImageFrame.fromGraphic(graphic);
-		frame = frames.getByIndex(0);
-		numFrames = frames.numFrames;
-		resetHelpers();
 		
 		// not sure if i should add this line...
 		// WARNING: this is causing unnecessary string allocations (Map.get) - use arrays, or figure out a way to not call this every frame.
@@ -1269,7 +1267,10 @@ class FlxSprite extends FlxObject
 			graphic = null;
 		}
 		
-		animation.destroyAnimations();
+		if (animation != null)
+		{
+			animation.destroyAnimations();
+		}
 		return Frames;
 	}
 	

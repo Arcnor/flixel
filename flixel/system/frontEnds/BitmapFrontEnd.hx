@@ -53,7 +53,6 @@ class BitmapFrontEnd
 	
 	private function get_whitePixel():FlxFrame
 	{
-		// TODO: make changes to classes which use _whitePixel (FlxBitmapTextField)
 		if (_whitePixel == null)
 		{
 			var bd:BitmapData = new BitmapData(10, 10, true, FlxColor.WHITE);

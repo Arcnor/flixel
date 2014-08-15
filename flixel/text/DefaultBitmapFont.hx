@@ -1,4 +1,4 @@
-package flixel.text.pxText;
+package flixel.text;
 
 import flash.display.BitmapData;
 import flixel.graphics.FlxGraphic;

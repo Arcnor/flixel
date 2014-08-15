@@ -10,18 +10,20 @@ import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.math.FlxPoint;
 import flixel.system.FlxAssets.FlxGraphicAsset;
-import flixel.text.pxText.DefaultBitmapFont;
+import flixel.text.DefaultBitmapFont;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 import haxe.xml.Fast;
 
-// TODO: document it...
 /**
- * 
+ * Holds information and bitmap glyphs for a bitmap font.
  */
 class BitmapFont extends FlxFramesCollection
 {
+	/**
+	 * Default letters for XNA font.
+	 */
 	public static inline var DEFAULT_GLYPHS:String = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 	
 	private static var POINT:Point = new Point();
@@ -30,6 +32,9 @@ class BitmapFont extends FlxFramesCollection
 	
 	private static var COLOR_TRANSFORM:ColorTransform = new ColorTransform();
 	
+	/**
+	 * The size of the font. Can be useful for AngelCode fonts.
+	 */
 	public var size(default, null):Int = 0;
 	
 	public var lineHeight(default, null):Int = 0;
@@ -42,8 +47,15 @@ class BitmapFont extends FlxFramesCollection
 	
 	public var numLetters(default, null):Int = 0;
 	
+	/**
+	 * Minimum x offset in this font. 
+	 * This is a helper varible for rendering purposes.
+	 */
 	public var minOffsetX:Int = 0;
 	
+	/**
+	 * The width of space character.
+	 */
 	public var spaceWidth:Int = 0;
 	
 	public var glyphs:Map<String, GlyphFrame>;
@@ -105,7 +117,6 @@ class BitmapFont extends FlxFramesCollection
 		var glyphFrame:GlyphFrame;
 		var frame:Rectangle;
 		var offset:FlxPoint;
-		var sourceSize:FlxPoint;
 		var glyph:String;
 		var xOffset:Int, yOffset:Int, xAdvance:Int;
 		var glyphWidth:Int, glyphHeight:Int;
@@ -125,7 +136,6 @@ class BitmapFont extends FlxFramesCollection
 			xAdvance = char.has.xadvance ? Std.parseInt(char.att.xadvance) : 0;
 			
 			offset = FlxPoint.get(xOffset, yOffset);
-			sourceSize = FlxPoint.get(frame.width, frame.height);
 			
 			font.minOffsetX = (font.minOffsetX > xOffset) ? xOffset : font.minOffsetX;
 			
@@ -155,7 +165,7 @@ class BitmapFont extends FlxFramesCollection
 				default: glyph;
 			}
 			
-			font.addGlyphFrame(glyph, frame, sourceSize, offset, xAdvance);
+			font.addGlyphFrame(glyph, frame, offset, xAdvance);
 			
 			if (glyph == ' ')
 			{
@@ -172,7 +182,7 @@ class BitmapFont extends FlxFramesCollection
 	 * @param	source			Source image for this font.
 	 * @param	letters			String of glyphs contained in the source image, in order (ex. " abcdefghijklmnopqrstuvwxyz"). Defaults to DEFAULT_GLYPHS.
 	 * @param	glyphBGColor	An additional background color to remove. Defaults to 0xFF202020, often used for glyphs background.
-	 * @return	
+	 * @return	Generated bitmap font object.
 	 */
 	public static function fromXNA(source:FlxGraphicAsset, letters:String = null, glyphBGColor:Int = FlxColor.TRANSPARENT):BitmapFont
 	{
@@ -198,7 +208,6 @@ class BitmapFont extends FlxFramesCollection
 		var glyph:String;
 		var numLetters:Int = letters.length;
 		var rect:Rectangle;
-		var sourceSize:FlxPoint;
 		var offset:FlxPoint;
 		var xAdvance:Int;
 		
@@ -227,11 +236,10 @@ class BitmapFont extends FlxFramesCollection
 					rect = new Rectangle(cx, cy, gw, gh);
 					
 					offset = FlxPoint.get(0, 0);
-					sourceSize = FlxPoint.get(gw, gh);
 					
 					xAdvance = gw;
 					
-					font.addGlyphFrame(glyph, rect, sourceSize, offset, xAdvance);
+					font.addGlyphFrame(glyph, rect, offset, xAdvance);
 					
 					if (glyph == ' ')
 					{
@@ -269,7 +277,6 @@ class BitmapFont extends FlxFramesCollection
 		return font;
 	}
 	
-	// TODO: check it...
 	/**
 	 * Loads monospace bitmap font.
 	 * 
@@ -278,7 +285,7 @@ class BitmapFont extends FlxFramesCollection
 	 * @param	charSize	The size of each character in the font set.
 	 * @param	region		The region of image to use for the font. Default is null which means that the whole image will be used.
 	 * @param	spacing		Spaces between characters in the font set. Default is null which means no spaces.
-	 * @return
+	 * @return	Generated bitmap font object.
 	 */
 	public static function fromMonospace(source:FlxGraphicAsset, letters:String = null, charSize:Point, region:Rectangle = null, spacing:Point = null):BitmapFont
 	{
@@ -330,7 +337,6 @@ class BitmapFont extends FlxFramesCollection
 		font.lineHeight = font.size = charHeight;
 		
 		var charRect:Rectangle;
-		var sourceSize:FlxPoint;
 		var offset:FlxPoint;
 		var xAdvance:Int = charWidth;
 		font.spaceWidth = xAdvance;
@@ -342,9 +348,8 @@ class BitmapFont extends FlxFramesCollection
 			for (i in 0...(numCols))
 			{
 				charRect = new Rectangle(startX + i * spacedWidth, startY + j * spacedHeight, charWidth, charHeight);
-				sourceSize = FlxPoint.get(charWidth, charHeight);
 				offset = FlxPoint.get(0, 0);
-				font.addGlyphFrame(letters.charAt(letterIndex), charRect, sourceSize, offset, xAdvance);
+				font.addGlyphFrame(letters.charAt(letterIndex), charRect, offset, xAdvance);
 				
 				letterIndex++;
 				
@@ -358,30 +363,27 @@ class BitmapFont extends FlxFramesCollection
 		return font;
 	}
 	
-	// TODO: document it...
 	/**
 	 * Internal method which creates and add glyph frames into this font.
 	 * 
 	 * @param	glyph			Letter for glyph frame.
-	 * @param	frame			Glyph area from source image.
-	 * @param	sourceSize		
+	 * @param	frame			Glyph area from source image.	
 	 * @param	offset			Offset before rendering this glyph.
 	 * @param	xAdvance		How much cursor will jump after this glyph.
 	 */
-	private function addGlyphFrame(glyph:String, frame:Rectangle, sourceSize:FlxPoint, offset:FlxPoint, xAdvance:Int):Void
+	private function addGlyphFrame(glyph:String, frame:Rectangle, offset:FlxPoint, xAdvance:Int):Void
 	{
 		if (frame.width == 0 || frame.height == 0)	return;
 		
 		var glyphFrame:GlyphFrame = new GlyphFrame(parent);
 		glyphFrame.name = glyph;
-		glyphFrame.sourceSize.copyFrom(sourceSize);
-		glyphFrame.halfSize.set(0.5 * sourceSize.x, 0.5 * sourceSize.y);
+		glyphFrame.sourceSize.set(frame.width, frame.height);
+		glyphFrame.halfSize.set(0.5 * frame.width, 0.5 * frame.height);
 		glyphFrame.offset.copyFrom(offset);
 		glyphFrame.xAdvance = xAdvance;
 		glyphFrame.frame = frame;
-		glyphFrame.center.set(frame.width * 0.5, frame.height * 0.5);
+		glyphFrame.center.set(0.5 * frame.width, 0.5 * frame.height);
 		
-		sourceSize.put();
 		offset.put();
 		
 		#if FLX_RENDER_TILE
