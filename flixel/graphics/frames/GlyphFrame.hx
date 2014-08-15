@@ -4,13 +4,14 @@ import flash.display.BitmapData;
 import flixel.graphics.FlxGraphic;
 import flixel.util.FlxColor;
 
-// TODO: document it...
-// TODO: handle negative x offsets
 /**
- * 
+ * Just a special frame for handling bitmap fonts
  */
 class GlyphFrame extends FlxFrame
 {
+	/**
+	 * How much to jump after drawing this glyph.
+	 */
 	public var xAdvance:Int = 0;
 	
 	public function new(parent:FlxGraphic) 

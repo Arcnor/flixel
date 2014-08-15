@@ -653,7 +653,6 @@ class FlxSpriteUtil
 		sprite.alpha = f;
 	}
 	
-	// TODO: maybe move it in separate/other class?
 	/**
 	 * Helper method which makes it possible to use FlxFrames as graphic source for sprite's loadRotatedGraphic() method 
 	 * (since it accepts only FlxGraphic, BitmapData and String types).

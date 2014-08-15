@@ -8,9 +8,6 @@ import flixel.util.FlxDestroyUtil;
 import flixel.math.FlxPoint;
 import flixel.graphics.FlxGraphic;
 
-// todo: add tiles only with centered origin 
-// (this will require to change some of the rendering methods)
-
 /**
  * Base class for all frame collections
  */

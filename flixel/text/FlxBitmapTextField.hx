@@ -342,48 +342,48 @@ class FlxBitmapTextField extends FlxSprite
 		
 		var bgAlpha:Float = backgroundColor.alphaFloat * alpha;
 		
-		if (_angleChanged)
-		{
-			var radians:Float = angle * FlxAngle.TO_RAD;
-			_sinAngle = Math.sin(radians);
-			_cosAngle = Math.cos(radians);
-			_angleChanged = false;
-		}
-		
-		// matrix for calculation tile position
-		_matrix.identity();
-		_matrix.scale(sx, sy);
-		
-		if (angle != 0)
-		{
-			_matrix.rotateWithTrig(_cosAngle, _sinAngle);
-		}
-		
-		// matrix for calculation tile transformations
-		_tileMatrix.identity();
-		_tileMatrix.scale(sx * size, sy * size);
-		if (angle != 0)
-		{
-			_tileMatrix.rotateWithTrig(_cosAngle, _sinAngle);
-		}
-		
-		if (background)
-		{
-			// backround tile transformations
-			_bgMatrix.identity();
-			_bgMatrix.scale(0.1 * frameWidth * sx, 0.1 * frameHeight * sy);
-			
-			if (angle != 0)
-			{
-				_bgMatrix.rotateWithTrig(_cosAngle, _sinAngle);
-			}
-		}
-		
 		for (camera in cameras)
 		{
 			if (!camera.visible || !camera.exists || !isOnScreen(camera))
 			{
 				continue;
+			}
+			
+			if (_angleChanged)
+			{
+				var radians:Float = angle * FlxAngle.TO_RAD;
+				_sinAngle = Math.sin(radians);
+				_cosAngle = Math.cos(radians);
+				_angleChanged = false;
+			}
+			
+			// matrix for calculation tile position
+			_matrix.identity();
+			_matrix.scale(sx, sy);
+			
+			if (angle != 0)
+			{
+				_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+			}
+			
+			// matrix for calculation tile transformations
+			_tileMatrix.identity();
+			_tileMatrix.scale(sx * size, sy * size);
+			if (angle != 0)
+			{
+				_tileMatrix.rotateWithTrig(_cosAngle, _sinAngle);
+			}
+			
+			if (background)
+			{
+				// backround tile transformations
+				_bgMatrix.identity();
+				_bgMatrix.scale(0.1 * frameWidth * sx, 0.1 * frameHeight * sy);
+				
+				if (angle != 0)
+				{
+					_bgMatrix.rotateWithTrig(_cosAngle, _sinAngle);
+				}
 			}
 			
 			getScreenPosition(_point, camera).subtractPoint(offset).addPoint(origin);
