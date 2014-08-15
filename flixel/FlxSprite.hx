@@ -21,6 +21,7 @@ import flixel.math.FlxAngle;
 import flixel.math.FlxMath;
 import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.system.FlxAssets;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.layer.DrawStackItem;
@@ -136,6 +137,11 @@ class FlxSprite extends FlxObject
 	 */
 	public var useColorTransform(default, null):Bool = false;
 	
+	/**
+	 * Clipping rectangle for this sprite.
+	 */
+	public var clipRect(default, null):FlxRect;
+	
 	#if FLX_RENDER_TILE
 	private var _facingHorizontalMult:Int = 1;
 	private var _facingVerticalMult:Int = 1;
@@ -244,14 +250,13 @@ class FlxSprite extends FlxObject
 	 * @param	useOriginal		Whether to revert clipping of frames (if there was one) before applying new one.
 	 * @return	this FlxSprite object.
 	 */
-	// TODO: use FlxRect instead of Rectangle
-	// TODO: store cliprect
-	public function clipRect(rect:Rectangle, useOriginal:Bool = true):FlxSprite
+	public function clip(rect:FlxRect, useOriginal:Bool = true):FlxSprite
 	{
 		if (frames != null)
 		{
 			frames = ClippedFrames.clip(frames, rect, useOriginal);
-			frame = frames.frames[animation.frameIndex];			
+			frame = frames.frames[animation.frameIndex];		
+			clipRect = rect;
 		}
 		
 		return this;
@@ -267,6 +272,7 @@ class FlxSprite extends FlxObject
 		{
 			frames = cast(frames, ClippedFrames).original;
 			frame = frames.frames[animation.frameIndex];
+			clipRect = null;
 		}
 		
 		return this;
@@ -297,6 +303,7 @@ class FlxSprite extends FlxObject
 		antialiasing = Sprite.antialiasing;
 		animation.copyFrom(Sprite.animation);
 		graphicLoaded();
+		clipRect = Sprite.clipRect;
 		return this;
 	}
 	
@@ -396,7 +403,6 @@ class FlxSprite extends FlxObject
 		
 		bakedRotationAngle = 360 / Rotations;
 		animation.createPrerotated();
-		// TODO: move this line into frames setter (and from other methods too)
 		graphicLoaded();
 		return this;
 	}
@@ -1259,12 +1265,14 @@ class FlxSprite extends FlxObject
 			numFrames = frames.numFrames;
 			resetHelpers();
 			bakedRotationAngle = 0;
+			clipRect = null;
 		}
 		else
 		{
 			frames = null;
 			frame = null;
 			graphic = null;
+			clipRect = null;
 		}
 		
 		if (animation != null)

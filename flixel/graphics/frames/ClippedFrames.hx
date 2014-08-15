@@ -3,6 +3,7 @@ package flixel.graphics.frames;
 import flash.geom.Rectangle;
 import flixel.graphics.FlxGraphic;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 
 /**
  * Collection of clipped frames, which is used for clipping sprites.
@@ -12,14 +13,14 @@ class ClippedFrames extends FlxFramesCollection
 	/**
 	 * Clipping rectangle for this frame collection.
 	 */
-	private var clipRect:Rectangle;
+	private var clipRect:FlxRect;
 	/**
 	 * Original (unclipped) frames.
 	 */
 	@:isVar
 	public var original(get, set):FlxFramesCollection;
 	
-	private function new(original:FlxFramesCollection, clipRect:Rectangle)
+	private function new(original:FlxFramesCollection, clipRect:FlxRect)
 	{
 		super(original.parent, FrameCollectionType.CLIPPED);
 		
@@ -30,7 +31,8 @@ class ClippedFrames extends FlxFramesCollection
 	
 	private function clipFrames():Void 
 	{
-		var frameRect:Rectangle = new Rectangle();
+		var flashClipRect:Rectangle = clipRect.copyToFlash(new Rectangle());
+		var frameRect:Rectangle;
 		var clippedRect1:Rectangle = new Rectangle();
 		var clippedRect2:Rectangle;
 		var helperRect:Rectangle = new Rectangle();
@@ -60,7 +62,7 @@ class ClippedFrames extends FlxFramesCollection
 				clippedRect1.height = frame.frame.width;
 			}
 			
-			clippedRect2 = clippedRect1.intersection(clipRect);		
+			clippedRect2 = clippedRect1.intersection(flashClipRect);		
 			frameRect = clippedRect2.intersection(helperRect);
 			
 			if (frameRect.width == 0 || frameRect.height == 0 || 
@@ -133,7 +135,7 @@ class ClippedFrames extends FlxFramesCollection
 	 * @param	useOriginal		Whether to use "unclipped" version of frames (if provided frames collection is ClippedFrames collection).
 	 * @return	Clipped version of frames.
 	 */
-	public static function clip(frames:FlxFramesCollection, clipRect:Rectangle, useOriginal:Bool = true):ClippedFrames
+	public static function clip(frames:FlxFramesCollection, clipRect:FlxRect, useOriginal:Bool = true):ClippedFrames
 	{
 		if (useOriginal && frames.type == FrameCollectionType.CLIPPED)
 		{
@@ -160,7 +162,7 @@ class ClippedFrames extends FlxFramesCollection
 	 * @param	clipRect		Clipping rectangle.
 	 * @return	ClippedFrames object which corresponds to specified arguments. Could be null if there is no such ClippedFrames object.
 	 */
-	public static function findFrame(frames:FlxFramesCollection, clipRect:Rectangle):ClippedFrames
+	public static function findFrame(frames:FlxFramesCollection, clipRect:FlxRect):ClippedFrames
 	{
 		var clippedFramesArr:Array<ClippedFrames> = cast frames.parent.getFramesCollections(FrameCollectionType.CLIPPED);
 		var clippedFrames:ClippedFrames;
@@ -179,7 +181,7 @@ class ClippedFrames extends FlxFramesCollection
 	/**
 	 * ClippedFrames comparison method. For internal use.
 	 */
-	public function equals(original:FlxFramesCollection, clipRect:Rectangle):Bool
+	public function equals(original:FlxFramesCollection, clipRect:FlxRect):Bool
 	{
 		return (this.original == original && this.clipRect.equals(clipRect));
 	}

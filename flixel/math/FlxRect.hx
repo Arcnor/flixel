@@ -262,6 +262,11 @@ class FlxRect implements IFlxPooled
 			LabelValuePair.weak("h", height)]);
 	}
 	
+	public inline function equals(rect:FlxRect):Bool
+	{
+		return (this.x == rect.x && this.y == rect.y && this.width == rect.width && this.height == rect.height);
+	}
+	
 	private inline function get_left():Float
 	{
 		return x;
