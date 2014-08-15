@@ -198,8 +198,9 @@ class FlxBitmapTextField extends FlxSprite
 	#if FLX_RENDER_TILE
 	private var _textDrawData:Array<Float>;
 	private var _borderDrawData:Array<Float>;
-	private var _helperPoint:FlxPoint;
-	private var _helperMatrix:FlxMatrix;
+	private var _tilePoint:FlxPoint;
+	private var _tileMatrix:FlxMatrix;
+	private var _bgMatrix:FlxMatrix;
 	#else
 	private var textGlyphs:BitmapGlyphCollection;
 	private var borderGlyphs:BitmapGlyphCollection;
@@ -230,8 +231,9 @@ class FlxBitmapTextField extends FlxSprite
 		#else
 		_textDrawData = [];
 		_borderDrawData = [];
-		_helperPoint = new FlxPoint();
-		_helperMatrix = new FlxMatrix();
+		_tilePoint = new FlxPoint();
+		_tileMatrix = new FlxMatrix();
+		_bgMatrix = new FlxMatrix();
 		#end
 	}
 	
@@ -250,8 +252,9 @@ class FlxBitmapTextField extends FlxSprite
 		#if FLX_RENDER_TILE
 		_textDrawData = null;
 		_borderDrawData = null;
-		_helperPoint = null;
-		_helperMatrix = null;
+		_tilePoint = null;
+		_tileMatrix = null;
+		_bgMatrix = null;
 		#else
 		textGlyphs = FlxDestroyUtil.destroy(textGlyphs);
 		borderGlyphs = FlxDestroyUtil.destroy(borderGlyphs);
@@ -347,11 +350,33 @@ class FlxBitmapTextField extends FlxSprite
 			_angleChanged = false;
 		}
 		
-		_helperMatrix.identity();
-		_helperMatrix.scale(sx * size, sy * size);
+		// matrix for calculation tile position
+		_matrix.identity();
+		_matrix.scale(sx, sy);
+		
 		if (angle != 0)
 		{
-			_helperMatrix.rotateWithTrig(_cosAngle, _sinAngle);
+			_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+		}
+		
+		// matrix for calculation tile transformations
+		_tileMatrix.identity();
+		_tileMatrix.scale(sx * size, sy * size);
+		if (angle != 0)
+		{
+			_tileMatrix.rotateWithTrig(_cosAngle, _sinAngle);
+		}
+		
+		if (background)
+		{
+			// backround tile transformations
+			_bgMatrix.identity();
+			_bgMatrix.scale(0.1 * frameWidth * sx, 0.1 * frameHeight * sy);
+			
+			if (angle != 0)
+			{
+				_bgMatrix.rotateWithTrig(_cosAngle, _sinAngle);
+			}
 		}
 		
 		for (camera in cameras)
@@ -371,18 +396,8 @@ class FlxBitmapTextField extends FlxSprite
 			if (background)
 			{
 				drawItem = camera.getDrawStackItem(FlxG.bitmap.whitePixel.parent, true, _blendInt, antialiasing);
-				
 				tileID = FlxG.bitmap.whitePixel.tileID;
-				
-				_matrix.identity();
-				_matrix.scale(0.1 * frameWidth * sx, 0.1 * frameHeight * sy);
-				
-				if (angle != 0)
-				{
-					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
-				}
-				
-				drawItem.setDrawData(_point, tileID, _matrix.a, _matrix.b, _matrix.c, _matrix.d, true, backgroundColor.to24Bit(), bgAlpha * camera.alpha);
+				drawItem.setDrawData(_point, tileID, _bgMatrix.a, _bgMatrix.b, _bgMatrix.c, _bgMatrix.d, true, backgroundColor.to24Bit(), bgAlpha * camera.alpha);
 			}
 			
 			drawItem = camera.getDrawStackItem(font.parent, true, _blendInt, antialiasing);
@@ -398,18 +413,11 @@ class FlxBitmapTextField extends FlxSprite
 				currTileX = _borderDrawData[dataPos + 1];
 				currTileY = _borderDrawData[dataPos + 2];
 				
-				_matrix.identity();
-				_matrix.translate(currTileX, currTileY);
-				_matrix.scale(sx, sy);
+				_tilePoint.set(currTileX, currTileY);
+				_matrix.transformFlxPoint(_tilePoint);
+				_tilePoint.addPoint(_point);
 				
-				if (angle != 0)
-				{
-					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
-				}
-				
-				_helperPoint.copyFrom(_point).add(_matrix.tx, _matrix.ty);
-				
-				drawItem.setDrawData(_helperPoint, tileID, _helperMatrix.a, _helperMatrix.b, _helperMatrix.c, _helperMatrix.d, true, bColor, alphaToUse);
+				drawItem.setDrawData(_tilePoint, tileID, _tileMatrix.a, _tileMatrix.b, _tileMatrix.c, _tileMatrix.d, true, bColor, alphaToUse);
 			}
 			
 			alphaToUse = tAlpha * camera.alpha;
@@ -423,18 +431,11 @@ class FlxBitmapTextField extends FlxSprite
 				currTileX = _textDrawData[dataPos + 1];
 				currTileY = _textDrawData[dataPos + 2];
 				
-				_matrix.identity();
-				_matrix.translate(currTileX, currTileY);
-				_matrix.scale(sx, sy);
+				_tilePoint.set(currTileX, currTileY);
+				_matrix.transformFlxPoint(_tilePoint);
+				_tilePoint.addPoint(_point);
 				
-				if (angle != 0)
-				{
-					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
-				}
-				
-				_helperPoint.copyFrom(_point).add(_matrix.tx, _matrix.ty);
-				
-				drawItem.setDrawData(_helperPoint, tileID, _helperMatrix.a, _helperMatrix.b, _helperMatrix.c, _helperMatrix.d, true, tColor, alphaToUse);
+				drawItem.setDrawData(_tilePoint, tileID, _tileMatrix.a, _tileMatrix.b, _tileMatrix.c, _tileMatrix.d, true, tColor, alphaToUse);
 			}
 			
 			#if !FLX_NO_DEBUG
