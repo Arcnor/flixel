@@ -192,6 +192,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	
 	// TODO: document it
 	// TODO: make it update/recreate tile objects graphics
+	// TODO: move it into base tilemap class
 	private function set_frames(value:FlxFramesCollection):FlxFramesCollection
 	{
 		if (value != null)
