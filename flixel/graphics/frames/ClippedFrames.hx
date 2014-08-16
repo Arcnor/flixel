@@ -31,11 +31,10 @@ class ClippedFrames extends FlxFramesCollection
 	
 	private function clipFrames():Void 
 	{
-		var flashClipRect:Rectangle = clipRect.copyToFlash(new Rectangle());
-		var frameRect:Rectangle;
-		var clippedRect1:Rectangle = new Rectangle();
-		var clippedRect2:Rectangle;
-		var helperRect:Rectangle = new Rectangle();
+		var frameRect:FlxRect;
+		var clippedRect1:FlxRect = new FlxRect();
+		var clippedRect2:FlxRect;
+		var helperRect:FlxRect = new FlxRect();
 		var frameOffset:FlxPoint;
 		var frameWidth:Float;
 		var frameHeight:Float;
@@ -49,8 +48,8 @@ class ClippedFrames extends FlxFramesCollection
 			frameWidth = frame.sourceSize.x;
 			frameHeight = frame.sourceSize.y;
 			
-			helperRect.setTo(0, 0, frameWidth, frameHeight);
-			clippedRect1.setTo(frame.offset.x, frame.offset.y, frame.frame.width, frame.frame.height);
+			helperRect.set(0, 0, frameWidth, frameHeight);
+			clippedRect1.set(frame.offset.x, frame.offset.y, frame.frame.width, frame.frame.height);
 			
 			var rotated:Bool = (frame.type == FrameType.ROTATED);
 			angle = 0;
@@ -62,13 +61,13 @@ class ClippedFrames extends FlxFramesCollection
 				clippedRect1.height = frame.frame.width;
 			}
 			
-			clippedRect2 = clippedRect1.intersection(flashClipRect);		
+			clippedRect2 = clippedRect1.intersection(clipRect);		
 			frameRect = clippedRect2.intersection(helperRect);
 			
 			if (frameRect.width == 0 || frameRect.height == 0 || 
 				clippedRect2.width == 0 || clippedRect2.height == 0)
 			{
-				frameRect.setTo(0, 0, frameWidth, frameHeight);
+				frameRect.set(0, 0, frameWidth, frameHeight);
 				addEmptyFrame(frameRect);
 			}
 			else

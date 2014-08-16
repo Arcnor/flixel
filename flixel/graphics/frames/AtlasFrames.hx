@@ -1,6 +1,7 @@
 package flixel.graphics.frames;
 
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import haxe.xml.Fast;
 
@@ -53,16 +54,16 @@ class AtlasFrames extends FlxFramesCollection
 			var sourceSize:FlxPoint = FlxPoint.get(frame.sourceSize.w, frame.sourceSize.h);
 			var offset:FlxPoint = FlxPoint.get(frame.spriteSourceSize.x, frame.spriteSourceSize.y);
 			var angle:Float = 0;
-			var frameRect:Rectangle = null;
+			var frameRect:FlxRect = null;
 			
 			if (rotated)
 			{
-				frameRect = new Rectangle(frame.frame.x, frame.frame.y, frame.frame.h, frame.frame.w);
+				frameRect = new FlxRect(frame.frame.x, frame.frame.y, frame.frame.h, frame.frame.w);
 				angle = -90;
 			}
 			else
 			{
-				frameRect = new Rectangle(frame.frame.x, frame.frame.y, frame.frame.w, frame.frame.h);
+				frameRect = new FlxRect(frame.frame.x, frame.frame.y, frame.frame.w, frame.frame.h);
 			}
 			
 			frames.addAtlasFrame(frameRect, sourceSize, offset, name, angle);
@@ -128,16 +129,16 @@ class AtlasFrames extends FlxFramesCollection
 			imageWidth = size[0];
 			imageHeight = size[1];
 			
-			var rect:Rectangle = null;
+			var rect:FlxRect = null;
 			
 			if (rotated)
 			{
-				rect = new Rectangle(imageX, imageY, imageHeight, imageWidth);
+				rect = new FlxRect(imageX, imageY, imageHeight, imageWidth);
 				angle = 90;
 			}
 			else
 			{
-				rect = new Rectangle(imageX, imageY, imageWidth, imageHeight);
+				rect = new FlxRect(imageX, imageY, imageWidth, imageHeight);
 			}
 			
 			tempString = lines[curIndex++];
@@ -202,7 +203,7 @@ class AtlasFrames extends FlxFramesCollection
 			var name:String = texture.att.name;
 			var trimmed:Bool = texture.has.frameX;
 			
-			var rect:Rectangle = new Rectangle(
+			var rect:FlxRect = new FlxRect(
 				Std.parseFloat(texture.att.x), Std.parseFloat(texture.att.y),
 				Std.parseFloat(texture.att.width), Std.parseFloat(texture.att.height));
 			
@@ -255,7 +256,7 @@ class AtlasFrames extends FlxFramesCollection
 			var name:String = sprite.get("n");
 			var offset:FlxPoint = FlxPoint.get(0, 0);
 			
-			var rect:Rectangle = new Rectangle(	
+			var rect:FlxRect = new FlxRect(	
 											Std.parseInt(sprite.get("x")),
 											Std.parseInt(sprite.get("y")),
 											Std.parseInt(sprite.get("w")),

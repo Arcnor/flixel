@@ -268,7 +268,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 			_tileHeight = _tileWidth;
 		}
 		
-		frames = TileFrames.fromGraphic(graphic, new Point(_tileWidth, _tileHeight));
+		frames = TileFrames.fromGraphic(graphic, new FlxPoint(_tileWidth, _tileHeight));
 	}
 	
 	override private function initTileObjects(DrawIndex:Int, CollideIndex:Int):Void 

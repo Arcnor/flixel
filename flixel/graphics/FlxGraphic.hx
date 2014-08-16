@@ -2,6 +2,7 @@ package flixel.graphics;
 
 import flash.display.BitmapData;
 import flixel.FlxG;
+import flixel.math.FlxRect;
 import flixel.system.FlxAssets;
 import flixel.graphics.frames.AtlasFrames;
 import flixel.graphics.frames.FlxFrame;
@@ -581,7 +582,7 @@ class FlxGraphic
 	{
 		if (_imageFrame == null)
 		{
-			_imageFrame = ImageFrame.fromRectangle(this, bitmap.rect);
+			_imageFrame = ImageFrame.fromRectangle(this, new FlxRect(0, 0, bitmap.width, bitmap.height));
 		}
 		
 		return _imageFrame;

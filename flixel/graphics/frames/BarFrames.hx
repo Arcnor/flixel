@@ -6,6 +6,7 @@ import flash.geom.Rectangle;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FrameCollectionType;
+import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.layer.TileSheetExt;
 import flixel.math.FlxPoint;
@@ -22,7 +23,9 @@ class BarFrames extends FlxFramesCollection
 	public static var POINT1:Point = new Point();
 	public static var POINT2:Point = new Point();
 	
-	public static var RECT:Rectangle = new Rectangle();
+	public static var RECT:FlxRect = new FlxRect();
+	
+	public static var FLASH_RECT:Rectangle = new Rectangle();
 	
 	/**
 	 * Atlas frame from which this frame collection had been generated.
@@ -32,7 +35,7 @@ class BarFrames extends FlxFramesCollection
 	/**
 	 * image region of image from which this frame collection had been generated.
 	 */
-	private var region:Rectangle;
+	private var region:FlxRect;
 	
 	private var barType:FlxBarFillDirection;
 	
@@ -76,7 +79,7 @@ class BarFrames extends FlxFramesCollection
 		{
 			var filled:BitmapData = new BitmapData(Std.int(region.width), Std.int(region.height), true, FlxColor.TRANSPARENT);
 			POINT1.setTo(0, 0);
-			filled.copyPixels(parent.bitmap, region, POINT1);
+			filled.copyPixels(parent.bitmap, region.copyToFlash(FLASH_RECT), POINT1);
 			return filled;
 		}
 		
@@ -110,9 +113,9 @@ class BarFrames extends FlxFramesCollection
 		var width:Int = Std.int(frame.sourceSize.x);
 		var height:Int = Std.int(frame.sourceSize.y);
 		
-		var clippedRect:Rectangle = new Rectangle(frame.offset.x, frame.offset.y, frame.frame.width, frame.frame.height);
-		var helperRect:Rectangle = new Rectangle(0, 0, width, height);
-		var frameRect:Rectangle;
+		var clippedRect:FlxRect = new FlxRect(frame.offset.x, frame.offset.y, frame.frame.width, frame.frame.height);
+		var helperRect:FlxRect = new FlxRect(0, 0, width, height);
+		var frameRect:FlxRect;
 		var frameOffset:FlxPoint;
 		var sourceSize:FlxPoint;
 		
@@ -132,7 +135,7 @@ class BarFrames extends FlxFramesCollection
 		for (i in 1...(numFrames + 1))
 		{
 			ratio = i / numFrames;
-			helperRect.setTo(0, 0, width, height);
+			helperRect.set(0, 0, width, height);
 			
 			switch (barType)
 			{
@@ -171,7 +174,7 @@ class BarFrames extends FlxFramesCollection
 			
 			if (frameRect.width == 0 || frameRect.height == 0)
 			{
-				frameRect.setTo(0, 0, width, height);
+				frameRect.set(0, 0, width, height);
 				barFrames.addEmptyFrame(frameRect);
 			}
 			else
@@ -223,7 +226,7 @@ class BarFrames extends FlxFramesCollection
 	 * 							which means that the whole image will be used for it.
 	 * @return	Newly created BarFrames collection.
 	 */
-	public static function fromGraphic(graphic:FlxGraphic, barType:FlxBarFillDirection, numFrames:Int = 100, region:Rectangle = null):BarFrames
+	public static function fromGraphic(graphic:FlxGraphic, barType:FlxBarFillDirection, numFrames:Int = 100, region:FlxRect = null):BarFrames
 	{
 		// find BarFrames object, if there is one already
 		var barFrames:BarFrames = BarFrames.findFrame(graphic, barType, numFrames, region, null);
@@ -235,7 +238,7 @@ class BarFrames extends FlxFramesCollection
 		// or create it, if there is no such object
 		if (region == null)
 		{
-			region = graphic.bitmap.rect;
+			region = new FlxRect(0, 0, graphic.width, graphic.height);
 		}
 		else
 		{
@@ -260,7 +263,7 @@ class BarFrames extends FlxFramesCollection
 		var startX:Int = Std.int(region.x);
 		var startY:Int = Std.int(region.y);
 		
-		var frameRect:Rectangle;
+		var frameRect:FlxRect;
 		var sourceSize:FlxPoint;
 		var offset:FlxPoint;
 		
@@ -269,7 +272,7 @@ class BarFrames extends FlxFramesCollection
 		for (i in 1...(numFrames + 1))
 		{
 			ratio = i / numFrames;
-			frameRect = new Rectangle(0, 0, width, height);
+			frameRect = new FlxRect(0, 0, width, height);
 			
 			switch (barType)
 			{
@@ -327,7 +330,7 @@ class BarFrames extends FlxFramesCollection
 	 * 							which means that whole image will be used for it.
 	 * @return	Newly created BarFrames collection
 	 */
-	public static function fromRectangle(source:FlxGraphicAsset, barType:FlxBarFillDirection, numFrames:Int = 100, region:Rectangle = null):BarFrames
+	public static function fromRectangle(source:FlxGraphicAsset, barType:FlxBarFillDirection, numFrames:Int = 100, region:FlxRect = null):BarFrames
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		if (graphic == null)	return null;
@@ -344,7 +347,7 @@ class BarFrames extends FlxFramesCollection
 	 * @param	atlasFrame		Optional FlxFrame object used for BarFrames generation.
 	 * @return	BarFrames object which corresponds to specified arguments. Could be null if there is no such BarFrames object.
 	 */
-	public static function findFrame(graphic:FlxGraphic, barType:FlxBarFillDirection, numFrames:Int = 100, region:Rectangle = null, atlasFrame:FlxFrame = null):BarFrames
+	public static function findFrame(graphic:FlxGraphic, barType:FlxBarFillDirection, numFrames:Int = 100, region:FlxRect = null, atlasFrame:FlxFrame = null):BarFrames
 	{
 		var barFramesArr:Array<BarFrames> = cast graphic.getFramesCollections(FrameCollectionType.BAR(barType));
 		var barFrames:BarFrames;
@@ -363,7 +366,7 @@ class BarFrames extends FlxFramesCollection
 	/**
 	 * BarFrames comparison method. For internal use.
 	 */
-	public function equals(barType:FlxBarFillDirection, numFrames:Int, region:Rectangle = null, atlasFrame:FlxFrame = null):Bool
+	public function equals(barType:FlxBarFillDirection, numFrames:Int, region:FlxRect = null, atlasFrame:FlxFrame = null):Bool
 	{
 		if (atlasFrame != null)
 		{

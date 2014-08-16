@@ -6,6 +6,8 @@ import flash.geom.Rectangle;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.ImageFrame;
+import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.system.FlxAssets;
 import flixel.util.FlxBitmapDataUtil;
 import flixel.util.FlxColor;
@@ -58,7 +60,7 @@ class BitmapFrontEnd
 			var bd:BitmapData = new BitmapData(10, 10, true, FlxColor.WHITE);
 			var graphic:FlxGraphic = FlxG.bitmap.add(bd, true, "whitePixels");
 			graphic.persist = true;
-			_whitePixel = ImageFrame.fromRectangle(graphic, new Rectangle(0, 0, 10, 10)).frame;
+			_whitePixel = ImageFrame.fromRectangle(graphic, new FlxRect(0, 0, 10, 10)).frame;
 		}
 		
 		return _whitePixel;
@@ -299,7 +301,7 @@ class BitmapFrontEnd
 	 * @param	region			region of image to use as spritesheet graphics source
 	 * @return	Generated key for spritesheet with inserted spaces between tiles
 	 */
-	public function getKeyWithSpacings(baseKey:String, frameSize:Point, frameSpacing:Point, region:Rectangle = null):String
+	public function getKeyWithSpacings(baseKey:String, frameSize:FlxPoint, frameSpacing:FlxPoint, region:FlxRect = null):String
 	{
 		var result:String = baseKey;
 		

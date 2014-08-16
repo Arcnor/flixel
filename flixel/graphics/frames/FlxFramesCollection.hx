@@ -3,6 +3,7 @@ package flixel.graphics.frames;
 import flash.display.BitmapData;
 import flash.geom.Point;
 import flash.geom.Rectangle;
+import flixel.math.FlxRect;
 import flixel.system.layer.TileSheetExt;
 import flixel.util.FlxDestroyUtil;
 import flixel.math.FlxPoint;
@@ -121,12 +122,11 @@ class FlxFramesCollection implements IFlxDestroyable
 	 * @param	size	dimensions of the frame to add.
 	 * @return	Newly added empty frame.
 	 */
-	public function addEmptyFrame(size:Rectangle):FlxEmptyFrame
+	public function addEmptyFrame(size:FlxRect):FlxEmptyFrame
 	{
 		var frame:FlxEmptyFrame = new FlxEmptyFrame(parent);	
-		frame.frame = new Rectangle();
+		frame.frame = new FlxRect();
 		frame.sourceSize.set(size.width, size.height);
-		frame.halfSize.set(0.5 * size.width, 0.5 * size.height);
 		frames.push(frame);
 		return frame;
 	}
@@ -137,15 +137,15 @@ class FlxFramesCollection implements IFlxDestroyable
 	 * @param	region	region of image which new frame will display.
 	 * @return	newly created FlxFrame object for specified region of image.
 	 */
-	public function addSpriteSheetFrame(region:Rectangle):FlxFrame
+	public function addSpriteSheetFrame(region:FlxRect):FlxFrame
 	{
 		var frame:FlxFrame = new FlxFrame(parent);	
 		#if FLX_RENDER_TILE
-		frame.tileID = parent.tilesheet.addTileRect(region, new Point(0.5 * region.width, 0.5 * region.height));
+		var flashRect:Rectangle = region.copyToFlash(new Rectangle());
+		frame.tileID = parent.tilesheet.addTileRect(flashRect, new Point(0.5 * region.width, 0.5 * region.height));
 		#end
 		frame.frame = region;
 		frame.sourceSize.set(region.width, region.height);
-		frame.halfSize.set(0.5 * region.width, 0.5 * region.height);
 		frame.offset.set(0, 0);
 		frame.center.set(0.5 * region.width, 0.5 * region.height);
 		frames.push(frame);
@@ -161,7 +161,7 @@ class FlxFramesCollection implements IFlxDestroyable
 	  * @param	angle			rotation of packed image (can be 0, 90, -90).
 	  * @return	Newly created and added frame object.
 	  */
-	public function addAtlasFrame(frame:Rectangle, sourceSize:FlxPoint, offset:FlxPoint, name:String = null, angle:Float = 0):FlxFrame
+	public function addAtlasFrame(frame:FlxRect, sourceSize:FlxPoint, offset:FlxPoint, name:String = null, angle:Float = 0):FlxFrame
 	{
 		var texFrame:FlxFrame = null;
 		if (angle != 0)
@@ -175,7 +175,6 @@ class FlxFramesCollection implements IFlxDestroyable
 		
 		texFrame.name = name;
 		texFrame.sourceSize.set(sourceSize.x, sourceSize.y);
-		texFrame.halfSize.set(0.5 * sourceSize.x, 0.5 * sourceSize.y);
 		texFrame.offset.set(offset.x, offset.y);
 		texFrame.frame = frame;
 		texFrame.angle = angle;
@@ -193,7 +192,8 @@ class FlxFramesCollection implements IFlxDestroyable
 		}
 		
 		#if FLX_RENDER_TILE
-		texFrame.tileID = parent.tilesheet.addTileRect(frame, new Point(0.5 * frame.width, 0.5 * frame.height));
+		var flashRect:Rectangle = frame.copyToFlash(new Rectangle());
+		texFrame.tileID = parent.tilesheet.addTileRect(flashRect, new Point(0.5 * frame.width, 0.5 * frame.height));
 		#end
 		
 		frames.push(texFrame);

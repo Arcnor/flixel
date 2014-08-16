@@ -5,6 +5,7 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 import flixel.math.FlxAngle;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import openfl.geom.Matrix;
 
 class FlxBitmapDataUtil
@@ -298,11 +299,11 @@ class FlxBitmapDataUtil
 	 * @param	region		region of image to use as a source graphics for spritesheet. Default value is null, which means that whole image will be used.
 	 * @return	Image for spritesheet with inserted spaces between tiles.
 	 */
-	public static function addSpacing(bitmapData:BitmapData, frameSize:Point, spacing:Point, region:Rectangle = null):BitmapData
+	public static function addSpacing(bitmapData:BitmapData, frameSize:FlxPoint, spacing:FlxPoint, region:FlxRect = null):BitmapData
 	{
 		if (region == null)
 		{
-			region = bitmapData.rect;
+			region = new FlxRect(0, 0, bitmapData.width, bitmapData.height);
 		}
 		
 		var frameWidth:Int = Std.int(frameSize.x);

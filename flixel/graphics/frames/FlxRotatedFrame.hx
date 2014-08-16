@@ -56,7 +56,7 @@ class FlxRotatedFrame extends FlxFrame
 		
 		var temp:BitmapData = new BitmapData(Std.int(frame.width), Std.int(frame.height), true, FlxColor.TRANSPARENT);
 		FlxFrame.POINT.x = FlxFrame.POINT.y = 0;
-		temp.copyPixels(parent.bitmap, frame, FlxFrame.POINT);
+		temp.copyPixels(parent.bitmap, frame.copyToFlash(FlxFrame.RECT), FlxFrame.POINT);
 		
 		FlxFrame.MATRIX.identity();
 		FlxFrame.MATRIX.translate( -0.5 * frame.width, -0.5 * frame.height);

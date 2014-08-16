@@ -6,6 +6,7 @@ import flash.geom.Point;
 import flash.geom.Rectangle;
 import flixel.FlxG;
 import flixel.math.FlxAngle;
+import flixel.math.FlxRect;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import flixel.math.FlxMatrix;
@@ -25,7 +26,7 @@ class FlxFrame implements IFlxDestroyable
 	/**
 	 * Region of image to render
 	 */
-	public var frame:Rectangle;
+	public var frame:FlxRect;
 	
 	public var parent:FlxGraphic;
 	public var tileID:Int = -1;
@@ -48,10 +49,6 @@ class FlxFrame implements IFlxDestroyable
 	 * It holds position of tile's center of this frame (offset + half tile size).
 	 */
 	public var center(default, null):FlxPoint;
-	/**
-	 * The half size of this frame (0.5 * sourceSize).
-	 */
-	public var halfSize(default, null):FlxPoint;
 	
 	/**
 	 * The type of this frame.
@@ -75,7 +72,6 @@ class FlxFrame implements IFlxDestroyable
 		sourceSize = FlxPoint.get();
 		offset = FlxPoint.get();
 		center = FlxPoint.get();
-		halfSize = FlxPoint.get();
 		
 		type = FrameType.REGULAR;
 	}
@@ -129,7 +125,7 @@ class FlxFrame implements IFlxDestroyable
 		
 		FlxFrame.POINT.x = offset.x;
 		FlxFrame.POINT.y = offset.y;
-		result.copyPixels(parent.bitmap, frame, FlxFrame.POINT);
+		result.copyPixels(parent.bitmap, frame.copyToFlash(FlxFrame.RECT), FlxFrame.POINT);
 		return result;
 	}
 	

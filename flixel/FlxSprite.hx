@@ -337,7 +337,7 @@ class FlxSprite extends FlxObject
 		
 		if (Animated)
 		{
-			frames = TileFrames.fromGraphic(graph, new Point(Width, Height));
+			frames = TileFrames.fromGraphic(graph, new FlxPoint(Width, Height));
 		}
 		else
 		{
@@ -393,7 +393,7 @@ class FlxSprite extends FlxObject
 		var max:Int = (brush.height > brush.width) ? brush.height : brush.width;
 		max = (AutoBuffer) ? Std.int(max * 1.5) : max;
 		
-		frames = TileFrames.fromGraphic(tempGraph, new Point(max, max));
+		frames = TileFrames.fromGraphic(tempGraph, new FlxPoint(max, max));
 		
 		if (AutoBuffer)
 		{

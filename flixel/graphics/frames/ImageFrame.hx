@@ -2,6 +2,7 @@ package flixel.graphics.frames;
 
 import flash.geom.Point;
 import flash.geom.Rectangle;
+import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.layer.TileSheetExt;
 import flixel.util.FlxDestroyUtil;
@@ -15,7 +16,7 @@ import flixel.graphics.FlxGraphic;
 class ImageFrame extends FlxFramesCollection
 {
 	public static var POINT:Point = new Point();
-	public static var RECT:Rectangle = new Rectangle();
+	public static var RECT:FlxRect = new FlxRect();
 	
 	/**
 	 * Single frame of this frame collection.
@@ -37,7 +38,7 @@ class ImageFrame extends FlxFramesCollection
 	public static function fromFrame(source:FlxFrame):ImageFrame
 	{
 		var graphic:FlxGraphic = source.parent;
-		var rect:Rectangle = source.frame;
+		var rect:FlxRect = source.frame;
 		
 		var imageFrame:ImageFrame = ImageFrame.findFrame(graphic, rect);
 		if (imageFrame != null)
@@ -46,7 +47,7 @@ class ImageFrame extends FlxFramesCollection
 		}
 		
 		imageFrame = new ImageFrame(graphic);
-		imageFrame.frame = imageFrame.addSpriteSheetFrame(rect.clone());
+		imageFrame.frame = imageFrame.addSpriteSheetFrame(rect.copyTo(new FlxRect()));
 		return imageFrame;
 	}
 	
@@ -68,12 +69,12 @@ class ImageFrame extends FlxFramesCollection
 	 * @param	region	region of image to create ImageFrame for.
 	 * @return	Newly created ImageFrame object for specified region of FlxGraphic object.
 	 */
-	public static function fromGraphic(graphic:FlxGraphic, region:Rectangle = null):ImageFrame
+	public static function fromGraphic(graphic:FlxGraphic, region:FlxRect = null):ImageFrame
 	{
 		if (graphic == null)	return null;
 		
 		// find ImageFrame, if there is one already
-		var checkRegion:Rectangle = region;
+		var checkRegion:FlxRect = region;
 		
 		if (checkRegion == null)
 		{
@@ -94,7 +95,7 @@ class ImageFrame extends FlxFramesCollection
 		
 		if (region == null)
 		{
-			region = new Rectangle(0, 0, graphic.width, graphic.height);
+			region = new FlxRect(0, 0, graphic.width, graphic.height);
 		}
 		else
 		{
@@ -120,7 +121,7 @@ class ImageFrame extends FlxFramesCollection
 	 * @param	region	region of image to create ImageFrame for.
 	 * @return	Newly created ImageFrame object for specified region of image.
 	 */
-	public static function fromRectangle(source:FlxGraphicAsset, region:Rectangle = null):ImageFrame
+	public static function fromRectangle(source:FlxGraphicAsset, region:FlxRect = null):ImageFrame
 	{
 		var graphic:FlxGraphic = FlxG.bitmap.add(source, false);
 		return fromGraphic(graphic, region);
@@ -133,7 +134,7 @@ class ImageFrame extends FlxFramesCollection
 	 * @param	frameRect	ImageFrame object should have frame with the same position and dimensions as specified with this argument.
 	 * @return	ImageFrame object which corresponds to specified rectangle. Could be null if there is no such ImageFrame.
 	 */
-	public static function findFrame(graphic:FlxGraphic, frameRect:Rectangle):ImageFrame
+	public static function findFrame(graphic:FlxGraphic, frameRect:FlxRect):ImageFrame
 	{
 		var imageFrames:Array<ImageFrame> = cast graphic.getFramesCollections(FrameCollectionType.IMAGE);
 		var imageFrame:ImageFrame;
@@ -151,7 +152,7 @@ class ImageFrame extends FlxFramesCollection
 	/**
 	 * ImageFrame comparison method. For internal use.
 	 */
-	public inline function equals(rect:Rectangle = null):Bool
+	public inline function equals(rect:FlxRect = null):Bool
 	{
 		return rect.equals(frame.frame);
 	}

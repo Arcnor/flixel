@@ -44,7 +44,7 @@ class GlyphFrame extends FlxFrame
 		}
 		
 		FlxFrame.POINT.x = FlxFrame.POINT.y = 0;
-		result.copyPixels(parent.bitmap, frame, FlxFrame.POINT);
+		result.copyPixels(parent.bitmap, frame.copyToFlash(FlxFrame.RECT), FlxFrame.POINT);
 		
 		return result;
 	}

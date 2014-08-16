@@ -9,6 +9,7 @@ import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.text.DefaultBitmapFont;
 import flixel.util.FlxColor;
@@ -115,7 +116,7 @@ class BitmapFont extends FlxFramesCollection
 		font.italic = (Std.parseInt(fast.node.info.att.italic) != 0);
 		
 		var glyphFrame:GlyphFrame;
-		var frame:Rectangle;
+		var frame:FlxRect;
 		var offset:FlxPoint;
 		var glyph:String;
 		var xOffset:Int, yOffset:Int, xAdvance:Int;
@@ -125,7 +126,7 @@ class BitmapFont extends FlxFramesCollection
 		
 		for (char in chars.nodes.char)
 		{
-			frame = new Rectangle();
+			frame = new FlxRect();
 			frame.x = Std.parseInt(char.att.x);
 			frame.y = Std.parseInt(char.att.y);
 			frame.width = Std.parseInt(char.att.width);
@@ -207,7 +208,7 @@ class BitmapFont extends FlxFramesCollection
 		var letterIdx:Int = 0;
 		var glyph:String;
 		var numLetters:Int = letters.length;
-		var rect:Rectangle;
+		var rect:FlxRect;
 		var offset:FlxPoint;
 		var xAdvance:Int;
 		
@@ -233,7 +234,7 @@ class BitmapFont extends FlxFramesCollection
 					
 					glyph = letters.charAt(letterIdx);
 					
-					rect = new Rectangle(cx, cy, gw, gh);
+					rect = new FlxRect(cx, cy, gw, gh);
 					
 					offset = FlxPoint.get(0, 0);
 					
@@ -336,7 +337,7 @@ class BitmapFont extends FlxFramesCollection
 		font.fontName = graphic.key;
 		font.lineHeight = font.size = charHeight;
 		
-		var charRect:Rectangle;
+		var charRect:FlxRect;
 		var offset:FlxPoint;
 		var xAdvance:Int = charWidth;
 		font.spaceWidth = xAdvance;
@@ -347,7 +348,7 @@ class BitmapFont extends FlxFramesCollection
 		{
 			for (i in 0...(numCols))
 			{
-				charRect = new Rectangle(startX + i * spacedWidth, startY + j * spacedHeight, charWidth, charHeight);
+				charRect = new FlxRect(startX + i * spacedWidth, startY + j * spacedHeight, charWidth, charHeight);
 				offset = FlxPoint.get(0, 0);
 				font.addGlyphFrame(letters.charAt(letterIndex), charRect, offset, xAdvance);
 				
@@ -371,14 +372,13 @@ class BitmapFont extends FlxFramesCollection
 	 * @param	offset			Offset before rendering this glyph.
 	 * @param	xAdvance		How much cursor will jump after this glyph.
 	 */
-	private function addGlyphFrame(glyph:String, frame:Rectangle, offset:FlxPoint, xAdvance:Int):Void
+	private function addGlyphFrame(glyph:String, frame:FlxRect, offset:FlxPoint, xAdvance:Int):Void
 	{
 		if (frame.width == 0 || frame.height == 0)	return;
 		
 		var glyphFrame:GlyphFrame = new GlyphFrame(parent);
 		glyphFrame.name = glyph;
 		glyphFrame.sourceSize.set(frame.width, frame.height);
-		glyphFrame.halfSize.set(0.5 * frame.width, 0.5 * frame.height);
 		glyphFrame.offset.copyFrom(offset);
 		glyphFrame.xAdvance = xAdvance;
 		glyphFrame.frame = frame;
@@ -387,7 +387,8 @@ class BitmapFont extends FlxFramesCollection
 		offset.put();
 		
 		#if FLX_RENDER_TILE
-		glyphFrame.tileID = parent.tilesheet.addTileRect(frame, new Point(0.5 * frame.width, 0.5 * frame.height));
+		var flashRect:Rectangle = frame.copyToFlash(new Rectangle());
+		glyphFrame.tileID = parent.tilesheet.addTileRect(flashRect, new Point(0.5 * frame.width, 0.5 * frame.height));
 		#end
 		
 		frames.push(glyphFrame);

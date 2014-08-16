@@ -5,6 +5,7 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.TileFrames;
+import flixel.math.FlxPoint;
 import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.layer.DrawStackItem;
 import flixel.math.FlxAngle;
@@ -146,7 +147,7 @@ class FlxTileblock extends FlxSprite
 			TileHeight = (TileHeight > graph.height) ? graph.height : TileHeight;
 		}
 		
-		var tileFrames:TileFrames = TileFrames.fromGraphic(graphic, new Point(TileWidth, TileHeight));
+		var tileFrames:TileFrames = TileFrames.fromGraphic(graphic, new FlxPoint(TileWidth, TileHeight));
 		return this.loadFrames(tileFrames, Empties);
 	}
 }
