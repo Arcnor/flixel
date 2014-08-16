@@ -32,6 +32,8 @@ import openfl.display.Tilesheet;
 
 // TODO: reimplement filters functionality as a part of FlxSprite
 
+// TODO: add updateSizeFromFrame bool which will tell sprite whether to update it's size to frame's size (when frame setter is called) or not (usefull for sprites with adjusted hitbox)
+
 /**
  * The main "game object" class, the sprite is a FlxObject
  * with a bunch of graphics options and abilities, like animation and stamping.
