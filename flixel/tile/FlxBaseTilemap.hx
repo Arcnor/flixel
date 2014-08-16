@@ -9,6 +9,8 @@ import flixel.util.FlxArrayUtil;
 import flixel.system.FlxAssets;
 import flixel.group.FlxGroup;
 
+// TODO: implement methods like setRect(), clearRect(), shiftTiles() from HaxePunk
+
 class FlxBaseTilemap<Tile:FlxObject> extends FlxObject
 {
 	/**

@@ -29,7 +29,9 @@ import flixel.util.FlxSpriteUtil;
 class GraphicAuto extends BitmapData {}
 
 @:bitmap("assets/images/tile/autotiles_alt.png")
-class GraphicAutoAlt extends BitmapData {}
+class GraphicAutoAlt extends BitmapData { }
+
+// TODO: try to solve "tile tearing problem" (1px gap between tile at certain conditions) on native targets
 
 /**
  * This is a traditional tilemap display and collision class. It takes a string of comma-separated numbers and then associates
