@@ -30,6 +30,8 @@ import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import openfl.display.Tilesheet;
 
+// TODO: reimplement filters functionality as a part of FlxSprite
+
 /**
  * The main "game object" class, the sprite is a FlxObject
  * with a bunch of graphics options and abilities, like animation and stamping.
@@ -540,7 +542,7 @@ class FlxSprite extends FlxObject
 	 */
 	override public function draw():Void
 	{
-		if (alpha == 0)
+		if (alpha == 0 || frame.type == FrameType.EMPTY)
 		{
 			return;
 		}
@@ -550,99 +552,96 @@ class FlxSprite extends FlxObject
 			calcFrame();
 		}
 		
-		if (frame.type != FrameType.EMPTY)
+	#if FLX_RENDER_TILE
+		var drawItem:DrawStackItem;
+		
+		var ox:Float = origin.x;
+		if (_facingHorizontalMult != 1)
 		{
-		#if FLX_RENDER_TILE
-			var drawItem:DrawStackItem;
-			
-			var ox:Float = origin.x;
-			if (_facingHorizontalMult != 1)
-			{
-				ox = frameWidth - ox;
-			}
-			var oy:Float = origin.y;
-			if (_facingVerticalMult != 1)
-			{
-				oy = frameHeight - oy;
-			}
-		#end
-			
-			for (camera in cameras)
-			{
-				if (!camera.visible || !camera.exists || !isOnScreen(camera))
-				{
-					continue;
-				}
-				
-				getScreenPosition(_point, camera).subtractPoint(offset);
-				
-	#if FLX_RENDER_BLIT
-				if (isSimpleRender(camera))
-				{
-					_point.floor().copyToFlash(_flashPoint);
-					camera.buffer.copyPixels(framePixels, _flashRect, _flashPoint, null, null, true);
-				}
-				else
-				{
-					_matrix.identity();
-					_matrix.translate(-origin.x, -origin.y);
-					_matrix.scale(scale.x, scale.y);
-					
-					if ((angle != 0) && (bakedRotationAngle <= 0))
-					{
-						_matrix.rotate(angle * FlxAngle.TO_RAD);
-					}
-					
-					_point.addPoint(origin).floor();
-					
-					_matrix.translate(_point.x, _point.y);
-					camera.buffer.draw(framePixels, _matrix, null, blend, null, (antialiasing || camera.antialiasing));
-				}
-	#else
-				drawItem = camera.getDrawStackItem(graphic, isColored, _blendInt, antialiasing);
-				
-				_matrix.identity();
-				
-				// handle rotated frames
-				frame.prepareFrameMatrix(_matrix);
-				
-				var x1:Float = (ox - frame.center.x);
-				var y1:Float = (oy - frame.center.y);
-				_matrix.translate(x1, y1);
-				
-				var sx:Float = scale.x * _facingHorizontalMult;
-				var sy:Float = scale.y * _facingVerticalMult;
-				_matrix.scale(sx, sy);
-				
-				// rotate matrix if sprite's graphic isn't prerotated
-				if (!isSimpleRender(camera))
-				{
-					if (_angleChanged && (bakedRotationAngle <= 0))
-					{
-						var radians:Float = angle * FlxAngle.TO_RAD;
-						_sinAngle = Math.sin(radians);
-						_cosAngle = Math.cos(radians);
-						_angleChanged = false;
-					}
-					
-					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
-				}
-				
-				_point.addPoint(origin);
-				
-				if (isPixelPerfectRender(camera))
-				{
-					_point.floor();
-				}
-				
-				_point.subtract(_matrix.tx, _matrix.ty);
-				
-				setDrawData(drawItem, camera, _matrix);
+			ox = frameWidth - ox;
+		}
+		var oy:Float = origin.y;
+		if (_facingVerticalMult != 1)
+		{
+			oy = frameHeight - oy;
+		}
 	#end
-				#if !FLX_NO_DEBUG
-				FlxBasic.visibleCount++;
-				#end
+		
+		for (camera in cameras)
+		{
+			if (!camera.visible || !camera.exists || !isOnScreen(camera))
+			{
+				continue;
 			}
+			
+			getScreenPosition(_point, camera).subtractPoint(offset);
+			
+#if FLX_RENDER_BLIT
+			if (isSimpleRender(camera))
+			{
+				_point.floor().copyToFlash(_flashPoint);
+				camera.buffer.copyPixels(framePixels, _flashRect, _flashPoint, null, null, true);
+			}
+			else
+			{
+				_matrix.identity();
+				_matrix.translate(-origin.x, -origin.y);
+				_matrix.scale(scale.x, scale.y);
+				
+				if ((angle != 0) && (bakedRotationAngle <= 0))
+				{
+					_matrix.rotate(angle * FlxAngle.TO_RAD);
+				}
+				
+				_point.addPoint(origin).floor();
+				
+				_matrix.translate(_point.x, _point.y);
+				camera.buffer.draw(framePixels, _matrix, null, blend, null, (antialiasing || camera.antialiasing));
+			}
+#else
+			drawItem = camera.getDrawStackItem(frame.parent, isColored, _blendInt, antialiasing);
+			
+			_matrix.identity();
+			
+			// handle rotated frames
+			frame.prepareFrameMatrix(_matrix);
+			
+			var x1:Float = (ox - frame.center.x);
+			var y1:Float = (oy - frame.center.y);
+			_matrix.translate(x1, y1);
+			
+			var sx:Float = scale.x * _facingHorizontalMult;
+			var sy:Float = scale.y * _facingVerticalMult;
+			_matrix.scale(sx, sy);
+			
+			// rotate matrix if sprite's graphic isn't prerotated
+			if (!isSimpleRender(camera))
+			{
+				if (_angleChanged && (bakedRotationAngle <= 0))
+				{
+					var radians:Float = angle * FlxAngle.TO_RAD;
+					_sinAngle = Math.sin(radians);
+					_cosAngle = Math.cos(radians);
+					_angleChanged = false;
+				}
+				
+				_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+			}
+			
+			_point.addPoint(origin);
+			
+			if (isPixelPerfectRender(camera))
+			{
+				_point.floor();
+			}
+			
+			_point.subtract(_matrix.tx, _matrix.ty);
+			
+			setDrawData(drawItem, camera, _matrix);
+#end
+			#if !FLX_NO_DEBUG
+			FlxBasic.visibleCount++;
+			#end
 		}
 		
 		#if !FLX_NO_DEBUG
