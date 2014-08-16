@@ -941,26 +941,23 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 					#if !FLX_NO_DEBUG
 					if (FlxG.debugger.drawDebug && !ignoreDrawDebug) 
 					{
-						if (tile != null)
+						if (tile.allowCollisions <= FlxObject.NONE)
 						{
-							if (tile.allowCollisions <= FlxObject.NONE)
-							{
-								// Blue
-								debugTile = _debugTileNotSolid; 
-							}
-							else if (tile.allowCollisions != FlxObject.ANY)
-							{
-								// Pink
-								debugTile = _debugTilePartial; 
-							}
-							else
-							{
-								// Green
-								debugTile = _debugTileSolid; 
-							}
-							
-							Buffer.pixels.copyPixels(debugTile, _debugRect, _flashPoint, null, null, true);
+							// Blue
+							debugTile = _debugTileNotSolid; 
 						}
+						else if (tile.allowCollisions != FlxObject.ANY)
+						{
+							// Pink
+							debugTile = _debugTilePartial; 
+						}
+						else
+						{
+							// Green
+							debugTile = _debugTileSolid; 
+						}
+						
+						Buffer.pixels.copyPixels(debugTile, _debugRect, _flashPoint, null, null, true);
 					}
 					#end
 				#else
@@ -1027,7 +1024,6 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	{
 		var tile:FlxTile = _tileObjects[_data[Index]];
 		
-		// TODO: use this check instead of _tileID != -1 or something like that in other places aswell
 		if ((tile == null) || !tile.visible)
 		{
 			return;
