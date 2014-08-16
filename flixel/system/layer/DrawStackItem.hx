@@ -3,6 +3,7 @@ package flixel.system.layer;
 import flixel.graphics.FlxGraphic;
 import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
+import openfl.geom.Matrix;
 
 class DrawStackItem
 {
@@ -33,6 +34,12 @@ class DrawStackItem
 		graphics = null;
 		drawData = null;
 		next = null;
+	}
+	
+	public inline function setMatrixDrawData(coordinate:FlxPoint, ID:Float, matrix:Matrix,
+		isColored:Bool = false, color:FlxColor = FlxColor.WHITE, alpha:Float = 1):Void
+	{
+		setDrawData(coordinate, ID, matrix.a, matrix.b, matrix.c, matrix.d, isColored, color, alpha);
 	}
 	
 	public inline function setDrawData(coordinate:FlxPoint, ID:Float, a:Float, b:Float, c:Float, d:Float,

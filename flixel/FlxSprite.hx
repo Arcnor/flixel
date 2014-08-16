@@ -170,6 +170,9 @@ class FlxSprite extends FlxObject
 	 * Internal, helps with animation, caching and drawing.
 	 */
 	private var _matrix:FlxMatrix;
+	
+	private var _halfSize:FlxPoint;
+	
 	/**
 	 * These vars are being used for rendering in some of FlxSprite subclasses (FlxTileblock, FlxBar, 
 	 * FlxBitmapFont and FlxBitmapTextField) and for checks if the sprite is in camera's view.
@@ -213,6 +216,7 @@ class FlxSprite extends FlxObject
 		offset = FlxPoint.get();
 		origin = FlxPoint.get();
 		scale = FlxPoint.get(1, 1);
+		_halfSize = FlxPoint.get();
 		_matrix = new FlxMatrix();
 	}
 	
@@ -229,6 +233,7 @@ class FlxSprite extends FlxObject
 		offset = FlxDestroyUtil.put(offset);
 		origin = FlxDestroyUtil.put(origin);
 		scale = FlxDestroyUtil.put(scale);
+		_halfSize = FlxDestroyUtil.put(_halfSize);
 		
 		framePixels = FlxDestroyUtil.dispose(framePixels);
 		
@@ -449,6 +454,7 @@ class FlxSprite extends FlxObject
 	{
 		frameWidth = Std.int(frame.sourceSize.x);
 		frameHeight = Std.int(frame.sourceSize.y);
+		_halfSize.set(0.5 * frameWidth, 0.5 * frameHeight);
 		resetSize();
 	}
 	
@@ -631,7 +637,7 @@ class FlxSprite extends FlxObject
 				
 				_point.subtract(_matrix.tx, _matrix.ty);
 				
-				setDrawData(drawItem, camera, _matrix.a, _matrix.b, _matrix.c, _matrix.d);
+				setDrawData(drawItem, camera, _matrix);
 	#end
 				#if !FLX_NO_DEBUG
 				FlxBasic.visibleCount++;
@@ -648,11 +654,9 @@ class FlxSprite extends FlxObject
 	}
 	
 	#if FLX_RENDER_TILE
-	// TODO: make it accept matrix instead of matrix coefficients
-	private inline function setDrawData(drawItem:DrawStackItem, camera:FlxCamera, a:Float = 1,
-		b:Float = 0, c:Float = 0, d:Float = 1, ?tileID:Float)
+	private inline function setDrawData(drawItem:DrawStackItem, camera:FlxCamera, matrix:Matrix, ?tileID:Float)
 	{
-		drawItem.setDrawData(_point, (tileID == null) ? frame.tileID : tileID, a, b, c, d,
+		drawItem.setMatrixDrawData(_point, (tileID == null) ? frame.tileID : tileID, matrix,
 			isColored, color, alpha * camera.alpha);
 	}
 	#end
@@ -999,12 +1003,8 @@ class FlxSprite extends FlxObject
 		}
 		else
 		{
-			// TODO: add halfSize var to FlxSprite...
-			//var radiusX:Float = frame.halfSize.x;
-			//var radiusY:Float = frame.halfSize.y;
-			
-			var radiusX:Float = 0.5 * frameWidth;
-			var radiusY:Float = 0.5 * frameHeight;
+			var radiusX:Float = _halfSize.x;
+			var radiusY:Float = _halfSize.y;
 			
 			if (origin.x == radiusX)
 			{

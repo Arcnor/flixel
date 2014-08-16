@@ -397,7 +397,7 @@ class FlxBitmapTextField extends FlxSprite
 			{
 				drawItem = camera.getDrawStackItem(FlxG.bitmap.whitePixel.parent, true, _blendInt, antialiasing);
 				tileID = FlxG.bitmap.whitePixel.tileID;
-				drawItem.setDrawData(_point, tileID, _bgMatrix.a, _bgMatrix.b, _bgMatrix.c, _bgMatrix.d, true, backgroundColor.to24Bit(), bgAlpha * camera.alpha);
+				drawItem.setMatrixDrawData(_point, tileID, _bgMatrix, true, backgroundColor.to24Bit(), bgAlpha * camera.alpha);
 			}
 			
 			drawItem = camera.getDrawStackItem(font.parent, true, _blendInt, antialiasing);
@@ -417,7 +417,7 @@ class FlxBitmapTextField extends FlxSprite
 				_matrix.transformFlxPoint(_tilePoint);
 				_tilePoint.addPoint(_point);
 				
-				drawItem.setDrawData(_tilePoint, tileID, _tileMatrix.a, _tileMatrix.b, _tileMatrix.c, _tileMatrix.d, true, bColor, alphaToUse);
+				drawItem.setMatrixDrawData(_tilePoint, tileID, _tileMatrix, true, bColor, alphaToUse);
 			}
 			
 			alphaToUse = tAlpha * camera.alpha;
@@ -435,7 +435,7 @@ class FlxBitmapTextField extends FlxSprite
 				_matrix.transformFlxPoint(_tilePoint);
 				_tilePoint.addPoint(_point);
 				
-				drawItem.setDrawData(_tilePoint, tileID, _tileMatrix.a, _tileMatrix.b, _tileMatrix.c, _tileMatrix.d, true, tColor, alphaToUse);
+				drawItem.setMatrixDrawData(_tilePoint, tileID, _tileMatrix, true, tColor, alphaToUse);
 			}
 			
 			#if !FLX_NO_DEBUG
@@ -539,6 +539,8 @@ class FlxBitmapTextField extends FlxSprite
 		
 		frameWidth = txtWidth;
 		frameHeight = (txtHeight == 0) ? 1 : txtHeight;
+		
+		_halfSize.set(0.5 * frameWidth, 0.5 * frameHeight);
 	}
 	
 	/**

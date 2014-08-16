@@ -36,7 +36,7 @@ class FlxBGSprite extends FlxSprite
 			_point.x = camera.width * 0.5;
 			_point.y = camera.height * 0.5;
 			
-			setDrawData(drawItem, camera, camera.width, 0, 0, camera.height);
+			drawItem.setDrawData(_point, frame.tileID, camera.width, 0, 0, camera.height, isColored, color, alpha * camera.alpha);
 			
 			#if !FLX_NO_DEBUG
 			FlxBasic.visibleCount++;
