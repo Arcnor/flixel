@@ -2,6 +2,8 @@ package flixel.graphics.frames;
 
 import flash.display.BitmapData;
 import flixel.graphics.FlxGraphic;
+import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.util.FlxColor;
 
 /**
@@ -43,8 +45,8 @@ class GlyphFrame extends FlxFrame
 			result = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
 		}
 		
-		FlxFrame.POINT.x = FlxFrame.POINT.y = 0;
-		result.copyPixels(parent.bitmap, frame.copyToFlash(FlxFrame.RECT), FlxFrame.POINT);
+		FlxPoint.POINT.setTo(0, 0);
+		result.copyPixels(parent.bitmap, frame.copyToFlash(FlxRect.RECT), FlxPoint.POINT);
 		
 		return result;
 	}

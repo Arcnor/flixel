@@ -8,6 +8,7 @@ import flash.geom.Rectangle;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFramesCollection;
+import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.system.FlxAssets.FlxGraphicAsset;
@@ -26,10 +27,6 @@ class BitmapFont extends FlxFramesCollection
 	 * Default letters for XNA font.
 	 */
 	public static inline var DEFAULT_GLYPHS:String = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-	
-	private static var POINT:Point = new Point();
-	
-	private static var MATRIX:Matrix = new Matrix();
 	
 	private static var COLOR_TRANSFORM:ColorTransform = new ColorTransform();
 	
@@ -266,13 +263,14 @@ class BitmapFont extends FlxFramesCollection
 		font.lineHeight = font.size;
 		
 		// remove background color
-		POINT.x = POINT.y = 0;
+		var point:Point = FlxPoint.POINT;
+		point.x = point.y = 0;
 		var bgColor32:Int = bmd.getPixel32(0, 0);
-		bmd.threshold(bmd, bmd.rect, POINT, "==", bgColor32, 0x00000000, 0xFFFFFFFF, true);
+		bmd.threshold(bmd, bmd.rect, point, "==", bgColor32, 0x00000000, 0xFFFFFFFF, true);
 		
 		if (glyphBGColor != FlxColor.TRANSPARENT)
 		{
-			bmd.threshold(bmd, bmd.rect, POINT, "==", glyphBGColor, FlxColor.TRANSPARENT, FlxColor.WHITE, true);
+			bmd.threshold(bmd, bmd.rect, point, "==", glyphBGColor, FlxColor.TRANSPARENT, FlxColor.WHITE, true);
 		}
 		
 		return font;
@@ -448,7 +446,8 @@ class BitmapGlyphCollection implements IFlxDestroyable
 	
 	private function prepareGlyphs():Void
 	{
-		var matrix:Matrix = new Matrix();
+		var matrix:Matrix = FlxMatrix.MATRIX;
+		matrix.identity();
 		matrix.scale(scale, scale);
 		
 		var colorTransform:ColorTransform = new ColorTransform();

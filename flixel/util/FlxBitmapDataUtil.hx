@@ -4,6 +4,7 @@ import flash.display.BitmapData;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 import flixel.math.FlxAngle;
+import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import openfl.geom.Matrix;
@@ -370,6 +371,9 @@ class FlxBitmapDataUtil
 		var halfBrushHeight:Int = Std.int(brushHeight * 0.5);
 		var midpointX:Int = Std.int(max * 0.5);
 		var midpointY:Int = Std.int(max * 0.5);
+		
+		var matrix:Matrix = FlxMatrix.MATRIX;
+		
 		while (row < rows)
 		{
 			column = 0;
@@ -389,8 +393,4 @@ class FlxBitmapDataUtil
 		
 		return result;
 	}
-	
-	// TODO: minimize number of static vars (matrices, points, rectangles, etc. are spread among multiple classes)
-	
-	public static var matrix:Matrix = new Matrix();
 }

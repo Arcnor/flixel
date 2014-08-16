@@ -2,8 +2,11 @@ package flixel.graphics.frames;
 
 import flash.display.BitmapData;
 import flixel.math.FlxAngle;
+import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
 import flixel.util.FlxColor;
 import flixel.math.FlxMatrix;
+import openfl.geom.Matrix;
 
 /**
  * Rotated frame. It uses more math for rendering, that's why it has been moved in separate class.
@@ -55,15 +58,16 @@ class FlxRotatedFrame extends FlxFrame
 		}
 		
 		var temp:BitmapData = new BitmapData(Std.int(frame.width), Std.int(frame.height), true, FlxColor.TRANSPARENT);
-		FlxFrame.POINT.x = FlxFrame.POINT.y = 0;
-		temp.copyPixels(parent.bitmap, frame.copyToFlash(FlxFrame.RECT), FlxFrame.POINT);
+		FlxPoint.POINT.setTo(0, 0);
+		temp.copyPixels(parent.bitmap, frame.copyToFlash(FlxRect.RECT), FlxPoint.POINT);
 		
-		FlxFrame.MATRIX.identity();
-		FlxFrame.MATRIX.translate( -0.5 * frame.width, -0.5 * frame.height);
-		FlxFrame.MATRIX.rotate(angle * FlxAngle.TO_RAD);
-		FlxFrame.MATRIX.translate(offset.x + 0.5 * frame.height, offset.y + 0.5 * frame.width);
+		var matrix:Matrix = FlxMatrix.MATRIX;
+		matrix.identity();
+		matrix.translate( -0.5 * frame.width, -0.5 * frame.height);
+		matrix.rotate(angle * FlxAngle.TO_RAD);
+		matrix.translate(offset.x + 0.5 * frame.height, offset.y + 0.5 * frame.width);
 		
-		result.draw(temp, FlxFrame.MATRIX);
+		result.draw(temp, matrix);
 		temp.dispose();
 		return result;
 	}

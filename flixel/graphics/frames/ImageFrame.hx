@@ -15,9 +15,6 @@ import flixel.graphics.FlxGraphic;
  */
 class ImageFrame extends FlxFramesCollection
 {
-	public static var POINT:Point = new Point();
-	public static var RECT:FlxRect = new FlxRect();
-	
 	/**
 	 * Single frame of this frame collection.
 	 * Added this var for faster access, so you don't need to type something like: imageFrame.frames[0]
@@ -78,10 +75,8 @@ class ImageFrame extends FlxFramesCollection
 		
 		if (checkRegion == null)
 		{
-			checkRegion = RECT;
-			checkRegion.x = checkRegion.y = 0;
-			checkRegion.width = graphic.width;
-			checkRegion.height = graphic.height;
+			checkRegion = FlxRect.FLX_RECT;
+			checkRegion.set(0, 0, graphic.width, graphic.height);
 		}
 		
 		var imageFrame:ImageFrame = ImageFrame.findFrame(graphic, checkRegion);

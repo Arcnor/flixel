@@ -18,11 +18,6 @@ import flixel.util.FlxBitmapDataUtil;
  */
 class TileFrames extends FlxFramesCollection
 {
-	public static var POINT1:FlxPoint = new FlxPoint();
-	public static var POINT2:Point = new Point();
-	
-	public static var RECT:FlxRect = new FlxRect();
-	
 	/**
 	 * Atlas frame from which this frame collection had been generated.
 	 * Could be null if this collection generated from rectangle.
@@ -327,16 +322,14 @@ class TileFrames extends FlxFramesCollection
 		
 		if (region == null)
 		{
-			region = RECT;
-			RECT.x = RECT.y = 0;
-			RECT.width = parent.width;
-			RECT.height = parent.height;
+			region = FlxRect.FLX_RECT;
+			region.set(0, 0, parent.width, parent.height);
 		}
 		
 		if (tileSpacing == null)
 		{
-			tileSpacing = POINT1;
-			POINT1.x = POINT1.y = 0;
+			tileSpacing = FlxPoint.FLX_POINT;
+			tileSpacing.set(0, 0);
 		}
 		
 		return (this.atlasFrame == atlasFrame && this.region.equals(region) && this.tileSize.equals(tileSize) && this.tileSpacing.equals(tileSpacing));

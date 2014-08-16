@@ -20,13 +20,6 @@ import flixel.util.FlxColor;
  */
 class BarFrames extends FlxFramesCollection
 {
-	public static var POINT1:Point = new Point();
-	public static var POINT2:Point = new Point();
-	
-	public static var RECT:FlxRect = new FlxRect();
-	
-	public static var FLASH_RECT:Rectangle = new Rectangle();
-	
 	/**
 	 * Atlas frame from which this frame collection had been generated.
 	 * Could be null if this collection generated from rectangle.
@@ -78,8 +71,8 @@ class BarFrames extends FlxFramesCollection
 		else
 		{
 			var filled:BitmapData = new BitmapData(Std.int(region.width), Std.int(region.height), true, FlxColor.TRANSPARENT);
-			POINT1.setTo(0, 0);
-			filled.copyPixels(parent.bitmap, region.copyToFlash(FLASH_RECT), POINT1);
+			FlxPoint.POINT.setTo(0, 0);
+			filled.copyPixels(parent.bitmap, region.copyToFlash(FlxRect.RECT), FlxPoint.POINT);
 			return filled;
 		}
 		
@@ -375,10 +368,8 @@ class BarFrames extends FlxFramesCollection
 		
 		if (region == null)
 		{
-			region = RECT;
-			RECT.x = RECT.y = 0;
-			RECT.width = parent.width;
-			RECT.height = parent.height;
+			region = FlxRect.FLX_RECT;
+			region.set(0, 0, parent.width, parent.height);
 		}
 		
 		return (this.atlasFrame == atlasFrame && this.region.equals(region) && this.barType == barType && this.numFrames == numFrames);

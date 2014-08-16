@@ -3,8 +3,10 @@ package flixel.graphics.frames;
 import flash.display.BitmapData;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxFrame;
+import flixel.math.FlxRect;
 import flixel.system.layer.TileSheetExt;
 import flixel.util.FlxColor;
+import openfl.geom.Rectangle;
 
 /**
  * Empty frame, doing a lot less stuff than regular frame.
@@ -39,10 +41,9 @@ class FlxEmptyFrame extends FlxFrame
 			return new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
 		}
 		
-		FlxFrame.RECT.x = FlxFrame.RECT.y = 0;
-		FlxFrame.RECT.width = result.width;
-		FlxFrame.RECT.height = result.height;
-		bmd.fillRect(FlxFrame.RECT, FlxColor.TRANSPARENT);
+		var rect:Rectangle = FlxRect.RECT;
+		rect.setTo(0, 0, result.width, result.height);
+		bmd.fillRect(rect, FlxColor.TRANSPARENT);
 		
 		return result;
 	}

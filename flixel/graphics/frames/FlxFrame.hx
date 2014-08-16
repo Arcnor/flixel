@@ -18,10 +18,6 @@ import flixel.graphics.FlxGraphic;
  */
 class FlxFrame implements IFlxDestroyable
 {
-	public static var POINT:Point = new Point();
-	public static var MATRIX:Matrix = new Matrix();
-	public static var RECT:Rectangle = new Rectangle();
-	
 	public var name:String;
 	/**
 	 * Region of image to render
@@ -107,10 +103,9 @@ class FlxFrame implements IFlxDestroyable
 			
 			if (w > frame.width || h > frame.height)
 			{
-				RECT.x = RECT.y = 0;
-				RECT.width = w;
-				RECT.height = h;
-				bmd.fillRect(RECT, FlxColor.TRANSPARENT);
+				var rect:Rectangle = FlxRect.RECT;
+				rect.setTo(0, 0, w, h);
+				bmd.fillRect(rect, FlxColor.TRANSPARENT);
 			}
 		}
 		else if (bmd != null)
@@ -123,9 +118,8 @@ class FlxFrame implements IFlxDestroyable
 			result = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
 		}
 		
-		FlxFrame.POINT.x = offset.x;
-		FlxFrame.POINT.y = offset.y;
-		result.copyPixels(parent.bitmap, frame.copyToFlash(FlxFrame.RECT), FlxFrame.POINT);
+		offset.copyToFlash(FlxPoint.POINT);
+		result.copyPixels(parent.bitmap, frame.copyToFlash(FlxRect.RECT), FlxPoint.POINT);
 		return result;
 	}
 	
@@ -153,11 +147,12 @@ class FlxFrame implements IFlxDestroyable
 		}
 		
 		var normalFrame:BitmapData = getBitmap();
-		MATRIX.identity();
-		MATRIX.scale( -1, 1);
-		MATRIX.translate(Std.int(sourceSize.x), 0);
+		var matrix:Matrix = FlxMatrix.MATRIX;
+		matrix.identity();
+		matrix.scale( -1, 1);
+		matrix.translate(Std.int(sourceSize.x), 0);
 		_hReversedBitmapData = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
-		_hReversedBitmapData.draw(normalFrame, MATRIX);
+		_hReversedBitmapData.draw(normalFrame, matrix);
 		return _hReversedBitmapData;
 	}
 	
@@ -172,11 +167,12 @@ class FlxFrame implements IFlxDestroyable
 		}
 		
 		var normalFrame:BitmapData = getBitmap();
-		MATRIX.identity();
-		MATRIX.scale(1, -1);
-		MATRIX.translate(0, Std.int(sourceSize.y));
+		var matrix:Matrix = FlxMatrix.MATRIX;
+		matrix.identity();
+		matrix.scale(1, -1);
+		matrix.translate(0, Std.int(sourceSize.y));
 		_vReversedBitmapData = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
-		_vReversedBitmapData.draw(normalFrame, MATRIX);
+		_vReversedBitmapData.draw(normalFrame, matrix);
 		return _vReversedBitmapData;
 	}
 	
@@ -191,11 +187,12 @@ class FlxFrame implements IFlxDestroyable
 		}
 		
 		var normalFrame:BitmapData = getBitmap();
-		MATRIX.identity();
-		MATRIX.scale( -1, -1);
-		MATRIX.translate(Std.int(sourceSize.x), Std.int(sourceSize.y));
+		var matrix:Matrix = FlxMatrix.MATRIX;
+		matrix.identity();
+		matrix.scale( -1, -1);
+		matrix.translate(Std.int(sourceSize.x), Std.int(sourceSize.y));
 		_hvReversedBitmapData = new BitmapData(Std.int(sourceSize.x), Std.int(sourceSize.y), true, FlxColor.TRANSPARENT);
-		_hvReversedBitmapData.draw(normalFrame, MATRIX);
+		_hvReversedBitmapData.draw(normalFrame, matrix);
 		return _hvReversedBitmapData;
 	}
 	

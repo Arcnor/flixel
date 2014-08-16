@@ -11,6 +11,9 @@ import flixel.util.FlxStringUtil;
  */
 class FlxPoint implements IFlxPooled
 {
+	public static var FLX_POINT:FlxPoint = new FlxPoint();
+	public static var POINT:Point = new Point();
+	
 	/**
 	 * Used to account for floating-point inaccuracies in the equals() function.
 	 */

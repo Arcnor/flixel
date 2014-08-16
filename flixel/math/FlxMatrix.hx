@@ -12,7 +12,7 @@ class FlxMatrix extends Matrix
 	 * Helper object, which you can use without instantiation of
 	 * additional objects.
 	 */
-	public static var matrix:FlxMatrix = new FlxMatrix();
+	public static var MATRIX:FlxMatrix = new FlxMatrix();
 	
 	/**
 	 * Matrix constructor, just initializes matrix coefficients.
