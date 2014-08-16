@@ -23,8 +23,6 @@ import flixel.util.FlxGradient;
 import flixel.math.FlxPoint;
 import flixel.util.FlxStringUtil;
 
-// TODO: create less garbage in constructor.
-
 /**
  * FlxBar is a quick and easy way to create a graphical bar which can
  * be used as part of your UI/HUD, or positioned next to a sprite. 

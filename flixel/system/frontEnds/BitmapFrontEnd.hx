@@ -170,7 +170,6 @@ class BitmapFrontEnd
 	 * @param	Key				Force the cache to use a specific Key to index the bitmap.
 	 * @return	The FlxGraphic we just created.
 	 */
-	// TODO: maybe add optional arguments for persist and destroyOnNoUse here and in other places (for frame generation, for example)
 	public function add(Graphic:FlxGraphicAsset, Unique:Bool = false, ?Key:String):FlxGraphic
 	{
 		if (Std.is(Graphic, FlxGraphic))
