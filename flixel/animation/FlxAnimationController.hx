@@ -7,6 +7,8 @@ import flixel.util.FlxArrayUtil;
 import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 import flixel.math.FlxRandom;
 
+// TODO: backward animation playback
+
 class FlxAnimationController implements IFlxDestroyable
 {
 	/**

@@ -7,7 +7,10 @@ import flixel.math.FlxAngle;
 import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
+import openfl.filters.BitmapFilter;
 import openfl.geom.Matrix;
+
+// TODO: document this class and all public methods
 
 class FlxBitmapDataUtil
 {
@@ -392,5 +395,13 @@ class FlxBitmapDataUtil
 		}
 		
 		return result;
+	}
+	
+	// TODO: implement and document this method
+	public static function applyFilters(bitmap:BitmapData, filters:Array<BitmapFilter>, widthInc:Int = -1, heightInc:Int = -1):BitmapData
+	{
+		
+		
+		return null;
 	}
 }

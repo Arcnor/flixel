@@ -134,10 +134,6 @@ class FlxText extends FlxSprite
 	 */
 	private var _formats:Array<FlxTextFormat>;
 	
-	private var _filters:Array<BitmapFilter>;
-	private var _widthInc:Int = 0;
-	private var _heightInc:Int = 0;
-	
 	private var _font:String;
 	
 	/**
@@ -154,8 +150,6 @@ class FlxText extends FlxSprite
 	public function new(X:Float = 0, Y:Float = 0, FieldWidth:Float = 0, ?Text:String, Size:Float = 8, EmbeddedFont:Bool = true)
 	{
 		super(X, Y);
-		
-		_filters = [];
 		
 		var setTextEmpty:Bool = false;
 		if (Text == null || Text == "")
@@ -220,7 +214,6 @@ class FlxText extends FlxSprite
 		_font = null;
 		_defaultFormat = null;
 		_formatAdjusted = null;
-		_filters = null;
 		
 		if (_formats != null)
 		{
@@ -670,6 +663,7 @@ class FlxText extends FlxSprite
 			return;
 		}
 		
+		// TODO: override filters functionality here...
 		if (_filters != null)
 		{
 			_textField.filters = _filters;

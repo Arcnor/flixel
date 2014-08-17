@@ -29,10 +29,12 @@ import flixel.util.FlxBitmapDataUtil;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import openfl.display.Tilesheet;
+import openfl.filters.BitmapFilter;
 
 // TODO: reimplement filters functionality as a part of FlxSprite
 
 // TODO: add updateSizeFromFrame bool which will tell sprite whether to update it's size to frame's size (when frame setter is called) or not (usefull for sprites with adjusted hitbox)
+// And don't forget about sprites with clipped frames: what i should do with their size in this case?
 
 /**
  * The main "game object" class, the sprite is a FlxObject
@@ -147,6 +149,20 @@ class FlxSprite extends FlxObject
 	 */
 	public var clipRect(default, null):FlxRect;
 	
+	/**
+	 * Internal reference to an Array of all filters applied to this sprite
+	 */
+	private var _filters:Array<BitmapFilter>;
+	
+	/**
+	 * How much bigger on the x axis sprite's graphic with applied filters should be than original graphic
+	 */
+	private var _widthInc:Int = 0;
+	/**
+	 * How much bigger on the x axis sprite's graphic with applied filters should be than original graphic
+	 */
+	private var _heightInc:Int = 0;
+	
 	#if FLX_RENDER_TILE
 	private var _facingHorizontalMult:Int = 1;
 	private var _facingVerticalMult:Int = 1;
@@ -222,6 +238,7 @@ class FlxSprite extends FlxObject
 		scale = FlxPoint.get(1, 1);
 		_halfSize = FlxPoint.get();
 		_matrix = new FlxMatrix();
+		_filters = [];
 	}
 	
 	/**
@@ -249,6 +266,7 @@ class FlxSprite extends FlxObject
 		colorTransform = null;
 		blend = null;
 		frame = null;
+		_filters = null;
 		
 		frames = null;
 		graphic = null;
@@ -287,6 +305,129 @@ class FlxSprite extends FlxObject
 		
 		return this;
 	}
+	
+	// TODO: reimplement this and redocument this
+	/**
+	 * Adds a filter to this sprite, the sprite becomes unique and won't share its graphics with other sprites.
+	 * Note that for effects like outer glow, or drop shadow, updating the sprite clipping
+	 * area may be required, use widthInc or heightInc to increase the sprite area.
+	 * 
+	 * @param	filter		The filter to be added.
+	 * @param   WidthIncrease    How much to increase the graphic's width (useful for things like BlurFilter that need space outside the actual graphic).
+	 * @param   HeightIncrease   How much to increase the graphic's height (useful for things like BlurFilter that need space outside the actual graphic).
+	 */
+	/*public inline function addFilter(filter:BitmapFilter, widthInc:Int = -1, heightInc:Int = -1, regenPixels:Bool = true):Void
+	{
+		_filters.push(filter);
+		_widthInc = widthInc;
+		_heightInc = heightInc;
+		
+		if (regenPixels)
+		{
+			applyFilters();
+		}
+		
+		dirty = true;
+	}*/
+	
+	/**
+	 * Removes a filter from the sprite.
+	 * 
+	 * @param	filter	The filter to be removed.
+	 */
+	/*public function removeFilter(filter:BitmapFilter, regenPixels:Bool = true):Void
+	{
+		var removed:Bool = _filters.remove(filter);
+		dirty = (removed || dirty);
+		
+		/////// from FlxSpriteFilter
+		
+		if (filters.length == 0 || filter == null)
+		{
+			return;
+		}
+		
+		filters.remove(filter);
+		
+		if (regenPixels)
+		{
+			applyFilters();
+		}
+	}*/
+	
+	/**
+	 * Removes all filters from the sprite, additionally you may call loadGraphic() after removing
+	 * the filters to reuse cached graphics/bitmaps and stop this sprite from being unique.
+	 */
+	/*public function clearFilters(regenPixels:Bool = true):Void
+	{
+		if (filters.length == 0) 
+		{
+			return;
+		}
+		
+		while (filters.length != 0) 
+		{
+			filters.pop();
+		}
+		
+		if (regenPixels)
+		{
+			applyFilters();
+		}
+	}*/
+	
+	/**
+	 * Use this to update the sprite when filters are changed.
+	 * Its also called automatically when adding a new filter with regenPixels set to true (which is default value for this argument).
+	 */
+	/*public function applyFilters():Void
+	{
+		regenBitmapData();
+		helperPoint.setTo(0, 0);
+		
+		for (filter in filters) 
+		{
+			pixels.applyFilter(pixels, pixels.rect, helperPoint, filter);
+		}
+		
+		sprite.resetFrameBitmapDatas();
+		sprite.dirty = true;
+	}*/
+	
+	// TODO: rename it and reimplement it...
+	/*private function regenBitmapData(fill:Bool = true):Void
+	{
+		pixels.lock();
+		if (fill)
+		{
+			pixels.fillRect(pixels.rect, 0x0);
+		}
+		
+		var numRows:Int = backupRegion.numRows;
+		var numCols:Int = backupRegion.numCols;
+		
+		var frameOffsetX:Int = Std.int(widthInc / 2);
+		var frameOffsetY:Int = Std.int(heightInc / 2);
+		
+		helperRect.width = backupRegion.tileWidth;
+		helperRect.height = backupRegion.tileHeight;
+	
+		for (i in 0...numCols)
+		{
+			helperRect.x = backupRegion.startX + i * (backupRegion.tileWidth + backupRegion.spacingX);
+			helperPoint.x = backupRegion.startY + i * (width + 1) + frameOffsetX;
+			
+			for (j in 0...numRows)
+			{
+				helperRect.y = j * (backupRegion.tileHeight + backupRegion.spacingY);
+				helperPoint.y = j * (height + 1) + frameOffsetY;
+				
+				pixels.copyPixels(backupGraphics.bitmap, helperRect, helperPoint);
+			}
+		}
+		pixels.unlock();
+	}*/
 	
 	public function clone():FlxSprite
 	{
@@ -1138,6 +1279,8 @@ class FlxSprite extends FlxObject
 		frame = Value;
 		if (frame != null)
 		{
+			// TODO: generate frame with applied filters
+			
 			resetFrameSize();
 			dirty = true;
 		}
