@@ -13,4 +13,5 @@ enum FrameCollectionType
 	BAR(type:flixel.ui.FlxBar.FlxBarFillDirection);
 	CLIPPED;
 	USER(type:String);
+	FILTER;
 }

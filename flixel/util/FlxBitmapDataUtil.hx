@@ -396,12 +396,4 @@ class FlxBitmapDataUtil
 		
 		return result;
 	}
-	
-	// TODO: implement and document this method
-	public static function applyFilters(bitmap:BitmapData, filters:Array<BitmapFilter>, widthInc:Int = -1, heightInc:Int = -1):BitmapData
-	{
-		
-		
-		return null;
-	}
 }

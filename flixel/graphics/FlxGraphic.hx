@@ -231,6 +231,18 @@ class FlxGraphic
 		return graphic;
 	}
 	
+	// TODO: document it...
+	/**
+	 * 
+	 * 
+	 * @param	Bitmap
+	 * @return
+	 */
+	public static function createNonCached(Bitmap:BitmapData):FlxGraphic
+	{
+		return new FlxGraphic(null, Bitmap);
+	}
+	
 	/**
 	 * Key in BitmapFrontEnd cache
 	 */

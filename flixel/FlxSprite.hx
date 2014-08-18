@@ -11,6 +11,7 @@ import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.ClippedFrames;
+import flixel.graphics.frames.FilterFrame;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FrameCollectionType;
@@ -152,15 +153,18 @@ class FlxSprite extends FlxObject
 	/**
 	 * Internal reference to an Array of all filters applied to this sprite
 	 */
+	// TODO: add getter
 	private var _filters:Array<BitmapFilter>;
 	
 	/**
 	 * How much bigger on the x axis sprite's graphic with applied filters should be than original graphic
 	 */
+	// TODO: add getter/setter
 	private var _widthInc:Int = 0;
 	/**
 	 * How much bigger on the x axis sprite's graphic with applied filters should be than original graphic
 	 */
+	// TODO: add getter/setter
 	private var _heightInc:Int = 0;
 	
 	#if FLX_RENDER_TILE
@@ -191,7 +195,15 @@ class FlxSprite extends FlxObject
 	 */
 	private var _matrix:FlxMatrix;
 	
+	/**
+	 * Rendering helper variable
+	 */
 	private var _halfSize:FlxPoint;
+	
+	/**
+	 * Helper var for handling filters
+	 */
+	private var _filterFrame:FilterFrame;
 	
 	/**
 	 * These vars are being used for rendering in some of FlxSprite subclasses (FlxTileblock, FlxBar, 
@@ -258,6 +270,8 @@ class FlxSprite extends FlxObject
 		
 		framePixels = FlxDestroyUtil.dispose(framePixels);
 		
+		_filterFrame = FlxDestroyUtil.destroy(_filterFrame);
+		
 		_flashPoint = null;
 		_flashRect = null;
 		_flashRect2 = null;
@@ -278,10 +292,12 @@ class FlxSprite extends FlxObject
 	 * @param	useOriginal		Whether to revert clipping of frames (if there was one) before applying new one.
 	 * @return	this FlxSprite object.
 	 */
-	public function clip(rect:FlxRect, useOriginal:Bool = true):FlxSprite
+	public function clipFrames(rect:FlxRect, useOriginal:Bool = true):FlxSprite
 	{
 		if (frames != null)
 		{
+			// TODO: save animator's animations!!!
+			
 			frames = ClippedFrames.clip(frames, rect, useOriginal);
 			frame = frames.frames[animation.frameIndex];		
 			clipRect = rect.copyTo(new FlxRect());
@@ -294,7 +310,7 @@ class FlxSprite extends FlxObject
 	 * Reverts clipping of frames.
 	 * @return	This FlxSprite object.
 	 */
-	public function unclip():FlxSprite
+	public function unclipFrames():FlxSprite
 	{
 		if (frames != null && frames.type == FrameCollectionType.CLIPPED)
 		{
@@ -316,118 +332,66 @@ class FlxSprite extends FlxObject
 	 * @param   WidthIncrease    How much to increase the graphic's width (useful for things like BlurFilter that need space outside the actual graphic).
 	 * @param   HeightIncrease   How much to increase the graphic's height (useful for things like BlurFilter that need space outside the actual graphic).
 	 */
-	/*public inline function addFilter(filter:BitmapFilter, widthInc:Int = -1, heightInc:Int = -1, regenPixels:Bool = true):Void
+	public inline function addFilter(filter:BitmapFilter, widthInc:Int = -1, heightInc:Int = -1):Void
 	{
 		_filters.push(filter);
-		_widthInc = widthInc;
-		_heightInc = heightInc;
 		
-		if (regenPixels)
-		{
-			applyFilters();
-		}
+		_widthInc = (widthInc >= 0) ? widthInc : _widthInc;
+		_heightInc = (heightInc >= 0) ? heightInc : _heightInc;
 		
-		dirty = true;
-	}*/
+		_widthInc = 2 * Math.ceil(0.5 * _widthInc);
+		_heightInc = 2 * Math.ceil(0.5 * _heightInc);
+		
+		frame = (_filterFrame != null) ? _filterFrame.sourceFrame : frame;
+	}
 	
 	/**
 	 * Removes a filter from the sprite.
 	 * 
 	 * @param	filter	The filter to be removed.
 	 */
-	/*public function removeFilter(filter:BitmapFilter, regenPixels:Bool = true):Void
+	public function removeFilter(filter:BitmapFilter):Void
 	{
-		var removed:Bool = _filters.remove(filter);
-		dirty = (removed || dirty);
-		
-		/////// from FlxSpriteFilter
-		
-		if (filters.length == 0 || filter == null)
+		if (_filters.length == 0 || filter == null)
 		{
 			return;
 		}
 		
-		filters.remove(filter);
-		
-		if (regenPixels)
+		if (_filters.remove(filter))
 		{
-			applyFilters();
+			frame = (_filterFrame != null) ? _filterFrame.sourceFrame : frame;
 		}
-	}*/
+	}
+	
+	// TODO: document this...
+	/**
+	 * 
+	 */
+	public function reapplyFilters():Void
+	{
+		frame = (_filterFrame != null) ? _filterFrame.sourceFrame : frame;
+	}
 	
 	/**
 	 * Removes all filters from the sprite, additionally you may call loadGraphic() after removing
 	 * the filters to reuse cached graphics/bitmaps and stop this sprite from being unique.
 	 */
-	/*public function clearFilters(regenPixels:Bool = true):Void
+	public function clearFilters():Void
 	{
-		if (filters.length == 0) 
+		if (_filters.length == 0) 
 		{
 			return;
 		}
 		
-		while (filters.length != 0) 
+		while (_filters.length != 0) 
 		{
-			filters.pop();
+			_filters.pop();
 		}
 		
-		if (regenPixels)
-		{
-			applyFilters();
-		}
-	}*/
-	
-	/**
-	 * Use this to update the sprite when filters are changed.
-	 * Its also called automatically when adding a new filter with regenPixels set to true (which is default value for this argument).
-	 */
-	/*public function applyFilters():Void
-	{
-		regenBitmapData();
-		helperPoint.setTo(0, 0);
+		_widthInc = _heightInc = 0;
 		
-		for (filter in filters) 
-		{
-			pixels.applyFilter(pixels, pixels.rect, helperPoint, filter);
-		}
-		
-		sprite.resetFrameBitmapDatas();
-		sprite.dirty = true;
-	}*/
-	
-	// TODO: rename it and reimplement it...
-	/*private function regenBitmapData(fill:Bool = true):Void
-	{
-		pixels.lock();
-		if (fill)
-		{
-			pixels.fillRect(pixels.rect, 0x0);
-		}
-		
-		var numRows:Int = backupRegion.numRows;
-		var numCols:Int = backupRegion.numCols;
-		
-		var frameOffsetX:Int = Std.int(widthInc / 2);
-		var frameOffsetY:Int = Std.int(heightInc / 2);
-		
-		helperRect.width = backupRegion.tileWidth;
-		helperRect.height = backupRegion.tileHeight;
-	
-		for (i in 0...numCols)
-		{
-			helperRect.x = backupRegion.startX + i * (backupRegion.tileWidth + backupRegion.spacingX);
-			helperPoint.x = backupRegion.startY + i * (width + 1) + frameOffsetX;
-			
-			for (j in 0...numRows)
-			{
-				helperRect.y = j * (backupRegion.tileHeight + backupRegion.spacingY);
-				helperPoint.y = j * (height + 1) + frameOffsetY;
-				
-				pixels.copyPixels(backupGraphics.bitmap, helperRect, helperPoint);
-			}
-		}
-		pixels.unlock();
-	}*/
+		frame = (_filterFrame != null) ? _filterFrame.sourceFrame : frame;
+	}
 	
 	public function clone():FlxSprite
 	{
@@ -717,7 +681,7 @@ class FlxSprite extends FlxObject
 				continue;
 			}
 			
-			getScreenPosition(_point, camera).subtractPoint(offset);
+			getScreenPosition(_point, camera).subtractPoint(offset).subtract(0.5 * _widthInc, 0.5 * _heightInc);
 			
 #if FLX_RENDER_BLIT
 			if (isSimpleRender(camera))
@@ -1279,7 +1243,16 @@ class FlxSprite extends FlxObject
 		frame = Value;
 		if (frame != null)
 		{
-			// TODO: generate frame with applied filters
+			if (_filters.length != 0)
+			{
+				_filterFrame = FlxDestroyUtil.destroy(_filterFrame);
+				_filterFrame = FilterFrame.fromFrame(frame, _filters, _widthInc, _heightInc);
+				frame = _filterFrame.frame;
+			}
+			else
+			{
+				_filterFrame = FlxDestroyUtil.destroy(_filterFrame);
+			}
 			
 			resetFrameSize();
 			dirty = true;
@@ -1289,6 +1262,7 @@ class FlxSprite extends FlxObject
 			frame = frames.frames[0];
 			dirty = true;
 		}
+		
 		return frame;
 	}
 	

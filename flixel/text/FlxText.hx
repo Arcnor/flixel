@@ -325,26 +325,6 @@ class FlxText extends FlxSprite
 		borderQuality = Quality;
 	}
 	
-	public inline function addFilter(filter:BitmapFilter, widthInc:Int = 0, heightInc:Int = 0):Void
-	{
-		_filters.push(filter);
-		_widthInc = widthInc;
-		_heightInc = heightInc;
-		dirty = true;
-	}
-	
-	public function removeFilter(filter:BitmapFilter):Void
-	{
-		var removed:Bool = _filters.remove(filter);
-		dirty = (removed || dirty);
-	}
-	
-	public function clearFilters():Void
-	{
-		dirty = (_filters.length > 0) || dirty;
-		_filters = [];
-	}
-	
 	private function set_fieldWidth(value:Float):Float
 	{
 		if (_textField != null)
