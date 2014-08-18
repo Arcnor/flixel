@@ -153,18 +153,18 @@ class FlxSprite extends FlxObject
 	/**
 	 * Internal reference to an Array of all filters applied to this sprite
 	 */
-	// TODO: add getter
+	// TODO: add getter/"setter"
 	private var _filters:Array<BitmapFilter>;
 	
 	/**
 	 * How much bigger on the x axis sprite's graphic with applied filters should be than original graphic
 	 */
-	// TODO: add getter/setter
+	// TODO: add getter/"setter"
 	private var _widthInc:Int = 0;
 	/**
 	 * How much bigger on the x axis sprite's graphic with applied filters should be than original graphic
 	 */
-	// TODO: add getter/setter
+	// TODO: add getter/"setter"
 	private var _heightInc:Int = 0;
 	
 	#if FLX_RENDER_TILE
@@ -323,6 +323,9 @@ class FlxSprite extends FlxObject
 	}
 	
 	// TODO: reimplement this and redocument this
+	
+	// TODO: actually use regenPixels:Bool argument in these methods
+	
 	/**
 	 * Adds a filter to this sprite, the sprite becomes unique and won't share its graphics with other sprites.
 	 * Note that for effects like outer glow, or drop shadow, updating the sprite clipping
@@ -332,7 +335,7 @@ class FlxSprite extends FlxObject
 	 * @param   WidthIncrease    How much to increase the graphic's width (useful for things like BlurFilter that need space outside the actual graphic).
 	 * @param   HeightIncrease   How much to increase the graphic's height (useful for things like BlurFilter that need space outside the actual graphic).
 	 */
-	public inline function addFilter(filter:BitmapFilter, widthInc:Int = -1, heightInc:Int = -1):Void
+	public inline function addFilter(filter:BitmapFilter, widthInc:Int = -1, heightInc:Int = -1, regenPixels:Bool = true):Void
 	{
 		_filters.push(filter);
 		
@@ -350,7 +353,7 @@ class FlxSprite extends FlxObject
 	 * 
 	 * @param	filter	The filter to be removed.
 	 */
-	public function removeFilter(filter:BitmapFilter):Void
+	public function removeFilter(filter:BitmapFilter, regenPixels:Bool = true):Void
 	{
 		if (_filters.length == 0 || filter == null)
 		{
@@ -376,7 +379,7 @@ class FlxSprite extends FlxObject
 	 * Removes all filters from the sprite, additionally you may call loadGraphic() after removing
 	 * the filters to reuse cached graphics/bitmaps and stop this sprite from being unique.
 	 */
-	public function clearFilters():Void
+	public function clearFilters(regenPixels:Bool = true):Void
 	{
 		if (_filters.length == 0) 
 		{
@@ -1238,20 +1241,22 @@ class FlxSprite extends FlxObject
 		return Pixels;
 	}
 	
+	// TODO: maybe implement filter frames collection???
+	// which should be more optimized for animated sprites???
+	
+	// Yes, i think it's better to do ot this way!!!
+	// So filters will be applied on frames
+	
 	private function set_frame(Value:FlxFrame):FlxFrame
 	{
 		frame = Value;
 		if (frame != null)
 		{
+			_filterFrame = FlxDestroyUtil.destroy(_filterFrame);
 			if (_filters.length != 0)
 			{
-				_filterFrame = FlxDestroyUtil.destroy(_filterFrame);
 				_filterFrame = FilterFrame.fromFrame(frame, _filters, _widthInc, _heightInc);
 				frame = _filterFrame.frame;
-			}
-			else
-			{
-				_filterFrame = FlxDestroyUtil.destroy(_filterFrame);
 			}
 			
 			resetFrameSize();
@@ -1366,6 +1371,12 @@ class FlxSprite extends FlxObject
 		}
 		
 		return graphic = Value;
+	}
+	
+	// TODO: implement is and document it...
+	public function setFrames(Frames:FlxFramesCollection, saveAnimations:Bool = true):FlxSprite
+	{
+		return this;
 	}
 	
 	/**
