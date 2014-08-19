@@ -597,8 +597,8 @@ class FlxText extends FlxSprite
 	
 	private function regenGraphics():Void
 	{
-		var oldWidth:Float = graphic.width;
-		var oldHeight:Float = graphic.height;
+		var oldWidth:Int = graphic.width;
+		var oldHeight:Int = graphic.height;
 		
 		var newWidth:Float = _textField.width;
 		// Account for 2px gutter on top and bottom (that's why there is "+ 4")
@@ -614,8 +614,7 @@ class FlxText extends FlxSprite
 		{
 			// Need to generate a new buffer to store the text graphic
 			height = newHeight;
-			var key:String = graphic.key;
-			FlxG.bitmap.remove(key);
+			var key:String = FlxG.bitmap.getUniqueKey("text");
 			
 			makeGraphic(Std.int(newWidth), Std.int(newHeight), FlxColor.TRANSPARENT, false, key);
 			frameHeight = Std.int(height);

@@ -44,16 +44,9 @@ class FlxFilterFrame extends FlxFrame
 		if (bmd != null && (bmd.width == sourceSize.x && bmd.height == sourceSize.y))
 		{
 			result = bmd;
-			
-			var w:Int = bmd.width;
-			var h:Int = bmd.height;
-			
-			if (w > frame.width || h > frame.height)
-			{
-				var rect:Rectangle = FlxRect.RECT;
-				rect.setTo(0, 0, w, h);
-				bmd.fillRect(rect, FlxColor.RED);
-			}
+			var rect:Rectangle = FlxRect.RECT;
+			rect.setTo(0, 0, bmd.width, bmd.height);
+			bmd.fillRect(rect, FlxColor.TRANSPARENT);
 		}
 		else if (bmd != null)
 		{
