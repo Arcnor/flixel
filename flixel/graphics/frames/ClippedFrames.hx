@@ -5,9 +5,7 @@ import flixel.graphics.FlxGraphic;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 
-// todo: rewrite usecount setter (usecounr for original frames must be changed too, plus in destroy method tooo)
-
-// todo: useOriginal must be always set to true
+// todo: rewrite usecount setter (usecount for original frames must be changed too, plus in destroy method tooo)
 
 /**
  * Collection of clipped frames, which is used for clipping sprites.
@@ -21,8 +19,7 @@ class ClippedFrames extends FlxFramesCollection
 	/**
 	 * Original (unclipped) frames.
 	 */
-	@:isVar
-	public var original(get, set):FlxFramesCollection;
+	public var original(default, null):FlxFramesCollection;
 	
 	private function new(original:FlxFramesCollection, clipRect:FlxRect)
 	{
@@ -111,42 +108,18 @@ class ClippedFrames extends FlxFramesCollection
 		}
 	}
 	
-	private function get_original():FlxFramesCollection
-	{
-		if (original != null && original.type == FrameCollectionType.CLIPPED)
-		{
-			var originalFrames:FlxFramesCollection = cast(original, ClippedFrames).original;
-			if (originalFrames != null)
-			{
-				return originalFrames;
-			}
-		}
-		
-		return original;
-	}
-	
-	private function set_original(value:FlxFramesCollection):FlxFramesCollection
-	{
-		return original = value;
-	}
-	
 	/**
 	 * Generates clipped version of provided frames collection.
 	 * 
 	 * @param	frames			Frames collection to clip.
 	 * @param	clipRect		Clipping rectangle which will be applied to frames.
-	 * @param	useOriginal		Whether to use "unclipped" version of frames (if provided frames collection is ClippedFrames collection).
 	 * @return	Clipped version of frames.
 	 */
-	public static function clip(frames:FlxFramesCollection, clipRect:FlxRect, useOriginal:Bool = true):ClippedFrames
+	public static function clip(frames:FlxFramesCollection, clipRect:FlxRect):ClippedFrames
 	{
-		if (useOriginal && frames.type == FrameCollectionType.CLIPPED)
+		if (frames.type == FrameCollectionType.CLIPPED)
 		{
-			var original:FlxFramesCollection = cast(frames, ClippedFrames).original;
-			if (original != null)
-			{
-				frames = original;
-			}
+			frames = cast(frames, ClippedFrames).original;
 		}
 		
 		var clippedFrames:ClippedFrames = ClippedFrames.findFrame(frames, clipRect);

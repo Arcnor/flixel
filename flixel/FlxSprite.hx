@@ -142,9 +142,12 @@ class FlxSprite extends FlxObject
 	
 	/**
 	 * Clipping rectangle for this sprite.
-	 * Changing it's properties doesn't change graphic of the sprite, so you should reapply clipping rect on sprite again (with clip() method).
+	 * Changing it's properties doesn't change graphic of the sprite, so you should reapply clipping rect on sprite again.
+	 * Set clipRect to null to discard graphic frame clipping 
 	 */
-	public var clipRect(default, null):FlxRect;
+	public var clipRect(default, set):FlxRect;
+	
+	private var _clipRect:FlxRect;
 	
 	#if FLX_RENDER_TILE
 	private var _facingHorizontalMult:Int = 1;
@@ -256,40 +259,39 @@ class FlxSprite extends FlxObject
 		graphic = null;
 	}
 	
-	/**
-	 * Clips sprites frames without changing the size of the sprite.
-	 * @param	rect			Rectangle which will be used for clipping frames.
-	 * @param	useOriginal		Whether to revert clipping of frames (if there was one) before applying new one.
-	 * @return	this FlxSprite object.
-	 */
-	public function clipFrames(rect:FlxRect, useOriginal:Bool = true):FlxSprite
+	private function get_clipRect():FlxRect
+	{
+		return _clipRect;
+	}
+	
+	private function set_clipRect(rect:FlxRect):FlxRect
 	{
 		if (frames != null)
 		{
-			// TODO: save animator's animations!!!
+			var anim:FlxAnimationController = animation;
+			animation = null;
 			
-			frames = ClippedFrames.clip(frames, rect, useOriginal);
-			frame = frames.frames[animation.frameIndex];		
-			clipRect = rect.copyTo(new FlxRect());
+			if (rect != null)
+			{
+				frames = ClippedFrames.clip(frames, rect);
+				_clipRect = rect.copyTo(new FlxRect());
+			}
+			else
+			{
+				if (frames.type == FrameCollectionType.CLIPPED)
+				{
+					frames = cast(frames, ClippedFrames).original;
+				}
+				
+				_clipRect = null;
+			}
+			
+			
+			frame = frames.frames[anim.frameIndex];
+			animation = anim;
 		}
 		
-		return this;
-	}
-	
-	/**
-	 * Reverts clipping of frames.
-	 * @return	This FlxSprite object.
-	 */
-	public function unclipFrames():FlxSprite
-	{
-		if (frames != null && frames.type == FrameCollectionType.CLIPPED)
-		{
-			frames = cast(frames, ClippedFrames).original;
-			frame = frames.frames[animation.frameIndex];
-			clipRect = null;
-		}
-		
-		return this;
+		return rect;
 	}
 	
 	public function clone():FlxSprite
@@ -1284,15 +1286,15 @@ class FlxSprite extends FlxObject
 			numFrames = frames.numFrames;
 			resetHelpers();
 			bakedRotationAngle = 0;
-			clipRect = null;
 		}
 		else
 		{
 			frames = null;
 			frame = null;
 			graphic = null;
-			clipRect = null;
 		}
+		
+		_clipRect = null;
 		
 		if (animation != null)
 		{
