@@ -259,41 +259,6 @@ class FlxSprite extends FlxObject
 		graphic = null;
 	}
 	
-	private function get_clipRect():FlxRect
-	{
-		return _clipRect;
-	}
-	
-	private function set_clipRect(rect:FlxRect):FlxRect
-	{
-		if (frames != null)
-		{
-			var anim:FlxAnimationController = animation;
-			animation = null;
-			
-			if (rect != null)
-			{
-				frames = ClippedFrames.clip(frames, rect);
-				_clipRect = rect.copyTo(new FlxRect());
-			}
-			else
-			{
-				if (frames.type == FrameCollectionType.CLIPPED)
-				{
-					frames = cast(frames, ClippedFrames).original;
-				}
-				
-				_clipRect = null;
-			}
-			
-			
-			frame = frames.frames[anim.frameIndex];
-			animation = anim;
-		}
-		
-		return rect;
-	}
-	
 	public function clone():FlxSprite
 	{
 		return (new FlxSprite()).loadGraphicFromSprite(this);
@@ -1116,6 +1081,31 @@ class FlxSprite extends FlxObject
 		_facingFlip.set(Direction, {x: FlipX, y: FlipY});
 	}
 	
+	/**
+	 * Sets frames and allows you to save animations in sprite's animation controller
+	 * 
+	 * @param	Frames				Frames collection to set for this sprite
+	 * @param	saveAnimations		Whether to save animations in animation controller or not
+	 * @return	This sprite with loaded frames
+	 */
+	public function setFrames(Frames:FlxFramesCollection, saveAnimations:Bool = true):FlxSprite
+	{
+		if (saveAnimations)
+		{
+			var anim:FlxAnimationController = animation;
+			animation = null;
+			this.frames = Frames;
+			frame = frames.frames[anim.frameIndex];
+			animation = anim;
+		}
+		else
+		{
+			this.frames = Frames;
+		}
+		
+		return this;
+	}
+	
 	private function get_pixels():BitmapData
 	{
 		return graphic.bitmap;
@@ -1263,10 +1253,39 @@ class FlxSprite extends FlxObject
 		return graphic = Value;
 	}
 	
-	// TODO: implement is and document it...
-	public function setFrames(Frames:FlxFramesCollection, saveAnimations:Bool = true):FlxSprite
+	private function get_clipRect():FlxRect
 	{
-		return this;
+		return _clipRect;
+	}
+	
+	private function set_clipRect(rect:FlxRect):FlxRect
+	{
+		if (frames != null)
+		{
+			var anim:FlxAnimationController = animation;
+			animation = null;
+			
+			if (rect != null)
+			{
+				frames = ClippedFrames.clip(frames, rect);
+				_clipRect = rect.copyTo(new FlxRect());
+			}
+			else
+			{
+				if (frames.type == FrameCollectionType.CLIPPED)
+				{
+					frames = cast(frames, ClippedFrames).original;
+				}
+				
+				_clipRect = null;
+			}
+			
+			
+			frame = frames.frames[anim.frameIndex];
+			animation = anim;
+		}
+		
+		return rect;
 	}
 	
 	/**

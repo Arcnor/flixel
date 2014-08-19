@@ -15,7 +15,7 @@ import openfl.filters.BitmapFilter;
 	
 /**
  * Frames collection which you can apply bitmap filters to.
- * WARNING: this frame collection doesn't use caching, so be carefull or you will "leak" memory very fast.
+ * WARNING: this frame collection doesn't use caching, so be carefull or you will "leak" out memory very fast.
  * You should destroy frames collections of this type manually.
  */
 class FilterFrames extends FlxFramesCollection
