@@ -49,7 +49,11 @@ class FlxFramesCollection implements IFlxDestroyable
 		this.type = type;
 		frames = [];
 		framesHash = new Map<String, FlxFrame>();
-		parent.addFrameCollection(this);
+		
+		if (parent != null)
+		{
+			parent.addFrameCollection(this);
+		}
 	}
 	
 	/**

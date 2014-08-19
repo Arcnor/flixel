@@ -11,7 +11,6 @@ import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.ClippedFrames;
-import flixel.graphics.frames.FilterFrame;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FrameCollectionType;
@@ -30,9 +29,6 @@ import flixel.util.FlxBitmapDataUtil;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import openfl.display.Tilesheet;
-import openfl.filters.BitmapFilter;
-
-// TODO: reimplement filters functionality as a part of FlxSprite
 
 // TODO: add updateSizeFromFrame bool which will tell sprite whether to update it's size to frame's size (when frame setter is called) or not (usefull for sprites with adjusted hitbox)
 // And don't forget about sprites with clipped frames: what i should do with their size in this case?
@@ -150,23 +146,6 @@ class FlxSprite extends FlxObject
 	 */
 	public var clipRect(default, null):FlxRect;
 	
-	/**
-	 * Internal reference to an Array of all filters applied to this sprite
-	 */
-	// TODO: add getter/"setter"
-	private var _filters:Array<BitmapFilter>;
-	
-	/**
-	 * How much bigger on the x axis sprite's graphic with applied filters should be than original graphic
-	 */
-	// TODO: add getter/"setter"
-	private var _widthInc:Int = 0;
-	/**
-	 * How much bigger on the x axis sprite's graphic with applied filters should be than original graphic
-	 */
-	// TODO: add getter/"setter"
-	private var _heightInc:Int = 0;
-	
 	#if FLX_RENDER_TILE
 	private var _facingHorizontalMult:Int = 1;
 	private var _facingVerticalMult:Int = 1;
@@ -199,11 +178,6 @@ class FlxSprite extends FlxObject
 	 * Rendering helper variable
 	 */
 	private var _halfSize:FlxPoint;
-	
-	/**
-	 * Helper var for handling filters
-	 */
-	private var _filterFrame:FilterFrame;
 	
 	/**
 	 * These vars are being used for rendering in some of FlxSprite subclasses (FlxTileblock, FlxBar, 
@@ -250,7 +224,6 @@ class FlxSprite extends FlxObject
 		scale = FlxPoint.get(1, 1);
 		_halfSize = FlxPoint.get();
 		_matrix = new FlxMatrix();
-		_filters = [];
 	}
 	
 	/**
@@ -270,8 +243,6 @@ class FlxSprite extends FlxObject
 		
 		framePixels = FlxDestroyUtil.dispose(framePixels);
 		
-		_filterFrame = FlxDestroyUtil.destroy(_filterFrame);
-		
 		_flashPoint = null;
 		_flashRect = null;
 		_flashRect2 = null;
@@ -280,7 +251,6 @@ class FlxSprite extends FlxObject
 		colorTransform = null;
 		blend = null;
 		frame = null;
-		_filters = null;
 		
 		frames = null;
 		graphic = null;
@@ -320,80 +290,6 @@ class FlxSprite extends FlxObject
 		}
 		
 		return this;
-	}
-	
-	// TODO: reimplement this and redocument this
-	
-	// TODO: actually use regenPixels:Bool argument in these methods
-	
-	/**
-	 * Adds a filter to this sprite, the sprite becomes unique and won't share its graphics with other sprites.
-	 * Note that for effects like outer glow, or drop shadow, updating the sprite clipping
-	 * area may be required, use widthInc or heightInc to increase the sprite area.
-	 * 
-	 * @param	filter		The filter to be added.
-	 * @param   WidthIncrease    How much to increase the graphic's width (useful for things like BlurFilter that need space outside the actual graphic).
-	 * @param   HeightIncrease   How much to increase the graphic's height (useful for things like BlurFilter that need space outside the actual graphic).
-	 */
-	public inline function addFilter(filter:BitmapFilter, widthInc:Int = -1, heightInc:Int = -1, regenPixels:Bool = true):Void
-	{
-		_filters.push(filter);
-		
-		_widthInc = (widthInc >= 0) ? widthInc : _widthInc;
-		_heightInc = (heightInc >= 0) ? heightInc : _heightInc;
-		
-		_widthInc = 2 * Math.ceil(0.5 * _widthInc);
-		_heightInc = 2 * Math.ceil(0.5 * _heightInc);
-		
-		frame = (_filterFrame != null) ? _filterFrame.sourceFrame : frame;
-	}
-	
-	/**
-	 * Removes a filter from the sprite.
-	 * 
-	 * @param	filter	The filter to be removed.
-	 */
-	public function removeFilter(filter:BitmapFilter, regenPixels:Bool = true):Void
-	{
-		if (_filters.length == 0 || filter == null)
-		{
-			return;
-		}
-		
-		if (_filters.remove(filter))
-		{
-			frame = (_filterFrame != null) ? _filterFrame.sourceFrame : frame;
-		}
-	}
-	
-	// TODO: document this...
-	/**
-	 * 
-	 */
-	public function reapplyFilters():Void
-	{
-		frame = (_filterFrame != null) ? _filterFrame.sourceFrame : frame;
-	}
-	
-	/**
-	 * Removes all filters from the sprite, additionally you may call loadGraphic() after removing
-	 * the filters to reuse cached graphics/bitmaps and stop this sprite from being unique.
-	 */
-	public function clearFilters(regenPixels:Bool = true):Void
-	{
-		if (_filters.length == 0) 
-		{
-			return;
-		}
-		
-		while (_filters.length != 0) 
-		{
-			_filters.pop();
-		}
-		
-		_widthInc = _heightInc = 0;
-		
-		frame = (_filterFrame != null) ? _filterFrame.sourceFrame : frame;
 	}
 	
 	public function clone():FlxSprite
@@ -631,8 +527,13 @@ class FlxSprite extends FlxObject
 		resetSizeFromFrame();
 		_flashRect2.x = 0;
 		_flashRect2.y = 0;
-		_flashRect2.width = graphic.width;
-		_flashRect2.height = graphic.height;
+		
+		if (graphic != null)
+		{
+			_flashRect2.width = graphic.width;
+			_flashRect2.height = graphic.height;
+		}
+		
 		centerOrigin();
 		
 	#if FLX_RENDER_BLIT
@@ -684,7 +585,7 @@ class FlxSprite extends FlxObject
 				continue;
 			}
 			
-			getScreenPosition(_point, camera).subtractPoint(offset).subtract(0.5 * _widthInc, 0.5 * _heightInc);
+			getScreenPosition(_point, camera).subtractPoint(offset);
 			
 #if FLX_RENDER_BLIT
 			if (isSimpleRender(camera))
@@ -995,7 +896,7 @@ class FlxSprite extends FlxObject
 	 */
 	private function calcFrame(RunOnCpp:Bool = false):Void
 	{
-		if (graphic == null)	
+		if (frame == null)	
 		{
 			loadGraphic(FlxAssets.DEFAULT_SPRITE_GRAPHIC);
 		}
@@ -1241,24 +1142,11 @@ class FlxSprite extends FlxObject
 		return Pixels;
 	}
 	
-	// TODO: maybe implement filter frames collection???
-	// which should be more optimized for animated sprites???
-	
-	// Yes, i think it's better to do ot this way!!!
-	// So filters will be applied on frames
-	
 	private function set_frame(Value:FlxFrame):FlxFrame
 	{
 		frame = Value;
 		if (frame != null)
 		{
-			_filterFrame = FlxDestroyUtil.destroy(_filterFrame);
-			if (_filters.length != 0)
-			{
-				_filterFrame = FilterFrame.fromFrame(frame, _filters, _widthInc, _heightInc);
-				frame = _filterFrame.frame;
-			}
-			
 			resetFrameSize();
 			dirty = true;
 		}

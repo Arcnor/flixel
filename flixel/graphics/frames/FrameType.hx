@@ -10,4 +10,5 @@ enum FrameType
 	ROTATED;
 	EMPTY;
 	GLYPH;
+	FILTER;
 }

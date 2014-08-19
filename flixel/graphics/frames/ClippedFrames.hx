@@ -5,6 +5,10 @@ import flixel.graphics.FlxGraphic;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 
+// todo: rewrite usecount setter (usecounr for original frames must be changed too, plus in destroy method tooo)
+
+// todo: useOriginal must be always set to true
+
 /**
  * Collection of clipped frames, which is used for clipping sprites.
  */

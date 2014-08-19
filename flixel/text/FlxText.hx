@@ -1,7 +1,6 @@
 package flixel.text;
 
 import flash.display.BitmapData;
-import flash.filters.BitmapFilter;
 import flash.geom.ColorTransform;
 import flash.text.TextField;
 import flash.text.TextFieldAutoSize;
@@ -19,6 +18,8 @@ import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import flixel.math.FlxPoint;
 import openfl.Assets;
+
+// TODO: think about filters and text (since this class overrides calcFrame() method with custom behavior)
 
 /**
  * Extends FlxSprite to support rendering text. Can tint, fade, rotate and scale just like a sprite. Doesn't really animate 
@@ -599,9 +600,9 @@ class FlxText extends FlxSprite
 		var oldWidth:Float = graphic.width;
 		var oldHeight:Float = graphic.height;
 		
-		var newWidth:Float = _textField.width + _widthInc;
+		var newWidth:Float = _textField.width;
 		// Account for 2px gutter on top and bottom (that's why there is "+ 4")
-		var newHeight:Float = _textField.textHeight + _heightInc + 4;
+		var newHeight:Float = _textField.textHeight + 4;
 		
 		// prevent text height from shrinking on flash if text == ""
 		if (_textField.textHeight == 0) 
@@ -612,7 +613,7 @@ class FlxText extends FlxSprite
 		if ((oldWidth != newWidth) || (oldHeight != newHeight))
 		{
 			// Need to generate a new buffer to store the text graphic
-			height = newHeight - _heightInc;
+			height = newHeight;
 			var key:String = graphic.key;
 			FlxG.bitmap.remove(key);
 			
@@ -643,12 +644,6 @@ class FlxText extends FlxSprite
 			return;
 		}
 		
-		// TODO: override filters functionality here...
-		if (_filters != null)
-		{
-			_textField.filters = _filters;
-		}
-		
 		regenGraphics();
 		
 		if ((_textField != null) && (_textField.text != null) && (_textField.text.length > 0))
@@ -662,8 +657,6 @@ class FlxText extends FlxSprite
 			_formatAdjusted.align  = _defaultFormat.align;
 			_matrix.identity();
 	
-			_matrix.translate(Std.int(0.5 * _widthInc), Std.int(0.5 * _heightInc));
-			
 			// If it's a single, centered line of text, we center it ourselves so it doesn't blur to hell
 			if ((_defaultFormat.align == TextFormatAlign.CENTER) && (_textField.numLines == 1))
 			{
