@@ -71,7 +71,9 @@ class FlxAnimationController implements IFlxDestroyable
 	/**
 	 * Internal helper constants used for _animations's frame sorting.
 	 */
+	@:allow(flixel.graphics.frames)
 	private static var prefixLength:Int = 0;
+	@:allow(flixel.graphics.frames)
 	private static var postfixLength:Int = 0;
 	
 	private var _prerotated:FlxPrerotatedAnimation;
@@ -783,7 +785,8 @@ class FlxAnimationController implements IFlxDestroyable
 	/**
 	 * Helper frame sorting function used by addAnimationByPrefixFromTexture() method
 	 */
-	static function frameSortFunction(frame1:FlxFrame, frame2:FlxFrame):Int
+	@:allow(flixel.graphics.frames)
+	private static function frameSortFunction(frame1:FlxFrame, frame2:FlxFrame):Int
 	{
 		var name1:String = frame1.name;
 		var name2:String = frame2.name;

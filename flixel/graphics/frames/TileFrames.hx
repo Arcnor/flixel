@@ -3,6 +3,7 @@ package flixel.graphics.frames;
 import flash.display.BitmapData;
 import flash.geom.Point;
 import flash.geom.Rectangle;
+import flixel.animation.FlxAnimationController;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FrameCollectionType;
@@ -188,6 +189,84 @@ class TileFrames extends FlxFramesCollection
 	}
 	
 	/**
+	 * Just generates tile frames collection from specified array of frames.
+	 * 
+	 * @param	Frames	Array of frames to generate tile frames from. They all should have the same source size and parent graphic. If not then null will be returned.
+	 * @return	Generated collection of frames.
+	 */
+	public static function fromFrames(Frames:Array<FlxFrame>):TileFrames
+	{
+		var firstFrame:FlxFrame = Frames[0];
+		var graphic:FlxGraphic = firstFrame.parent;
+		
+		for (frame in Frames)
+		{
+			if (frame.parent != firstFrame.parent || !frame.sourceSize.equals(firstFrame.sourceSize))
+			{
+				// frames doesn't have the same size and parent graphic
+				return null;
+			}
+		}
+		
+		var tileFrames:TileFrames = new TileFrames(graphic);
+		
+		tileFrames.region = null;
+		tileFrames.atlasFrame = null;
+		tileFrames.tileSize = new FlxPoint().copyFrom(firstFrame.sourceSize);
+		tileFrames.tileSpacing = new FlxPoint();
+		tileFrames.numCols = Frames.length;
+		tileFrames.numRows = 1;
+		
+		for (frame in Frames)
+		{
+			tileFrames.frames.push(frame);
+			
+			if (frame.name != null)
+			{
+				tileFrames.framesHash.set(frame.name, frame);
+			}
+		}
+		
+		return tileFrames;
+	}
+	
+	/**
+	 * Creates new TileFrames collection from atlas frames, which have common beginnings of name (e.g. "tiles-") and differ in indices (e.g. "001", "002", etc.)
+	 * This method is similar to FlxAnimationController's addByPrefix() method.
+	 * 
+	 * @param	Frames	Collection of atlas frames to generate tiles from.
+	 * @param	Prefix	Common beginning of image names in atlas (e.g. "tiles-")
+	 * @return	Generated tile frames collection.
+	 */
+	public static function fromAtlasByPrefix(Frames:AtlasFrames, Prefix:String):TileFrames
+	{
+		var framesToAdd:Array<FlxFrame> = new Array<FlxFrame>();
+		
+		for (frame in Frames.frames)
+		{
+			if (StringTools.startsWith(frame.name, Prefix))
+			{
+				framesToAdd.push(frame);
+			}
+		}
+		
+		if (framesToAdd.length > 0)
+		{
+			var name:String = framesToAdd[0].name;
+			var postIndex:Int = name.indexOf(".", Prefix.length);
+			var postFix:String = name.substring(postIndex == -1 ? name.length : postIndex, name.length);
+			
+			FlxAnimationController.prefixLength = Prefix.length;
+			FlxAnimationController.postfixLength = postFix.length;
+			framesToAdd.sort(FlxAnimationController.frameSortFunction);
+			
+			return TileFrames.fromFrames(framesToAdd);
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Generates spritesheet frame collection from provided region of image.
 	 * 
 	 * @param	graphic			source graphic for spritesheet.
@@ -315,6 +394,11 @@ class TileFrames extends FlxFramesCollection
 	 */
 	public function equals(tileSize:FlxPoint, region:FlxRect = null, atlasFrame:FlxFrame = null, tileSpacing:FlxPoint = null):Bool
 	{
+		if (this.region == null && this.atlasFrame == null)
+		{
+			return false;
+		}
+		
 		if (atlasFrame != null)
 		{
 			region = atlasFrame.frame;
