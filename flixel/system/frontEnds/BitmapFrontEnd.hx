@@ -60,7 +60,7 @@ class BitmapFrontEnd
 			var bd:BitmapData = new BitmapData(10, 10, true, FlxColor.WHITE);
 			var graphic:FlxGraphic = FlxG.bitmap.add(bd, true, "whitePixels");
 			graphic.persist = true;
-			_whitePixel = ImageFrame.fromRectangle(graphic, new FlxRect(0, 0, 10, 10)).frame;
+			_whitePixel = graphic.imageFrame.frame;
 		}
 		
 		return _whitePixel;

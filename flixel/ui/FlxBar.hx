@@ -356,7 +356,7 @@ class FlxBar extends FlxSprite
 			FlxG.bitmap.add(emptyBar, false, emptyKey);
 		}
 		
-		frames = ImageFrame.fromGraphic(FlxG.bitmap.get(emptyKey));
+		frames = FlxG.bitmap.get(emptyKey).imageFrame;
 	#else
 		if (showBorder)
 		{
@@ -502,7 +502,7 @@ class FlxBar extends FlxSprite
 			FlxG.bitmap.add(emptyBar, false, emptyKey);
 		}
 		
-		frames = ImageFrame.fromGraphic(FlxG.bitmap.get(emptyKey));
+		frames = FlxG.bitmap.get(emptyKey).imageFrame;
 	#else
 		if (showBorder)
 		{
@@ -624,7 +624,7 @@ class FlxBar extends FlxSprite
 			var emptyGraphic:FlxGraphic = FlxG.bitmap.add(empty);
 		
 			#if FLX_RENDER_TILE
-			frames = ImageFrame.fromGraphic(emptyGraphic);
+			frames = emptyGraphic.imageFrame;
 			#else
 			_emptyBar = emptyGraphic.bitmap.clone();
 			

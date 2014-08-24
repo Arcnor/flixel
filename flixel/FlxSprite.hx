@@ -321,7 +321,7 @@ class FlxSprite extends FlxObject
 		}
 		else
 		{
-			frames = ImageFrame.fromGraphic(graph);
+			frames = graph.imageFrame;
 		}
 		
 		graphicLoaded();
@@ -401,7 +401,7 @@ class FlxSprite extends FlxObject
 	public function makeGraphic(Width:Int, Height:Int, Color:FlxColor = FlxColor.WHITE, Unique:Bool = false, ?Key:String):FlxSprite
 	{
 		var graph:FlxGraphic = FlxG.bitmap.create(Width, Height, Color, Unique, Key);
-		frames = ImageFrame.fromGraphic(graph);
+		frames = graph.imageFrame;
 		return this;
 	}
 	
@@ -1125,7 +1125,7 @@ class FlxSprite extends FlxObject
 			graphic = FlxG.bitmap.get(key);
 		}
 		
-		frames = ImageFrame.fromGraphic(graphic);
+		frames = graphic.imageFrame;
 		
 		// not sure if i should add this line...
 		// WARNING: this is causing unnecessary string allocations (Map.get) - use arrays, or figure out a way to not call this every frame.
