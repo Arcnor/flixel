@@ -2,6 +2,8 @@ package flixel.graphics;
 
 import flash.display.BitmapData;
 import flixel.FlxG;
+import flixel.graphics.frames.FlxEmptyFrame;
+import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.system.FlxAssets;
 import flixel.graphics.frames.AtlasFrames;
@@ -513,6 +515,21 @@ class FlxGraphic
 			frameCollections.set(type, collections);
 		}
 		return collections;
+	}
+	
+	/**
+	 * Creates empty frame for this graphic with specified size.
+	 * This method could be useful for tile frames, in case when you'll need empty tile.
+	 * 
+	 * @param	size	dimensions of the frame to add.
+	 * @return	Empty frame with specified size which belongs to this FlxGraphic object.
+	 */
+	public inline function getEmptyFrame(size:FlxPoint):FlxEmptyFrame
+	{
+		var frame:FlxEmptyFrame = new FlxEmptyFrame(this);	
+		frame.frame = new FlxRect();
+		frame.sourceSize.set(size.width, size.height);
+		return frame;
 	}
 	
 	#if FLX_RENDER_TILE
