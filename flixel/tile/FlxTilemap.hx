@@ -880,8 +880,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	#if FLX_RENDER_BLIT
 		Buffer.fill();
 	#else
-		// TODO: this line could cause issue with clipped frames
-		getScreenPosition(_point, Camera).add(0.5 * _scaledTileWidth, 0.5 * _scaledTileHeight).copyToFlash(_helperPoint);
+		getScreenPosition(_point, Camera).copyToFlash(_helperPoint);
 		
 		_helperPoint.x *= Camera.totalScaleX;
 		_helperPoint.y *= Camera.totalScaleY;
@@ -892,8 +891,11 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		var scaledWidth:Float = _scaledTileWidth * Camera.totalScaleX;
 		var scaledHeight:Float = _scaledTileHeight * Camera.totalScaleY;
 		
-		var hackScaleX:Float = tileScaleHack * scale.x * Camera.totalScaleX;
-		var hackScaleY:Float = tileScaleHack * scale.y * Camera.totalScaleY;
+		var scaleX:Float = scale.x * Camera.totalScaleX;
+		var scaleY:Float = scale.y * Camera.totalScaleY;
+		
+		var hackScaleX:Float = tileScaleHack * scaleX;
+		var hackScaleY:Float = tileScaleHack * scaleY;
 	#end
 		
 		// Copy tile images into the tile buffer
@@ -972,8 +974,8 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 					}
 					#end
 				#else
-					drawX = _helperPoint.x + (columnIndex % widthInTiles) * scaledWidth;
-					drawY = _helperPoint.y + Math.floor(columnIndex / widthInTiles) * scaledHeight;
+					drawX = _helperPoint.x + (columnIndex % widthInTiles) * scaledWidth + frame.center.x * scaleX;
+					drawY = _helperPoint.y + Math.floor(columnIndex / widthInTiles) * scaledHeight + frame.center.y * scaleY;
 					
 					_point.x = isPixelPerfectRender(Camera) ? Math.floor(drawX) : drawX;
 					_point.y = isPixelPerfectRender(Camera) ? Math.floor(drawY) : drawY;
