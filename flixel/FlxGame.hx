@@ -452,15 +452,15 @@ class FlxGame extends Sprite
 		FlxG.bitmap.onContext();
 		#end
 		
-		_state.onResize(width, height);
-		FlxG.signals.gameResized.dispatch(width, height);
-		
 		resizeGame(width, height);
 	}
 	
 	private function resizeGame(width:Int, height:Int):Void
 	{
 		FlxG.resizeGame(width, height);
+		
+		_state.onResize(width, height);
+		FlxG.signals.gameResized.dispatch(width, height);
 		
 		FlxG.cameras.resize();
 		

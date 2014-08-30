@@ -606,6 +606,8 @@ class FlxSprite extends FlxObject
 				_matrix.rotateWithTrig(_cosAngle, _sinAngle);
 			}
 			
+			// TODO: need something todo with tiles "jumping", see bar frames for example
+			
 			_point.addPoint(origin);
 			
 			_point.x *= camera.totalScaleX;
