@@ -152,6 +152,7 @@ class FlxFramesCollection implements IFlxDestroyable
 		frame.sourceSize.set(region.width, region.height);
 		frame.offset.set(0, 0);
 		frame.center.set(0.5 * region.width, 0.5 * region.height);
+		frame.center.floor();
 		frames.push(frame);
 		return frame;
 	}
@@ -194,6 +195,8 @@ class FlxFramesCollection implements IFlxDestroyable
 		{
 			texFrame.center.set(frame.width * 0.5 + texFrame.offset.x, frame.height * 0.5 + texFrame.offset.y);
 		}
+		
+		texFrame.center.floor();
 		
 		#if FLX_RENDER_TILE
 		var flashRect:Rectangle = frame.copyToFlash(new Rectangle());
