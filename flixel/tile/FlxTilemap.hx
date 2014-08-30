@@ -880,6 +880,7 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	#if FLX_RENDER_BLIT
 		Buffer.fill();
 	#else
+		// TODO: this line could cause issue with clipped frames
 		getScreenPosition(_point, Camera).add(0.5 * _scaledTileWidth, 0.5 * _scaledTileHeight).copyToFlash(_helperPoint);
 		
 		_helperPoint.x *= Camera.totalScaleX;
