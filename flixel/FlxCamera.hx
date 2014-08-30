@@ -453,8 +453,7 @@ class FlxCamera extends FlxBasic
 		_flashBitmap.y = -height * 0.5;
 		#else
 		canvas = new Sprite();
-		canvas.x = -width * 0.5;
-		canvas.y = -height * 0.5;
+		canvas.scrollRect = new Rectangle(0, 0, width, height);
 		#end
 		
 		#if FLX_RENDER_BLIT
@@ -462,10 +461,6 @@ class FlxCamera extends FlxBasic
 		#end
 		
 		flashSprite = new Sprite();
-		zoom = Zoom; //sets the scale of flash sprite, which in turn loads flashoffset values
-		
-		flashSprite.x = x * FlxG.scaleMode.scale.x + _flashOffset.x;
-		flashSprite.y = y * FlxG.scaleMode.scale.y + _flashOffset.y;
 		
 		#if FLX_RENDER_BLIT
 		flashSprite.addChild(_flashBitmap);
@@ -477,22 +472,22 @@ class FlxCamera extends FlxBasic
 		
 		_fxShakeOffset = FlxPoint.get();
 		
-		#if FLX_RENDER_BLIT
+	#if FLX_RENDER_BLIT
 		_fill = new BitmapData(width, height, true, FlxColor.TRANSPARENT);
-		#else
-		canvas.scrollRect = new Rectangle(0, 0, width, height);
-		
+	#else	
 		#if !FLX_NO_DEBUG
 		debugLayer = new Sprite();
-		debugLayer.x = -width * 0.5;
-		debugLayer.y = -height * 0.5;
-		debugLayer.scaleX = 1;
 		flashSprite.addChild(debugLayer);
 		#end
 		
 		_currentStackItem = new DrawStackItem();
 		_headOfDrawStack = _currentStackItem;
-		#end
+	#end
+		
+		zoom = Zoom; //sets the scale of flash sprite, which in turn loads flashoffset values
+		
+		flashSprite.x = x * FlxG.scaleMode.scale.x + _flashOffset.x;
+		flashSprite.y = y * FlxG.scaleMode.scale.y + _flashOffset.y;
 		
 		bgColor = FlxG.cameras.bgColor;
 	}
@@ -964,7 +959,7 @@ class FlxCamera extends FlxBasic
 		// end of fix
 		
 		targetGraphics.beginFill(Color, FxAlpha);
-		targetGraphics.drawRect(0, 0, width, height);
+		targetGraphics.drawRect(0, 0, width * totalScaleX, height * totalScaleY);
 		targetGraphics.endFill();
 	#end
 	}
@@ -1101,13 +1096,23 @@ class FlxCamera extends FlxBasic
 		totalScaleX = scaleX * FlxG.scaleMode.scale.x;
 		totalScaleY = scaleY * FlxG.scaleMode.scale.y;
 		
-		// TODO: handle blit and tile render modes differently
-		#if FLX_RENDER_BLIT
+	#if FLX_RENDER_BLIT
 		flashSprite.scaleX = totalScaleX;
 		flashSprite.scaleY = totalScaleY;
-		#else
+	#else
+		canvas.x = -width * 0.5 * totalScaleX;
+		canvas.y = -height * 0.5 * totalScaleY;
 		
+		var rect:Rectangle = canvas.scrollRect;
+		rect.width = width * totalScaleX;
+		rect.height = height * totalScaleY;
+		canvas.scrollRect = rect;
+		
+		#if !FLX_NO_DEBUG
+		debugLayer.x = canvas.x;
+		debugLayer.y = canvas.y;
 		#end
+	#end
 		
 		//camera positioning fix from bomski (https://github.com/Beeblerox/HaxeFlixel/issues/66)
 		_flashOffset.x = width * 0.5 * totalScaleX;
@@ -1124,18 +1129,18 @@ class FlxCamera extends FlxBasic
 			if (_flashBitmap != null)
 			{
 				regen = (Value != buffer.width);
-				_flashOffset.x = width * 0.5 * totalScaleX;
-				_flashBitmap.x = -width * 0.5;
+				_flashOffset.x = 0.5 * width * totalScaleX;
+				_flashBitmap.x = -0.5 * width;
 			}
 			#else
 			if (canvas != null)
 			{
 				var rect:Rectangle = canvas.scrollRect;
-				rect.width = Value;
+				rect.width = Value * totalScaleX;
 				canvas.scrollRect = rect;
 				
-				_flashOffset.x = width * 0.5 * zoom;
-				canvas.x = -width * 0.5;
+				_flashOffset.x = 0.5 * width * totalScaleX;
+				canvas.x = -_flashOffset.x;
 				#if !FLX_NO_DEBUG
 				debugLayer.x = canvas.x;
 				#end
@@ -1155,8 +1160,8 @@ class FlxCamera extends FlxBasic
 			if (_flashBitmap != null)
 			{
 				regen = (Value != buffer.height);
-				_flashOffset.y = height * 0.5 * totalScaleY;
-				_flashBitmap.y = -height * 0.5;
+				_flashOffset.y = 0.5 * height * totalScaleY;
+				_flashBitmap.y = -0.5 * height;
 			}
 			#else
 			if (canvas != null)
@@ -1165,8 +1170,8 @@ class FlxCamera extends FlxBasic
 				rect.height = Value;
 				canvas.scrollRect = rect;
 				
-				_flashOffset.y = height * 0.5 * zoom;
-				canvas.y = -height * 0.5;
+				_flashOffset.y = 0.5 * height * totalScaleY;
+				canvas.y = -_flashOffset.y;
 				#if !FLX_NO_DEBUG
 				debugLayer.y = canvas.y;
 				#end

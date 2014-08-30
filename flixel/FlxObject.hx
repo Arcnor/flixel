@@ -887,6 +887,11 @@ class FlxObject extends FlxBasic
 		var boundingBoxX:Float = x - (Camera.scroll.x * scrollFactor.x); //copied from getScreenXY()
 		var boundingBoxY:Float = y - (Camera.scroll.y * scrollFactor.y);
 		
+		#if FLX_RENDER_TILE
+		boundingBoxX *= Camera.totalScaleX;
+		boundingBoxY *= Camera.totalScaleY;
+		#end
+		
 		if (isPixelPerfectRender(Camera))
 		{
 			boundingBoxX = Math.floor(boundingBoxX);
@@ -940,7 +945,7 @@ class FlxObject extends FlxBasic
 		#else
 		var gfx:Graphics = Camera.debugLayer.graphics;
 		gfx.lineStyle(1, color, 0.5);
-		gfx.drawRect(boundingBoxX, boundingBoxY, width, height);
+		gfx.drawRect(boundingBoxX, boundingBoxY, width * Camera.totalScaleX, height * Camera.totalScaleY);
 		#end
 	}
 	#end
