@@ -342,9 +342,15 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		_helperPoint.x = Math.floor((x - Math.floor(Camera.scroll.x) * scrollFactor.x) * 5) / 5 + 0.1;
 		_helperPoint.y = Math.floor((y - Math.floor(Camera.scroll.y) * scrollFactor.y) * 5) / 5 + 0.1;
 		
+		_helperPoint.x *= Camera.totalScaleX;
+		_helperPoint.y *= Camera.totalScaleY;
+		
 		var debugColor:FlxColor;
 		var drawX:Float;
 		var drawY:Float;
+		
+		var rectWidth:Float = _scaledTileWidth * Camera.totalScaleX;
+		var rectHeight:Float = _scaledTileHeight * Camera.totalScaleY;
 	
 		// Copy tile images into the tile buffer
 		// Modified from getScreenXY()
@@ -374,7 +380,6 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		}
 		
 		var rowIndex:Int = screenYInTiles * widthInTiles + screenXInTiles;
-		_flashPoint.y = 0;
 		var columnIndex:Int;
 		var tile:FlxTile;
 		var debugTile:BitmapData;
@@ -382,7 +387,6 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 		for (row in 0...screenRows)
 		{
 			columnIndex = rowIndex;
-			_flashPoint.x = 0;
 			
 			for (column in 0...screenColumns)
 			{
@@ -390,8 +394,8 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 				
 				if (tile != null && tile.visible)
 				{
-					drawX = _helperPoint.x + (columnIndex % widthInTiles) * _scaledTileWidth;
-					drawY = _helperPoint.y + Math.floor(columnIndex / widthInTiles) * _scaledTileHeight;
+					drawX = _helperPoint.x + (columnIndex % widthInTiles) * rectWidth;
+					drawY = _helperPoint.y + Math.floor(columnIndex / widthInTiles) * rectHeight;
 					
 					if (tile.allowCollisions <= FlxObject.NONE)
 					{
@@ -409,15 +413,13 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 					// Copied from makeDebugTile
 					var gfx:Graphics = Camera.debugLayer.graphics;
 					gfx.lineStyle(1, debugColor, 0.5);
-					gfx.drawRect(drawX, drawY, _scaledTileWidth, _scaledTileHeight);
+					gfx.drawRect(drawX, drawY, rectWidth, rectHeight);
 				}
 				
-				_flashPoint.x += _scaledTileWidth;
 				columnIndex++;
 			}
 			
 			rowIndex += widthInTiles;
-			_flashPoint.y += _scaledTileHeight;
 		}
 		#end
 	}
@@ -880,11 +882,17 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 	#else
 		getScreenPosition(_point, Camera).add(0.5 * _scaledTileWidth, 0.5 * _scaledTileHeight).copyToFlash(_helperPoint);
 		
+		_helperPoint.x *= Camera.totalScaleX;
+		_helperPoint.y *= Camera.totalScaleY;
+		
 		var drawX:Float;
 		var drawY:Float;
 		
-		var hackScaleX:Float = tileScaleHack * scale.x;
-		var hackScaleY:Float = tileScaleHack * scale.y;
+		var scaledWidth:Float = _scaledTileWidth * Camera.totalScaleX;
+		var scaledHeight:Float = _scaledTileHeight * Camera.totalScaleY;
+		
+		var hackScaleX:Float = tileScaleHack * scale.x * Camera.totalScaleX;
+		var hackScaleY:Float = tileScaleHack * scale.y * Camera.totalScaleY;
 	#end
 		
 		// Copy tile images into the tile buffer
@@ -963,8 +971,8 @@ class FlxTilemap extends FlxBaseTilemap<FlxTile>
 					}
 					#end
 				#else
-					drawX = _helperPoint.x + (columnIndex % widthInTiles) * _scaledTileWidth;
-					drawY = _helperPoint.y + Math.floor(columnIndex / widthInTiles) * _scaledTileHeight;
+					drawX = _helperPoint.x + (columnIndex % widthInTiles) * scaledWidth;
+					drawY = _helperPoint.y + Math.floor(columnIndex / widthInTiles) * scaledHeight;
 					
 					_point.x = isPixelPerfectRender(Camera) ? Math.floor(drawX) : drawX;
 					_point.y = isPixelPerfectRender(Camera) ? Math.floor(drawY) : drawY;
