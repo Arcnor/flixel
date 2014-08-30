@@ -48,6 +48,25 @@ class FlxCamera extends FlxBasic
 	 * Measured in pixels from the top of the flash window.
 	 */
 	public var y:Float;
+	
+	// TODO: document these props
+	/**
+	 * 
+	 */
+	public var scaleX(default, null):Float;
+	/**
+	 * 
+	 */
+	public var scaleY(default, null):Float;
+	/**
+	 * 
+	 */
+	public var totalScaleX(default, null):Float;
+	/**
+	 * 
+	 */
+	public var totalScaleY(default, null):Float;
+	
 	/**
 	 * Tells the camera to use this following style.
 	 */
@@ -445,10 +464,8 @@ class FlxCamera extends FlxBasic
 		flashSprite = new Sprite();
 		zoom = Zoom; //sets the scale of flash sprite, which in turn loads flashoffset values
 		
-		_flashOffset.set((width * 0.5 * zoom), (height * 0.5 * zoom));
-		
-		flashSprite.x = x + _flashOffset.x;
-		flashSprite.y = y + _flashOffset.y;
+		flashSprite.x = x * FlxG.scaleMode.scale.x + _flashOffset.x;
+		flashSprite.y = y * FlxG.scaleMode.scale.y + _flashOffset.y;
 		
 		#if FLX_RENDER_BLIT
 		flashSprite.addChild(_flashBitmap);
@@ -463,7 +480,6 @@ class FlxCamera extends FlxBasic
 		#if FLX_RENDER_BLIT
 		_fill = new BitmapData(width, height, true, FlxColor.TRANSPARENT);
 		#else
-		
 		canvas.scrollRect = new Rectangle(0, 0, width, height);
 		
 		#if !FLX_NO_DEBUG
@@ -713,8 +729,8 @@ class FlxCamera extends FlxBasic
 			// Camera shake fix for target follow.
 			if (target != null)
 			{
-				flashSprite.x = x + _flashOffset.x;
-				flashSprite.y = y + _flashOffset.y;
+				flashSprite.x = x * FlxG.scaleMode.scale.x + _flashOffset.x;
+				flashSprite.y = y * FlxG.scaleMode.scale.y + _flashOffset.y;
 			}
 		}
 	}
@@ -884,8 +900,8 @@ class FlxCamera extends FlxBasic
 		_fxFlashAlpha = 0.0;
 		_fxFadeAlpha = 0.0;
 		_fxShakeDuration = 0;
-		flashSprite.x = x + _flashOffset.x;
-		flashSprite.y = y + _flashOffset.y;
+		flashSprite.x = x * FlxG.scaleMode.scale.x + _flashOffset.x;
+		flashSprite.y = y * FlxG.scaleMode.scale.y + _flashOffset.y;
 	}
 	
 	/**
@@ -987,8 +1003,8 @@ class FlxCamera extends FlxBasic
 		
 		if ((_fxShakeOffset.x != 0) || (_fxShakeOffset.y != 0))
 		{
-			flashSprite.x += _fxShakeOffset.x;
-			flashSprite.y += _fxShakeOffset.y;
+			flashSprite.x += _fxShakeOffset.x * FlxG.scaleMode.scale.x;
+			flashSprite.y += _fxShakeOffset.y * FlxG.scaleMode.scale.y;
 		}
 	}
 	
@@ -1079,23 +1095,26 @@ class FlxCamera extends FlxBasic
 	
 	public function setScale(X:Float, Y:Float):Void
 	{
-		flashSprite.scaleX = X;
-		flashSprite.scaleY = Y;
+		scaleX = X;
+		scaleY = Y;
+		
+		totalScaleX = scaleX * FlxG.scaleMode.scale.x;
+		totalScaleY = scaleY * FlxG.scaleMode.scale.y;
+		
+		// TODO: handle blit and tile render modes differently
+		#if FLX_RENDER_BLIT
+		flashSprite.scaleX = totalScaleX;
+		flashSprite.scaleY = totalScaleY;
+		#else
+		
+		#end
 		
 		//camera positioning fix from bomski (https://github.com/Beeblerox/HaxeFlixel/issues/66)
-		_flashOffset.x = width * 0.5 * X;
-		_flashOffset.y = height * 0.5 * Y;	
+		_flashOffset.x = width * 0.5 * totalScaleX;
+		_flashOffset.y = height * 0.5 * totalScaleY;
 	}
 	
-	/**
-	 * The scale of the camera object, irrespective of zoom.
-	 * Currently yields weird display results, since cameras aren't nested in an extra display object yet.
-	 */
-	public inline function getScale():FlxPoint
-	{
-		return _point.set(flashSprite.scaleX, flashSprite.scaleY);
-	}
-	
+	// TODO: change this method for tile render mode (handle scaling)
 	private function set_width(Value:Int):Int
 	{
 		if (Value > 0)
@@ -1105,7 +1124,7 @@ class FlxCamera extends FlxBasic
 			if (_flashBitmap != null)
 			{
 				regen = (Value != buffer.width);
-				_flashOffset.x = width * 0.5 * zoom;
+				_flashOffset.x = width * 0.5 * totalScaleX;
 				_flashBitmap.x = -width * 0.5;
 			}
 			#else
@@ -1126,6 +1145,7 @@ class FlxCamera extends FlxBasic
 		return Value;
 	}
 	
+	// TODO: change this method for tile render mode (handle scaling)
 	private function set_height(Value:Int):Int
 	{
 		if (Value > 0)
@@ -1135,7 +1155,7 @@ class FlxCamera extends FlxBasic
 			if (_flashBitmap != null)
 			{
 				regen = (Value != buffer.height);
-				_flashOffset.y = height * 0.5 * zoom;
+				_flashOffset.y = height * 0.5 * totalScaleY;
 				_flashBitmap.y = -height * 0.5;
 			}
 			#else

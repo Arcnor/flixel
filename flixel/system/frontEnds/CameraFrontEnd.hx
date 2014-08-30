@@ -259,10 +259,22 @@ class CameraFrontEnd
 					camera.update();
 				}
 				
-				camera.flashSprite.x = camera.x + camera._flashOffset.x;
-				camera.flashSprite.y = camera.y + camera._flashOffset.y;
+				camera.flashSprite.x = camera.x * FlxG.scaleMode.scale.x + camera._flashOffset.x;
+				camera.flashSprite.y = camera.y * FlxG.scaleMode.scale.y + camera._flashOffset.y;
 				camera.flashSprite.visible = camera.visible;
 			}
+		}
+	}
+	
+	// TODO: document it...
+	/**
+	 * 
+	 */
+	private function resize():Void
+	{
+		for (camera in list)
+		{
+			camera.setScale(camera.scaleX, camera.scaleY);
 		}
 	}
 	

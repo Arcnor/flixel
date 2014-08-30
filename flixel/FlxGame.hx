@@ -133,7 +133,7 @@ class FlxGame extends Sprite
 	private var _onFocusFiredOnce:Bool = false;
 	#end
 	
-	#if !FLX_NO_FOCUS_LOST_SCREEN 
+	#if !FLX_NO_FOCUS_LOST_SCREEN
 	/**
 	 * The "focus lost" screen (see createFocusScreen()).
 	 */
@@ -462,6 +462,8 @@ class FlxGame extends Sprite
 	{
 		FlxG.resizeGame(width, height);
 		
+		FlxG.cameras.resize();
+		
 		#if !FLX_NO_DEBUG
 		debugger.onResize(width, height);
 		#end
@@ -480,8 +482,8 @@ class FlxGame extends Sprite
 		}
 		#end
 		
-		_inputContainer.scaleX = 1 / FlxG.game.scaleX;
-		_inputContainer.scaleY = 1 / FlxG.game.scaleY;
+		_inputContainer.scaleX = 1;
+		_inputContainer.scaleY = 1;
 	}
 	
 	/**

@@ -27,7 +27,6 @@ class BaseScaleMode
 		updateGameSize(Width, Height);
 		updateDeviceSize(Width, Height);
 		updateScaleOffset();
-		updateGameScale();
 		updateGamePosition();
 	}
 	
@@ -50,8 +49,8 @@ class BaseScaleMode
 		
 		if (FlxG.camera != null) 
 		{
-			zoom.x = FlxG.camera.getScale().x;
-			zoom.y = FlxG.camera.getScale().y;
+			zoom.x = FlxG.camera.scaleX;
+			zoom.y = FlxG.camera.scaleY;
 		}
 		
 		scale.x /= zoom.x;
@@ -59,14 +58,6 @@ class BaseScaleMode
 		
 		offset.x = Math.ceil((deviceSize.x - gameSize.x) * 0.5);
 		offset.y = Math.ceil((deviceSize.y - gameSize.y) * 0.5);
-	}
-	
-	private function updateGameScale():Void
-	{
-		#if !js
-		FlxG.game.scaleX = scale.x;
-		FlxG.game.scaleY = scale.y;
-		#end
 	}
 	
 	private function updateGamePosition():Void
