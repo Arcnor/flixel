@@ -871,7 +871,7 @@ class FlxBar extends FlxSprite
 				
 				var sx:Float = scale.x * _facingHorizontalMult;
 				var sy:Float = scale.y * _facingVerticalMult;
-				_matrix.scale(sx, sy);
+				_matrix.scale(sx * camera.totalScaleX, sy * camera.totalScaleY);
 				
 				// rotate matrix if sprite's graphic isn't prerotated
 				if (angle != 0)
@@ -880,6 +880,9 @@ class FlxBar extends FlxSprite
 				}
 				
 				_point.addPoint(origin);
+				
+				_point.x *= camera.totalScaleX;
+				_point.y *= camera.totalScaleY;
 				
 				if (isPixelPerfectRender(camera))
 				{

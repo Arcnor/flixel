@@ -178,8 +178,8 @@ class FlxTextField extends FlxText
 		_textField.x = _point.x;
 		_textField.y = _point.y;
 		#else
-		_textField.x = _point.x - FlxG.camera.width * 0.5;
-		_textField.y = _point.y - FlxG.camera.height * 0.5;
+		_textField.x = (_point.x - 0.5 * _camera.width) * _camera.totalScaleX;
+		_textField.y = (_point.y - 0.5 * _camera.height) * _camera.totalScaleY;
 		#end
 		
 		#if !FLX_NO_DEBUG

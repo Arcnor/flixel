@@ -855,7 +855,7 @@ class FlxGame extends Sprite
 		for (camera in FlxG.cameras.list)
 		{
 			_displayMatrix.identity();
-			_displayMatrix.scale(camera.zoom * FlxG.scaleMode.scale.x, camera.zoom * FlxG.scaleMode.scale.y);
+			_displayMatrix.scale(camera.totalScaleX, camera.totalScaleY);
 			_displayMatrix.translate(camera.x * FlxG.scaleMode.scale.x, camera.y * FlxG.scaleMode.scale.y);
 			
 			// rotate around center

@@ -342,6 +342,8 @@ class FlxBitmapTextField extends FlxSprite
 		
 		var bgAlpha:Float = backgroundColor.alphaFloat * alpha;
 		
+		var totalScaleX:Float, totalScaleY:Float;
+		
 		for (camera in cameras)
 		{
 			if (!camera.visible || !camera.exists || !isOnScreen(camera))
@@ -357,9 +359,12 @@ class FlxBitmapTextField extends FlxSprite
 				_angleChanged = false;
 			}
 			
+			totalScaleX = sx * camera.totalScaleX;
+			totalScaleY = sy * camera.totalScaleY;
+			
 			// matrix for calculation tile position
 			_matrix.identity();
-			_matrix.scale(sx, sy);
+			_matrix.scale(totalScaleX, totalScaleY);
 			
 			if (angle != 0)
 			{
@@ -368,7 +373,7 @@ class FlxBitmapTextField extends FlxSprite
 			
 			// matrix for calculation tile transformations
 			_tileMatrix.identity();
-			_tileMatrix.scale(sx * size, sy * size);
+			_tileMatrix.scale(size * totalScaleX, size * totalScaleY);
 			if (angle != 0)
 			{
 				_tileMatrix.rotateWithTrig(_cosAngle, _sinAngle);
@@ -378,7 +383,7 @@ class FlxBitmapTextField extends FlxSprite
 			{
 				// backround tile transformations
 				_bgMatrix.identity();
-				_bgMatrix.scale(0.1 * frameWidth * sx, 0.1 * frameHeight * sy);
+				_bgMatrix.scale(0.1 * frameWidth * totalScaleX, 0.1 * frameHeight * totalScaleY);
 				
 				if (angle != 0)
 				{
@@ -387,6 +392,9 @@ class FlxBitmapTextField extends FlxSprite
 			}
 			
 			getScreenPosition(_point, camera).subtractPoint(offset).addPoint(origin);
+			
+			_point.x *= camera.totalScaleX;
+			_point.y *= camera.totalScaleY;
 			
 			if (isPixelPerfectRender(camera))
 			{
