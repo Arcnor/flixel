@@ -381,7 +381,6 @@ class BitmapFont extends FlxFramesCollection
 		glyphFrame.xAdvance = xAdvance;
 		glyphFrame.frame = frame;
 		glyphFrame.center.set(0.5 * frame.width, 0.5 * frame.height);
-		glyphFrame.center.floor();
 		
 		offset.put();
 		

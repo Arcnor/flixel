@@ -87,7 +87,6 @@ class FilterFrames extends FlxFramesCollection
 			filterFrame.sourceSize.set(region.width, region.height);
 			filterFrame.offset.set(0, 0);
 			filterFrame.center.set(0.5 * region.width, 0.5 * region.height);
-			filterFrame.center.floor();
 			filterFrame.angle = 0;
 			
 			filterFrame.paintOnBitmap(filterFrame.parent.bitmap);

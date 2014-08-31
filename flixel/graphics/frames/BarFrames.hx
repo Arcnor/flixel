@@ -163,6 +163,11 @@ class BarFrames extends FlxFramesCollection
 					helperRect.y = 0.5 * (height - helperRect.height);
 			}
 			
+			helperRect.x = Std.int(helperRect.x);
+			helperRect.y = Std.int(helperRect.y);
+			helperRect.width = Std.int(helperRect.width);
+			helperRect.height = Std.int(helperRect.height);
+			
 			frameRect = clippedRect.intersection(helperRect);
 			
 			if (frameRect.width == 0 || frameRect.height == 0)
