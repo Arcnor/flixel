@@ -266,9 +266,8 @@ class CameraFrontEnd
 		}
 	}
 	
-	// TODO: document it...
 	/**
-	 * 
+	 * Resizes and moves cameras when the game resizes (onResize signal).
 	 */
 	private function resize():Void
 	{

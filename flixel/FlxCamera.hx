@@ -49,21 +49,22 @@ class FlxCamera extends FlxBasic
 	 */
 	public var y:Float;
 	
-	// TODO: document these props
 	/**
-	 * 
+	 * The scaling on horizontal axis for this camera.
 	 */
 	public var scaleX(default, null):Float;
 	/**
-	 * 
+	 * The scaling on vertical axis for this camera.
 	 */
 	public var scaleY(default, null):Float;
 	/**
-	 * 
+	 * Product of camera's scaleX and game's scalemode scale.x multiplication.
+	 * Added this var for less calculations at rendering time.
 	 */
 	public var totalScaleX(default, null):Float;
 	/**
-	 * 
+	 * Product of camera's scaleY and game's scalemode scale.y multiplication.
+	 * Added this var for less calculations at rendering time.
 	 */
 	public var totalScaleY(default, null):Float;
 	
@@ -1119,7 +1120,6 @@ class FlxCamera extends FlxBasic
 		_flashOffset.y = height * 0.5 * totalScaleY;
 	}
 	
-	// TODO: change this method for tile render mode (handle scaling)
 	private function set_width(Value:Int):Int
 	{
 		if (Value > 0)
@@ -1150,7 +1150,6 @@ class FlxCamera extends FlxBasic
 		return Value;
 	}
 	
-	// TODO: change this method for tile render mode (handle scaling)
 	private function set_height(Value:Int):Int
 	{
 		if (Value > 0)

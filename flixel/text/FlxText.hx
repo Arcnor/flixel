@@ -20,6 +20,7 @@ import flixel.math.FlxPoint;
 import openfl.Assets;
 
 // TODO: think about filters and text (since this class overrides calcFrame() method with custom behavior)
+// TODO: change calcFrame() method for it
 
 /**
  * Extends FlxSprite to support rendering text. Can tint, fade, rotate and scale just like a sprite. Doesn't really animate 
